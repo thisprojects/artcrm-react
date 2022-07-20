@@ -1,23 +1,21 @@
-import logo from './logo.svg';
 import './App.css';
+import { useState } from 'react';
+import NavBar from './Components/NavBar'
+
 
 function App() {
+
+
+
+  // const getTheStuff = async () => {
+  //   const response = await fetch('http://localhost:8080/api/v1/contact/getAll').then(r => r.json());
+  //   console.log("The result", result);
+  //   updateResult(response);
+  // }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+     <NavBar />
     </div>
   );
 }
