@@ -54,6 +54,7 @@ const Contacts = () => {
   const [modalStatus, setModalStatus] = useState(false);
   const [singleContact, setSingleContact] = useState(null);
   const [relationshipData, setRelationshipData] = useState({});
+  const [addContactModalStatus, setAddContactModalStatus] = useState(false);
 
   const getRelationshipData = () => {
     const relationshipNetworkEndpoints = relationshipsToUpdate.map((item) =>
@@ -68,8 +69,11 @@ const Contacts = () => {
       relationData[item] = response;
       setRelationshipData(relationData);
     });
+  };
 
-    console.log("relationDatA", relationshipData);
+  const handleAddContact = () => {
+    getRelationshipData();
+    setAddContactModalStatus(true);
   };
 
   const openModal = async (modalValue, itemId) => {
@@ -87,6 +91,18 @@ const Contacts = () => {
       `http://localhost:8080/api/v1/contact/updatejson/${formPayload.id}/`,
       {
         method: "PUT",
+        body: JSON.stringify(formPayload),
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  };
+
+  const addContact = async (formPayload) => {
+    console.log("FORM PAYLOAD", formPayload);
+    const response = await fetch(
+      `http://localhost:8080/api/v1/contact/create/`,
+      {
+        method: "POST",
         body: JSON.stringify(formPayload),
         headers: { "Content-Type": "application/json" },
       }
@@ -111,10 +127,28 @@ const Contacts = () => {
         <MoreDetailsModal
           modalOpen={modalStatus}
           setModalStatus={setModalStatus}
-          itemTitle={"Contact"}
+          labels={{ itemTitle: "Contact", buttonLabel: "Update" }}
           itemData={singleContact}
           updateItem={updateContact}
           relationshipData={relationshipData}
+          setEditMode={false}
+        />
+        <MoreDetailsModal
+          modalOpen={addContactModalStatus}
+          labels={{ itemTitle: "Contact", buttonLabel: "Add" }}
+          setEditMode={true}
+          itemData={{
+            firstName: "",
+            lastName: "",
+            postCode: "",
+            email: "",
+            age: "",
+            tags: [],
+          }}
+          addItem={addContact}
+          setModalStatus={setAddContactModalStatus}
+          relationshipData={relationshipData}
+          updateItem={addContact}
         />
         <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
           <Grid item md={10}>
@@ -124,7 +158,7 @@ const Contacts = () => {
           </Grid>
           <Grid item md={2}>
             <Stack direction="column" spacing={2}>
-              <Button>Add Single Contact</Button>
+              <Button onClick={handleAddContact}>Add Single Contact</Button>
               <Button>Add Bulk Contacts</Button>
             </Stack>
           </Grid>

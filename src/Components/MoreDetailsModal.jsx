@@ -26,11 +26,12 @@ export default function MoreDetailsModal({
   modalOpen,
   itemData,
   setModalStatus,
-  itemTitle,
   updateItem,
   relationshipData,
+  labels: { itemTitle, buttonLabel },
+  setEditMode,
 }) {
-  const [editMode, updateEditMode] = useState(false);
+  const [editMode, updateEditMode] = useState(setEditMode);
 
   const handleClose = () => setModalStatus(false);
   return (
@@ -57,15 +58,18 @@ export default function MoreDetailsModal({
                 updateItem={updateItem}
                 itemTitle={itemTitle}
                 relationshipData={relationshipData}
+                buttonLabel={buttonLabel}
               />
             </Grid>
-            <Grid item md={2}>
-              <ToggleSwitch
-                label="Edit"
-                updateEditMode={updateEditMode}
-                editMode={editMode}
-              />
-            </Grid>
+            {buttonLabel === "Update" ? (
+              <Grid item md={2}>
+                <ToggleSwitch
+                  label="Edit"
+                  updateEditMode={updateEditMode}
+                  editMode={editMode}
+                />
+              </Grid>
+            ) : null}
           </Grid>
         </Box>
       </Modal>

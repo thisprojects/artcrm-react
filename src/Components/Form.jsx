@@ -58,9 +58,10 @@ export default function Form({
   updateItem,
   itemTitle,
   relationshipData,
+  buttonLabel,
 }) {
-  const [formPayload, updateFormPayload] = useState({ id: itemData.id });
-
+  const [formPayload, updateFormPayload] = useState({ id: itemData?.id });
+  console.log("ITEM DATA", Object.keys(itemData));
   const handleChange = (e, type, name) => {
     console.log("TPE", type);
     if (type === "relationship") {
@@ -78,7 +79,6 @@ export default function Form({
   const handleUpdate = () => {
     updateItem(formPayload);
   };
-
   return (
     <Box
       component="form"
@@ -89,11 +89,11 @@ export default function Form({
       autoComplete="off"
     >
       <div>
-        <p>ID: {itemData && itemData.id}</p>
+        <p>ID: {itemData?.id || null}</p>
         {itemData ? (
           <>
             {Object.keys(itemData).map((item, index) => {
-              if (index === 0 || Array.isArray(itemData[item])) {
+              if (item === "id" || Array.isArray(itemData[item])) {
                 return null;
               } else {
                 return (
@@ -103,7 +103,7 @@ export default function Form({
                     onChange={handleChange}
                     id="outlined-required"
                     label={item}
-                    defaultValue={itemData[item]}
+                    defaultValue={itemData[item] || null}
                   />
                 );
               }
@@ -126,7 +126,7 @@ export default function Form({
         sx={{ margin: "8px" }}
         onClick={handleUpdate}
       >
-        Update
+        {buttonLabel} {itemTitle}
       </Button>
     </Box>
   );
