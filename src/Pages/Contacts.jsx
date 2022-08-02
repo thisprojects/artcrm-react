@@ -6,6 +6,7 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Table from "../Components/Table";
 import MoreDetailsModal from "../Components/MoreDetailsModal";
+import BulkUploader from "../Components/BulkUploader";
 import { useState, useEffect } from "react";
 
 const headCells = [
@@ -55,6 +56,8 @@ const Contacts = () => {
   const [singleContact, setSingleContact] = useState(null);
   const [relationshipData, setRelationshipData] = useState({});
   const [addContactModalStatus, setAddContactModalStatus] = useState(false);
+  const [bulkAddContactModalStatus, setBulkAddContactModalStatus] =
+    useState(false);
 
   const getRelationshipData = () => {
     const relationshipNetworkEndpoints = relationshipsToUpdate.map((item) =>
@@ -74,6 +77,10 @@ const Contacts = () => {
   const handleAddContact = () => {
     getRelationshipData();
     setAddContactModalStatus(true);
+  };
+
+  const handleBulkAddContact = () => {
+    setBulkAddContactModalStatus(true);
   };
 
   const openModal = async (modalValue, itemId) => {
@@ -109,6 +116,18 @@ const Contacts = () => {
     );
   };
 
+  const addBulkContact = async (formPayload) => {
+    console.log("FORM PAYLOAD", formPayload);
+    const response = await fetch(
+      `http://localhost:8080/api/v1/contact/createBulk/`,
+      {
+        method: "POST",
+        body: JSON.stringify(formPayload),
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  };
+
   useEffect(() => {
     const getAllContacts = async () => {
       const response = await fetch(
@@ -132,6 +151,11 @@ const Contacts = () => {
           updateItem={updateContact}
           relationshipData={relationshipData}
           setEditMode={false}
+        />
+        <BulkUploader
+          modalOpen={bulkAddContactModalStatus}
+          setModalStatus={setBulkAddContactModalStatus}
+          updateItem={addBulkContact}
         />
         <MoreDetailsModal
           modalOpen={addContactModalStatus}
@@ -159,7 +183,7 @@ const Contacts = () => {
           <Grid item md={2}>
             <Stack direction="column" spacing={2}>
               <Button onClick={handleAddContact}>Add Single Contact</Button>
-              <Button>Add Bulk Contacts</Button>
+              <Button onClick={handleBulkAddContact}>Add Bulk Contacts</Button>
             </Stack>
           </Grid>
         </Grid>
