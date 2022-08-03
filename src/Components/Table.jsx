@@ -16,10 +16,8 @@ import Paper from "@mui/material/Paper";
 import Checkbox from "@mui/material/Checkbox";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Switch from "@mui/material/Switch";
 import DeleteIcon from "@mui/icons-material/Delete";
-import FilterListIcon from "@mui/icons-material/FilterList";
+import TableFilter from "./TableFilter";
 import { visuallyHidden } from "@mui/utils";
 
 function descendingComparator(a, b, orderBy) {
@@ -107,8 +105,7 @@ function EnhancedTableHead(props) {
 }
 
 const EnhancedTableToolbar = (props) => {
-  const { numSelected } = props;
-
+  const { numSelected, rows, applyFilter } = props;
   return (
     <Toolbar
       sx={{
@@ -138,9 +135,7 @@ const EnhancedTableToolbar = (props) => {
           variant="h6"
           id="tableTitle"
           component="div"
-        >
-
-        </Typography>
+        ></Typography>
       )}
 
       {numSelected > 0 ? (
@@ -150,28 +145,42 @@ const EnhancedTableToolbar = (props) => {
           </IconButton>
         </Tooltip>
       ) : (
-        <Tooltip title="Filter list">
-          <IconButton>
-            <FilterListIcon />
-          </IconButton>
-        </Tooltip>
+        <TableFilter applyFilter={applyFilter} />
       )}
     </Toolbar>
   );
 };
 
-export default function EnhancedTable({ headCells, rows, openModal }) {
+export default function EnhancedTable({ headCells, tableRowData, openModal }) {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [rows, setRows] = React.useState(tableRowData);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
+  };
+
+  const applyFilter = (filterText) => {
+    const filteredRows = tableRowData.filter(
+      (item) =>
+        (filterText?.length > 0 &&
+          item?.firstName?.toLowerCase().includes(filterText?.toLowerCase())) ||
+        item?.lastName?.toLowerCase().includes(filterText?.toLowerCase()) ||
+        item?.postCode?.toLowerCase().includes(filterText?.toLowerCase()) ||
+        item?.email?.toLowerCase().includes(filterText?.toLowerCase())
+    );
+    console.log(filterText, filteredRows);
+    if (filteredRows.length > 0) {
+      setRows(filteredRows);
+    } else {
+      setRows(tableRowData);
+    }
   };
 
   const handleSelectAllClick = (event) => {
@@ -184,12 +193,11 @@ export default function EnhancedTable({ headCells, rows, openModal }) {
   };
 
   const handleClick = (event, id) => {
-
     if (event.target.getAttribute("id") === "viewMoreButton") {
-      const itemId = (event.target.getAttribute("data-id"));
+      const itemId = event.target.getAttribute("data-id");
       openModal(true, itemId);
-      return null
-    };
+      return null;
+    }
     const selectedIndex = selected.indexOf(id);
     let newSelected = [];
 
@@ -228,16 +236,14 @@ export default function EnhancedTable({ headCells, rows, openModal }) {
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
-  console.log(rows, "rows");
-  console.log(
-    Object.keys(rows[0]).map((item) => rows[0][item].id),
-    "Obj keys rows"
-  );
-
   return (
     <Box sx={{ width: "100%" }}>
       <Paper sx={{ width: "100%", mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} />
+        <EnhancedTableToolbar
+          numSelected={selected.length}
+          rows={rows}
+          applyFilter={applyFilter}
+        />
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
@@ -253,65 +259,71 @@ export default function EnhancedTable({ headCells, rows, openModal }) {
               onRequestSort={handleRequestSort}
               rowCount={rows.length}
             />
-            <TableBody>
-              {/* if you don't need to support IE11, you can replace the `stableSort` call with:
+            {rows.length > 0 && (
+              <TableBody>
+                {/* if you don't need to support IE11, you can replace the `stableSort` call with:
                  rows.slice().sort(getComparator(order, orderBy)) */}
-              {stableSort(rows, getComparator(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  const isItemSelected = isSelected(row.id);
-                  const labelId = `enhanced-table-checkbox-${index}`;
+                {stableSort(rows, getComparator(order, orderBy))
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row, index) => {
+                    const isItemSelected = isSelected(row.id);
+                    const labelId = `enhanced-table-checkbox-${index}`;
 
-                  return (
-                    <TableRow
-                      hover
-                      onClick={(event) => handleClick(event, row.id)}
-                      role="checkbox"
-                      aria-checked={isItemSelected}
-                      tabIndex={-1}
-                      key={row.name}
-                      selected={isItemSelected}
-                    >
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          color="primary"
-                          checked={isItemSelected}
-                          inputProps={{
-                            "aria-labelledby": labelId,
-                          }}
-                        />
-                      </TableCell>
-                      {Object.keys(row).map((item, index) => {
-                        return index === 1 ? (
-                          <TableCell
-                            component="th"
-                            id={labelId}
-                            scope="row"
-                            padding="none"
-                            key={row.id + index}
-                          >
-                            {row[item]}
-                          </TableCell>
-                        ) : index !== 0 ? (
-                          <TableCell key={row.id + index} align="left">{row[item]}</TableCell>
-                        ): (null);
-                      })}
-                      <TableCell key={row.id + index}>
-                        <button data-id={row.id} id="viewMoreButton">Inspect</button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              {emptyRows > 0 && (
-                <TableRow
-                  style={{
-                    height: (dense ? 33 : 53) * emptyRows,
-                  }}
-                >
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )}
-            </TableBody>
+                    return (
+                      <TableRow
+                        hover
+                        onClick={(event) => handleClick(event, row.id)}
+                        role="checkbox"
+                        aria-checked={isItemSelected}
+                        tabIndex={-1}
+                        key={row.name}
+                        selected={isItemSelected}
+                      >
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            color="primary"
+                            checked={isItemSelected}
+                            inputProps={{
+                              "aria-labelledby": labelId,
+                            }}
+                          />
+                        </TableCell>
+                        {Object.keys(row).map((item, index) => {
+                          return index === 1 ? (
+                            <TableCell
+                              component="th"
+                              id={labelId}
+                              scope="row"
+                              padding="none"
+                              key={row.id + index}
+                            >
+                              {row[item]}
+                            </TableCell>
+                          ) : index !== 0 ? (
+                            <TableCell key={row.id + index} align="left">
+                              {row[item]}
+                            </TableCell>
+                          ) : null;
+                        })}
+                        <TableCell key={row.id + index}>
+                          <button data-id={row.id} id="viewMoreButton">
+                            Inspect
+                          </button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                {emptyRows > 0 && (
+                  <TableRow
+                    style={{
+                      height: (dense ? 33 : 53) * emptyRows,
+                    }}
+                  >
+                    <TableCell colSpan={6} />
+                  </TableRow>
+                )}
+              </TableBody>
+            )}
           </Table>
         </TableContainer>
         <TablePagination
@@ -324,10 +336,6 @@ export default function EnhancedTable({ headCells, rows, openModal }) {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
-      <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Dense padding"
-      />
     </Box>
   );
 }

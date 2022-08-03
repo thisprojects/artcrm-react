@@ -177,7 +177,11 @@ const Contacts = () => {
         <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
           <Grid item md={10}>
             {resp.length > 0 && (
-              <Table headCells={headCells} rows={resp} openModal={openModal} />
+              <Table
+                headCells={headCells}
+                tableRowData={resp}
+                openModal={openModal}
+              />
             )}
           </Grid>
           <Grid item md={2}>
