@@ -23,7 +23,7 @@ const style = {
 };
 
 export default function MoreDetailsModal({
-  modalOpen,
+  modalStatus,
   itemData,
   setModalStatus,
   updateItem,
@@ -37,7 +37,7 @@ export default function MoreDetailsModal({
   return (
     <div>
       <Modal
-        open={modalOpen}
+        open={modalStatus.open}
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"

@@ -52,12 +52,20 @@ const relationshipsToUpdate = ["tags"];
 
 const Contacts = () => {
   const [resp, setResponse] = useState([]);
-  const [modalStatus, setModalStatus] = useState(false);
+  const [updateContactModalStatus, setUpdateContactModalStatus] = useState({
+    open: false,
+    error: false,
+  });
   const [singleContact, setSingleContact] = useState(null);
   const [relationshipData, setRelationshipData] = useState({});
-  const [addContactModalStatus, setAddContactModalStatus] = useState(false);
-  const [bulkAddContactModalStatus, setBulkAddContactModalStatus] =
-    useState(false);
+  const [addContactModalStatus, setAddContactModalStatus] = useState({
+    open: false,
+    error: false,
+  });
+  const [bulkAddContactModalStatus, setBulkAddContactModalStatus] = useState({
+    open: false,
+    error: false,
+  });
 
   const getRelationshipData = () => {
     const relationshipNetworkEndpoints = relationshipsToUpdate.map((item) =>
@@ -76,11 +84,25 @@ const Contacts = () => {
 
   const handleAddContact = () => {
     getRelationshipData();
-    setAddContactModalStatus(true);
+    setAddContactModalStatus({ open: true, error: false });
   };
 
   const handleBulkAddContact = () => {
-    setBulkAddContactModalStatus(true);
+    setBulkAddContactModalStatus({ open: true, error: false });
+  };
+
+  const multiDelete = async (payload) => {
+    const response = await fetch(
+      `http://localhost:8080/api/v1/contact/deleteMulti/`,
+      {
+        method: "DELETE",
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" },
+      }
+    ).then((r) => r);
+    if (response.ok === true) {
+      getAllContacts();
+    }
   };
 
   const openModal = async (modalValue, itemId) => {
@@ -89,7 +111,7 @@ const Contacts = () => {
     ).then((r) => r.json());
     setSingleContact(response);
     getRelationshipData();
-    setModalStatus(modalValue);
+    setUpdateContactModalStatus({ open: modalValue, error: false });
   };
 
   const updateContact = async (formPayload) => {
@@ -102,6 +124,12 @@ const Contacts = () => {
         headers: { "Content-Type": "application/json" },
       }
     );
+    if (response.ok === true) {
+      setUpdateContactModalStatus({ open: false, error: false });
+      getAllContacts();
+    } else {
+      setUpdateContactModalStatus({ open: true, error: true });
+    }
   };
 
   const addContact = async (formPayload) => {
@@ -114,6 +142,12 @@ const Contacts = () => {
         headers: { "Content-Type": "application/json" },
       }
     );
+    if (response.ok === true) {
+      setAddContactModalStatus({ open: false, error: false });
+      getAllContacts();
+    } else {
+      setAddContactModalStatus({ open: true, error: true });
+    }
   };
 
   const addBulkContact = async (formPayload) => {
@@ -125,16 +159,25 @@ const Contacts = () => {
         body: JSON.stringify(formPayload),
         headers: { "Content-Type": "application/json" },
       }
-    );
+    ).then((r) => r);
+    console.log("BULK RESP", response);
+    if (response.ok === true) {
+      setBulkAddContactModalStatus({ open: false, error: false });
+      getAllContacts();
+    } else {
+      setBulkAddContactModalStatus({ open: true, error: true });
+    }
+  };
+
+  const getAllContacts = async () => {
+    const response = await fetch(
+      "http://localhost:8080/api/v1/contact/getAll"
+    ).then((r) => r.json());
+    console.log("resp", response);
+    setResponse(response);
   };
 
   useEffect(() => {
-    const getAllContacts = async () => {
-      const response = await fetch(
-        "http://localhost:8080/api/v1/contact/getAll"
-      ).then((r) => r.json());
-      setResponse(response);
-    };
     getAllContacts();
   }, []);
 
@@ -144,8 +187,8 @@ const Contacts = () => {
       <Box sx={{ padding: "10px" }}>
         <h1>Contacts</h1>
         <MoreDetailsModal
-          modalOpen={modalStatus}
-          setModalStatus={setModalStatus}
+          modalStatus={updateContactModalStatus}
+          setModalStatus={setUpdateContactModalStatus}
           labels={{ itemTitle: "Contact", buttonLabel: "Update" }}
           itemData={singleContact}
           updateItem={updateContact}
@@ -153,12 +196,12 @@ const Contacts = () => {
           setEditMode={false}
         />
         <BulkUploader
-          modalOpen={bulkAddContactModalStatus}
+          modalStatus={bulkAddContactModalStatus}
           setModalStatus={setBulkAddContactModalStatus}
           updateItem={addBulkContact}
         />
         <MoreDetailsModal
-          modalOpen={addContactModalStatus}
+          modalStatus={addContactModalStatus}
           labels={{ itemTitle: "Contact", buttonLabel: "Add" }}
           setEditMode={true}
           itemData={{
@@ -181,6 +224,7 @@ const Contacts = () => {
                 headCells={headCells}
                 tableRowData={resp}
                 openModal={openModal}
+                deleteItems={multiDelete}
               />
             )}
           </Grid>

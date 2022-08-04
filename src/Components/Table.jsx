@@ -105,7 +105,8 @@ function EnhancedTableHead(props) {
 }
 
 const EnhancedTableToolbar = (props) => {
-  const { numSelected, rows, applyFilter } = props;
+  const { numSelected, rows, applyFilter, handleDelete } = props;
+
   return (
     <Toolbar
       sx={{
@@ -140,7 +141,7 @@ const EnhancedTableToolbar = (props) => {
 
       {numSelected > 0 ? (
         <Tooltip title="Delete">
-          <IconButton>
+          <IconButton onClick={handleDelete}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
@@ -151,20 +152,34 @@ const EnhancedTableToolbar = (props) => {
   );
 };
 
-export default function EnhancedTable({ headCells, tableRowData, openModal }) {
+export default function EnhancedTable({
+  headCells,
+  tableRowData,
+  openModal,
+  deleteItems,
+}) {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [rows, setRows] = React.useState(tableRowData);
+  const [rows, setRows] = React.useState([]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
+
+  const handleDelete = () => {
+    deleteItems(selected);
+    setSelected([]);
+  };
+
+  React.useEffect(() => {
+    setRows(tableRowData);
+  }, [tableRowData]);
 
   const applyFilter = (filterText) => {
     const filteredRows = tableRowData.filter(
@@ -243,6 +258,7 @@ export default function EnhancedTable({ headCells, tableRowData, openModal }) {
           numSelected={selected.length}
           rows={rows}
           applyFilter={applyFilter}
+          handleDelete={handleDelete}
         />
         <TableContainer>
           <Table

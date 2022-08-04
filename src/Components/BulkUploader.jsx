@@ -57,7 +57,7 @@ const headCells = [
   },
 ];
 
-function BulkUploader({ modalOpen, setModalStatus, updateItem }) {
+function BulkUploader({ modalStatus, setModalStatus, updateItem }) {
   // State to store parsed data
   const [parsedData, setParsedData] = useState([]);
 
@@ -67,7 +67,12 @@ function BulkUploader({ modalOpen, setModalStatus, updateItem }) {
   //State to store the values
   const [values, setValues] = useState([]);
 
-  const handleClose = () => setModalStatus(false);
+  const handleClose = () => {
+    setParsedData([]);
+    setTableRows([]);
+    setValues([]);
+    setModalStatus(false);
+  };
 
   const handleUpload = () => updateItem(parsedData);
 
@@ -102,44 +107,49 @@ function BulkUploader({ modalOpen, setModalStatus, updateItem }) {
 
   return (
     <Modal
-      open={modalOpen}
+      open={modalStatus.open}
       onClose={handleClose}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
     >
       <Box sx={style}>
-        {/* File Uploader */}
-        <input
-          type="file"
-          name="file"
-          onChange={changeHandler}
-          accept=".csv"
-          style={{ display: "block", margin: "10px auto" }}
-        />
-        <br />
-        <br />
-        {/* Table */}
-        <table>
-          <thead>
-            <tr>
-              {tableRows.map((rows, index) => {
-                return <th key={index}>{rows}</th>;
-              })}
-            </tr>
-          </thead>
-          <tbody>
-            {values.map((value, index) => {
-              return (
-                <tr key={index}>
-                  {value.map((val, i) => {
-                    return <td key={i}>{val}</td>;
+        {modalStatus.error ? (
+          <p>Error</p>
+        ) : (
+          <>
+            <input
+              type="file"
+              name="file"
+              onChange={changeHandler}
+              accept=".csv"
+              style={{ display: "block", margin: "10px auto" }}
+            />
+            <br />
+            <br />
+
+            <table>
+              <thead>
+                <tr>
+                  {tableRows.map((rows, index) => {
+                    return <th key={index}>{rows}</th>;
                   })}
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        <Button onClick={handleUpload}>Upload Data</Button>
+              </thead>
+              <tbody>
+                {values.map((value, index) => {
+                  return (
+                    <tr key={index}>
+                      {value.map((val, i) => {
+                        return <td key={i}>{val}</td>;
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <Button onClick={handleUpload}>Upload Data</Button>
+          </>
+        )}
       </Box>
     </Modal>
   );
