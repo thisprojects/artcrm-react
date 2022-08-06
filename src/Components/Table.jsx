@@ -12,9 +12,11 @@ import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
+import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import Paper from "@mui/material/Paper";
-import Checkbox from "@mui/material/Checkbox";
 import IconButton from "@mui/material/IconButton";
+import Checkbox from "@mui/material/Checkbox";
+import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import DeleteIcon from "@mui/icons-material/Delete";
 import TableFilter from "./TableFilter";
@@ -208,9 +210,12 @@ export default function EnhancedTable({
   };
 
   const handleClick = (event, id) => {
-    if (event.target.getAttribute("id") === "viewMoreButton") {
-      const itemId = event.target.getAttribute("data-id");
-      openModal(true, itemId);
+    if (
+      event.target.getAttribute("class").includes("viewMoreButton") ||
+      event.target.parentElement
+        .getAttribute("class")
+        .includes("viewMoreButton")
+    ) {
       return null;
     }
     const selectedIndex = selected.indexOf(id);
@@ -236,13 +241,15 @@ export default function EnhancedTable({
     setPage(newPage);
   };
 
+  const handleEdit = (event) => {
+    console.log(event.target.getAttribute("data-id"));
+    const itemId = event.target.getAttribute("data-id");
+    openModal(true, itemId);
+  };
+
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
-  };
-
-  const handleChangeDense = (event) => {
-    setDense(event.target.checked);
   };
 
   const isSelected = (id) => selected.indexOf(id) !== -1;
@@ -321,10 +328,19 @@ export default function EnhancedTable({
                             </TableCell>
                           ) : null;
                         })}
-                        <TableCell key={row.id + index}>
-                          <button data-id={row.id} id="viewMoreButton">
-                            Inspect
-                          </button>
+                        <TableCell
+                          key={row.id + index}
+                          className="viewMoreButton"
+                        >
+                          <Button
+                            variant="outlined"
+                            data-id={row.id}
+                            className="viewMoreButton"
+                            onClick={handleEdit}
+                            startIcon={<ModeEditIcon />}
+                          >
+                            Edit
+                          </Button>
                         </TableCell>
                       </TableRow>
                     );

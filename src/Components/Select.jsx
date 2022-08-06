@@ -5,14 +5,12 @@ import MenuItem from "@mui/material/MenuItem";
 import FormHelperText from "@mui/material/FormHelperText";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import { useRef } from "react";
 
 export default function RelationshipSelect({ label, data, handleChange }) {
   const [item, setItem] = React.useState("");
 
   const handleSelect = (event) => {
     setItem(event.target.value);
-    console.log("EVENT", event);
     handleChange(event.target.value, "relationship", label);
   };
 

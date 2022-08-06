@@ -61,11 +61,8 @@ export default function Form({
   buttonLabel,
 }) {
   const [formPayload, updateFormPayload] = useState({ id: itemData?.id });
-  console.log("ITEM DATA", Object.keys(itemData));
   const handleChange = (e, type, name) => {
-    console.log("TPE", type);
     if (type === "relationship") {
-      console.log("PAYLOAD", e);
       const stagedPayload = formPayload;
       stagedPayload[name] = [{ id: e.id }];
       updateFormPayload(stagedPayload);

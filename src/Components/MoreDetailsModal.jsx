@@ -33,7 +33,24 @@ export default function MoreDetailsModal({
 }) {
   const [editMode, updateEditMode] = useState(setEditMode);
 
-  const handleClose = () => setModalStatus(false);
+  const handleClose = () => {
+    setModalStatus((state) => ({
+      ...state,
+      [modalStatus.label]: {
+        open: false,
+        error: false,
+        label: modalStatus.label,
+      },
+    }));
+    updateEditMode(false);
+  };
+
+  React.useEffect(() => {
+    updateEditMode(setEditMode);
+  }, [modalStatus]);
+
+  console.log("Modal Status - More Details", modalStatus);
+
   return (
     <div>
       <Modal

@@ -17,6 +17,10 @@ th, td {
   padding: 10px;
 }
 
+.section-heading{
+  margin-bottom: 0px;
+}
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;

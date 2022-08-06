@@ -2,12 +2,7 @@ import "../App.css";
 import { useState } from "react";
 import Papa from "papaparse";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
-import ToggleSwitch from "./ToggleSwitch";
-import Grid from "@mui/material/Grid";
-import Form from "../Components/Form";
-import Table from "../Components/Table";
 import Button from "@mui/material/Button";
 
 const style = {
@@ -24,42 +19,11 @@ const style = {
   height: "500px",
 };
 
-const headCells = [
-  {
-    id: "firstName",
-    numeric: false,
-    disablePadding: true,
-    label: "First Name",
-  },
-  {
-    id: "lastName",
-    numeric: false,
-    disablePadding: false,
-    label: "Last Name",
-  },
-  {
-    id: "postCode",
-    numeric: false,
-    disablePadding: false,
-    label: "Post Code",
-  },
-  {
-    id: "email",
-    numeric: false,
-    disablePadding: false,
-    label: "E-Mail",
-  },
-  {
-    id: "age",
-    numeric: false,
-    disablePadding: false,
-    label: "Age",
-  },
-];
-
 function BulkUploader({ modalStatus, setModalStatus, updateItem }) {
   // State to store parsed data
   const [parsedData, setParsedData] = useState([]);
+
+  console.log("modal status - bulk upload", modalStatus);
 
   //State to store table Column name
   const [tableRows, setTableRows] = useState([]);
@@ -71,13 +35,19 @@ function BulkUploader({ modalStatus, setModalStatus, updateItem }) {
     setParsedData([]);
     setTableRows([]);
     setValues([]);
-    setModalStatus(false);
+    setModalStatus((state) => ({
+      ...state,
+      [modalStatus.label]: {
+        open: false,
+        error: false,
+        label: modalStatus.label,
+      },
+    }));
   };
 
   const handleUpload = () => updateItem(parsedData);
 
   const changeHandler = (event) => {
-    console.log("FILES", event.target.files[0]);
     // Passing file data (event.target.files[0]) to parse using Papa.parse
     Papa.parse(event.target.files[0], {
       header: true,
@@ -91,8 +61,6 @@ function BulkUploader({ modalStatus, setModalStatus, updateItem }) {
           rowsArray.push(Object.keys(d));
           valuesArray.push(Object.values(d));
         });
-
-        console.log("RESULTS DATA", results.data);
         // Parsed Data Response in array format
         setParsedData(results.data);
 
