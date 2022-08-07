@@ -7,6 +7,7 @@ import Box from "@mui/material/Box";
 import Table from "../Components/Table";
 import MoreDetailsModal from "../Components/MoreDetailsModal";
 import BulkUploader from "../Components/BulkUploader";
+import useNetworkRequest from "../Hooks/useNetworkRequest";
 import { useState, useEffect } from "react";
 
 const headCells = [
@@ -71,15 +72,16 @@ const Contacts = () => {
   });
   const [singleContact, setSingleContact] = useState(null);
   const [relationshipData, setRelationshipData] = useState({});
+  const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
+
   const getRelationshipData = () => {
     const relationshipNetworkEndpoints = relationshipsToUpdate.map((item) =>
       item.replace("s", "")
     );
     relationshipNetworkEndpoints.forEach(async (item) => {
-      const response = await fetch(
+      const response = await getItems(
         `http://localhost:8080/api/v1/${item}/getAll`
-      ).then((r) => r.json());
-
+      );
       const relationData = relationshipData;
       relationData[item] = response;
       setRelationshipData(relationData);
@@ -110,23 +112,19 @@ const Contacts = () => {
   };
 
   const multiDelete = async (payload) => {
-    const response = await fetch(
-      `http://localhost:8080/api/v1/contact/deleteMulti/`,
-      {
-        method: "DELETE",
-        body: JSON.stringify(payload),
-        headers: { "Content-Type": "application/json" },
-      }
-    ).then((r) => r);
+    const response = await deleteItem(
+      "http://localhost:8080/api/v1/contact/deleteMulti/",
+      payload
+    );
     if (response.ok === true) {
       getAllContacts();
     }
   };
 
   const openModal = async (modalValue, itemId) => {
-    const response = await fetch(
+    const response = await getItems(
       `http://localhost:8080/api/v1/contact/getSingle/${itemId}`
-    ).then((r) => r.json());
+    );
     setSingleContact(response);
     getRelationshipData();
     setModalStatus((state) => ({
@@ -140,13 +138,9 @@ const Contacts = () => {
   };
 
   const updateContact = async (formPayload) => {
-    const response = await fetch(
+    const response = await putItem(
       `http://localhost:8080/api/v1/contact/updatejson/${formPayload.id}/`,
-      {
-        method: "PUT",
-        body: JSON.stringify(formPayload),
-        headers: { "Content-Type": "application/json" },
-      }
+      formPayload
     );
     if (response.ok === true) {
       setModalStatus((state) => ({
@@ -171,13 +165,9 @@ const Contacts = () => {
   };
 
   const addContact = async (formPayload) => {
-    const response = await fetch(
+    const response = await postItem(
       `http://localhost:8080/api/v1/contact/create/`,
-      {
-        method: "POST",
-        body: JSON.stringify(formPayload),
-        headers: { "Content-Type": "application/json" },
-      }
+      formPayload
     );
     if (response.ok === true) {
       setModalStatus((state) => ({
@@ -202,14 +192,10 @@ const Contacts = () => {
   };
 
   const addBulkContact = async (formPayload) => {
-    const response = await fetch(
+    const response = await postItem(
       `http://localhost:8080/api/v1/contact/createBulk/`,
-      {
-        method: "POST",
-        body: JSON.stringify(formPayload),
-        headers: { "Content-Type": "application/json" },
-      }
-    ).then((r) => r);
+      formPayload
+    );
 
     if (response.ok === true) {
       setModalStatus((state) => ({
@@ -234,9 +220,9 @@ const Contacts = () => {
   };
 
   const getAllContacts = async () => {
-    const response = await fetch(
+    const response = await getItems(
       "http://localhost:8080/api/v1/contact/getAll"
-    ).then((r) => r.json());
+    );
     setResponse(response);
   };
 

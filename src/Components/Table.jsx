@@ -337,7 +337,6 @@ export default function EnhancedTable({
                             data-id={row.id}
                             className="viewMoreButton"
                             onClick={handleEdit}
-                            startIcon={<ModeEditIcon />}
                           >
                             Edit
                           </Button>
