@@ -6,7 +6,6 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Table from "../Components/Table";
 import MoreDetailsModal from "../Components/MoreDetailsModal";
-import BulkUploader from "../Components/BulkUploader";
 import useNetworkRequest from "../Hooks/useNetworkRequest";
 import { useState, useEffect } from "react";
 
@@ -14,20 +13,25 @@ const headCells = [
   {
     id: "name",
     numeric: false,
-    disablePadding: true,
+    disablePadding: false,
     label: "Name",
   },
   {
     id: "postCode",
-    numeric: true,
+    numeric: false,
     disablePadding: false,
     label: "Post Code",
   },
   {
     id: "venueName",
-    numeric: true,
+    numeric: false,
     disablePadding: false,
     label: "Venue Name",
+  },
+  {
+    id: "inspect",
+    numberic: false,
+    disablePadding: false,
   },
 ];
 
@@ -37,23 +41,19 @@ const Events = () => {
   const [resp, setResponse] = useState([]);
 
   const [modalStatus, setModalStatus] = useState({
-    updateContactModalStatus: {
+    updateEventModalStatus: {
       open: false,
       error: false,
-      label: "updateContactModalStatus",
+      label: "updateEventModalStatus",
     },
-    addContactModalStatus: {
+    addEventModalStatus: {
       open: false,
       error: false,
-      label: "addContactModalStatus",
-    },
-    bulkAddContactModalStatus: {
-      open: false,
-      error: false,
-      label: "bulkAddContactModalStatus",
+      label: "addEventModalStatus",
     },
   });
-  const [singleContact, setSingleContact] = useState(null);
+
+  const [singleEvent, setSingleEvent] = useState(null);
   const [relationshipData, setRelationshipData] = useState({});
   const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
 
@@ -71,183 +71,138 @@ const Events = () => {
     });
   };
 
-  const handleAddContact = () => {
+  const handleAddEvent = () => {
     getRelationshipData();
     setModalStatus((state) => ({
       ...state,
-      addContactModalStatus: {
+      addEventModalStatus: {
         open: true,
         error: false,
-        label: "addContactModalStatus",
-      },
-    }));
-  };
-
-  const handleBulkAddContact = () => {
-    setModalStatus((state) => ({
-      ...state,
-      bulkAddContactModalStatus: {
-        open: true,
-        error: false,
-        label: "bulkAddContactModalStatus",
+        label: "addEventModalStatus",
       },
     }));
   };
 
   const multiDelete = async (payload) => {
     const response = await deleteItem(
-      "http://localhost:8080/api/v1/contact/deleteMulti/",
+      "http://localhost:8080/api/v1/event/deleteMulti/",
       payload
     );
     if (response.ok === true) {
-      getAllContacts();
+      getAllEvents();
     }
   };
 
   const openModal = async (modalValue, itemId) => {
     const response = await getItems(
-      `http://localhost:8080/api/v1/contact/getSingle/${itemId}`
+      `http://localhost:8080/api/v1/event/getSingle/${itemId}`
     );
-    setSingleContact(response);
+    setSingleEvent(response);
     getRelationshipData();
     setModalStatus((state) => ({
       ...state,
-      updateContactModalStatus: {
+      updateEventModalStatus: {
         open: modalValue,
         error: false,
-        label: "updateContactModalStatus",
+        label: "updateEventModalStatus",
       },
     }));
   };
 
-  const updateContact = async (formPayload) => {
+  const updateEvent = async (formPayload) => {
     const response = await putItem(
-      `http://localhost:8080/api/v1/contact/updatejson/${formPayload.id}/`,
+      `http://localhost:8080/api/v1/event/updatejson/${formPayload.id}/`,
       formPayload
     );
     if (response.ok === true) {
       setModalStatus((state) => ({
         ...state,
-        updateContactModalStatus: {
+        updateEventModalStatus: {
           open: false,
           error: false,
-          label: "updateContactModalStatus",
+          label: "updateEventModalStatus",
         },
       }));
-      getAllContacts();
+      getAllEvents();
     } else {
       setModalStatus((state) => ({
         ...state,
-        updateContactModalStatus: {
+        updateEventModalStatus: {
           open: true,
           error: true,
-          label: "updateContactModalStatus",
+          label: "updateEventModalStatus",
         },
       }));
     }
   };
 
-  const addContact = async (formPayload) => {
+  const addEvent = async (formPayload) => {
     const response = await postItem(
-      `http://localhost:8080/api/v1/contact/create/`,
+      `http://localhost:8080/api/v1/event/create/`,
       formPayload
     );
     if (response.ok === true) {
       setModalStatus((state) => ({
         ...state,
-        addContactModalStatus: {
+        addEventModalStatus: {
           open: false,
           error: false,
-          label: "addContactModalStatus",
+          label: "addEventModalStatus",
         },
       }));
-      getAllContacts();
+      getAllEvents();
     } else {
       setModalStatus((state) => ({
         ...state,
-        addContactModalStatus: {
+        addEventModalStatus: {
           open: true,
           error: true,
-          label: "addContactModalStatus",
+          label: "addEventModalStatus",
         },
       }));
     }
   };
 
-  const addBulkContact = async (formPayload) => {
-    const response = await postItem(
-      `http://localhost:8080/api/v1/contact/createBulk/`,
-      formPayload
-    );
-
-    if (response.ok === true) {
-      setModalStatus((state) => ({
-        ...state,
-        bulkAddContactModalStatus: {
-          open: false,
-          error: false,
-          label: "bulkAddContactModalStatus",
-        },
-      }));
-      getAllContacts();
-    } else {
-      setModalStatus((state) => ({
-        ...state,
-        bulkAddContactModalStatus: {
-          open: true,
-          error: true,
-          label: "bulkAddContactModalStatus",
-        },
-      }));
-    }
-  };
-
-  const getAllContacts = async () => {
+  const getAllEvents = async () => {
     const response = await getItems(
-      "http://localhost:8080/api/v1/contact/getAll"
+      "http://localhost:8080/api/v1/event/getAll"
     );
     setResponse(response);
   };
 
   useEffect(() => {
-    getAllContacts();
+    getAllEvents();
   }, []);
 
   return (
     <div className="events">
       <NavBar />
       <Box sx={{ padding: "10px" }}>
-        <h1 className="section-heading">Contacts</h1>
+        <h1 className="section-heading">Events</h1>
         <MoreDetailsModal
-          modalStatus={modalStatus.updateContactModalStatus}
+          modalStatus={modalStatus.updateEventModalStatus}
           setModalStatus={setModalStatus}
           labels={{ itemTitle: "Event", buttonLabel: "Update" }}
-          itemData={singleContact}
-          updateItem={updateContact}
+          itemData={singleEvent}
+          updateItem={updateEvent}
           relationshipData={relationshipData}
           setEditMode={false}
         />
-        <BulkUploader
-          modalStatus={modalStatus.bulkAddContactModalStatus}
-          setModalStatus={setModalStatus}
-          updateItem={addBulkContact}
-        />
         <MoreDetailsModal
-          modalStatus={modalStatus.addContactModalStatus}
+          modalStatus={modalStatus.addEventModalStatus}
           labels={{ itemTitle: "Event", buttonLabel: "Add" }}
           setEditMode={true}
           itemData={{
-            firstName: "",
-            lastName: "",
+            name: "",
+            venueName: "",
             postCode: "",
-            email: "",
-            age: "",
             tags: [],
+            contacts: [],
           }}
-          addItem={addContact}
+          addItem={addEvent}
           setModalStatus={setModalStatus}
           relationshipData={relationshipData}
-          updateItem={addContact}
+          updateItem={addEvent}
         />
         <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
           <Grid item md={10}>
@@ -262,8 +217,7 @@ const Events = () => {
           </Grid>
           <Grid item md={2}>
             <Stack direction="column" spacing={2}>
-              <Button onClick={handleAddContact}>Add Single Contact</Button>
-              <Button onClick={handleBulkAddContact}>Add Bulk Contacts</Button>
+              <Button onClick={handleAddEvent}>Add Event</Button>
             </Stack>
           </Grid>
         </Grid>

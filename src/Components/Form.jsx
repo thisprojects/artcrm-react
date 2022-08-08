@@ -73,6 +73,8 @@ export default function Form({
     }
   };
 
+  console.log("ITEM DATA", itemData);
+
   const handleUpdate = () => {
     updateItem(formPayload);
   };

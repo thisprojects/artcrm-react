@@ -49,8 +49,6 @@ export default function MoreDetailsModal({
     updateEditMode(setEditMode);
   }, [modalStatus]);
 
-  console.log("Modal Status - More Details", modalStatus);
-
   return (
     <div>
       <Modal
