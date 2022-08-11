@@ -15,7 +15,14 @@ import AdbIcon from "@mui/icons-material/Adb";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 
-const pages = ["Contacts", "Events", "Organisations", "Tags", "Integrations", "Dashboard"];
+const pages = [
+  "Contacts",
+  "Events",
+  "Organisations",
+  "Tags",
+  "Integrations",
+  "Dashboard",
+];
 const settings = ["Login", "Logout"];
 
 const ResponsiveAppBar = () => {
