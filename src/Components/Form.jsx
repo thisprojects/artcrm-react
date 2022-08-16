@@ -37,7 +37,10 @@ const RelationshipList = ({
                     <ul>
                       {itemData[item].length > 0 &&
                         itemData[item].map((item) => (
-                          <li data-org-id={itemData.id}>{item.name}</li>
+                          <li data-org-id={itemData.id}>
+                            {item.firstName} {item.lastName}
+                            {item.eventName}
+                          </li>
                         ))}
                     </ul>
                   </>

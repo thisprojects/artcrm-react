@@ -28,22 +28,29 @@ const Dashboard = () => {
   const eventCatagories = eventData?.map((item) => item.name);
   const eventSeries = eventData?.map((item) => item.contactCount);
 
-  const ageDemographics = {
-    "Under 10": 0,
-    "Ten to Twenty": 0,
-    "Twenty to Forty": 0,
-    "Forty to Sixty": 0,
-    "Sixty Plus": 0,
-  };
+  // const ageDemographics = {
+  //   "Under 10": 0,
+  //   "Ten to Twenty": 0,
+  //   "Twenty to Forty": 0,
+  //   "Forty to Sixty": 0,
+  //   "Sixty Plus": 0,
+  // };
+
+  const ageDemographics = [
+    { name: "Under 10", y: 0 },
+    { name: "Ten to Twenty", y: 0 },
+    { name: "Twenty to Forty", y: 0 },
+    { name: "Forty to Sixty", y: 0 },
+    { name: "Sixty Plus", y: 0 },
+  ];
 
   response?.ageDemographic?.forEach((item) => {
     if (item.age === null) return;
-    if (item.age < 10) ageDemographics["Under 10"] += 1;
-    if (item.age >= 10 && item.age <= 20) ageDemographics["Ten to Twenty"] += 1;
-    if (item.age > 20 && item.age <= 40)
-      ageDemographics["Twenty to Forty"] += 1;
-    if (item.age > 40 && item.age <= 60) ageDemographics["Forty to Sixty"] += 1;
-    if (item.age > 60) ageDemographics["Sixty Plus"] += 1;
+    if (item.age < 10) ageDemographics[0].y += 1;
+    if (item.age >= 10 && item.age <= 20) ageDemographics[1].y += 1;
+    if (item.age > 20 && item.age <= 40) ageDemographics[2].y += 1;
+    if (item.age > 40 && item.age <= 60) ageDemographics[3].y += 1;
+    if (item.age > 60) ageDemographics[4].y += 1;
   });
 
   console.log("DEMOS", ageDemographics);
@@ -94,21 +101,37 @@ const Dashboard = () => {
               options={{
                 colors: ["#2f7ed8", "#0d233a", "#8bbc21", "#910000", "#1aadce"],
                 plotOptions: {
-                  column: {
-                    colorByPoint: true,
+                  allowPointSelect: true,
+                  cursor: "pointer",
+                  dataLabels: {
+                    enabled: true,
+                    format: "<b>{point.name}</b>: {point.percentage:.1f} %",
+                  },
+                },
+                accessibility: {
+                  point: {
+                    valueSuffix: "%",
                   },
                 },
                 chart: {
-                  type: "column",
+                  plotBackgroundColor: null,
+                  plotBorderWidth: null,
+                  plotShadow: false,
+                  type: "pie",
                 },
-                xAxis: {
-                  categories: ageDemographicCatagories,
-                  crosshair: true,
+                tooltip: {
+                  pointFormat: "{series.name}: <b>{point.percentage:.1f}%</b>",
                 },
                 title: {
                   text: "Age Demographics",
                 },
-                series: [{ data: ageDemographicSeries }],
+                series: [
+                  {
+                    name: "Age Demographic",
+                    colorByPoint: true,
+                    data: ageDemographicSeries,
+                  },
+                ],
               }}
             />
           </Grid>
