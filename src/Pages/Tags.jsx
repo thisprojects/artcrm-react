@@ -180,10 +180,6 @@ const Tags = () => {
           setEditMode={true}
           itemData={{
             name: "",
-            email: "",
-            postCode: "",
-            tags: [],
-            contacts: [],
           }}
           addItem={addTag}
           setModalStatus={setModalStatus}
