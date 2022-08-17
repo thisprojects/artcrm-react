@@ -40,6 +40,7 @@ const RelationshipList = ({
                           <li data-org-id={itemData.id}>
                             {item.firstName} {item.lastName}
                             {item.eventName}
+                            {item.orgName}
                           </li>
                         ))}
                     </ul>
