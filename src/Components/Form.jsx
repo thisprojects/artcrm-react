@@ -39,7 +39,7 @@ const RelationshipList = ({
                         itemData[item].map((item) => (
                           <li data-org-id={itemData.id}>
                             {item.firstName} {item.lastName}
-                            {item.eventName}
+                            {item.name}
                             {item.orgName}
                           </li>
                         ))}
