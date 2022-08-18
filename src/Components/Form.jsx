@@ -4,6 +4,7 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Select from "../Components/Select";
+import MultipleSelect from "./MultiSelect";
 import Grid from "@mui/material/Grid";
 import ToggleSwitch from "./ToggleSwitch";
 import { useState } from "react";
@@ -15,21 +16,37 @@ const RelationshipList = ({
   relationshipData,
   handleChange,
 }) => {
+  console.log("itemData", itemData);
   return (
     <Box sx={{ display: "flex" }}>
       {Object.keys(itemData).map((item) => {
-        const selectData = editMode
-          ? relationshipData[item.replace("s", "")]
-          : itemData[item];
+        const relations = relationshipData[item.replace("s", "")];
+        const items = itemData[item];
+        let removedDuplicates = [];
+
+        if (Array.isArray(items) && Array.isArray(relations)) {
+          removedDuplicates = relations.filter(
+            (filterItem) =>
+              !items.find((findItem) => findItem.id == filterItem.id)
+          );
+        }
 
         if (Array.isArray(itemData[item]) && item !== itemTitle.toLowerCase()) {
           return (
             <Box sx={{ display: "flex", flexDirection: "column" }}>
-              <Select
-                label={item}
-                data={selectData}
-                handleChange={handleChange}
-              />
+              {editMode ? (
+                <MultipleSelect
+                  label={item}
+                  data={removedDuplicates}
+                  handleChange={handleChange}
+                />
+              ) : (
+                <Select
+                  label={item}
+                  data={itemData[item]}
+                  handleChange={handleChange}
+                />
+              )}
             </Box>
           );
         } else {
@@ -51,10 +68,15 @@ export default function Form({
 }) {
   const [formPayload, updateFormPayload] = useState({ id: itemData?.id });
 
+  console.log("FormPayload", formPayload);
   const handleChange = (e, type, name) => {
     if (type === "relationship") {
       const stagedPayload = formPayload;
-      stagedPayload[name] = [{ id: e.id }];
+      if (stagedPayload[name]) {
+        stagedPayload[name].push({ id: e.id });
+      } else {
+        stagedPayload[name] = [{ id: e.id }];
+      }
       updateFormPayload(stagedPayload);
     } else {
       const stagedPayload = formPayload;
@@ -64,6 +86,7 @@ export default function Form({
   };
 
   const handleUpdate = () => {
+    console.log("FORM PL", formPayload);
     updateItem(formPayload);
   };
 

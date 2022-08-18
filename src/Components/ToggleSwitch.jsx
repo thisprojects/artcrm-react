@@ -11,18 +11,22 @@ export default function ToggleSwitch({ label, updateEditMode, editMode }) {
     updateEditMode(!editMode);
   };
 
+  React.useEffect(() => {
+    setChecked(editMode);
+  }, [editMode]);
+
   return (
-      <FormGroup>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={checked}
-              onChange={handleChange}
-              inputProps={{ "aria-label": "controlled" }}
-            />
-          }
-          label={label}
-        />
-      </FormGroup>
+    <FormGroup>
+      <FormControlLabel
+        control={
+          <Switch
+            checked={checked}
+            onChange={handleChange}
+            inputProps={{ "aria-label": "controlled" }}
+          />
+        }
+        label={label}
+      />
+    </FormGroup>
   );
 }

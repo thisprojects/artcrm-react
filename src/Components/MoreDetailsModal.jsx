@@ -44,8 +44,14 @@ export default function MoreDetailsModal({
   };
 
   React.useEffect(() => {
+    if (modalStatus.error) {
+      updateEditMode(false);
+    }
+  }, [modalStatus.error]);
+
+  React.useEffect(() => {
     updateEditMode(setEditMode);
-  }, [modalStatus]);
+  }, [modalStatus.open]);
 
   return (
     <div>

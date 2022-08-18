@@ -11,7 +11,7 @@ export default function RelationshipSelect({ label, data, handleChange }) {
 
   const handleSelect = (event) => {
     setItem(event.target.value);
-    handleChange(event.target.value, "relationship", label);
+    // handleChange(event.target.value, "relationship", label);
   };
 
   return (

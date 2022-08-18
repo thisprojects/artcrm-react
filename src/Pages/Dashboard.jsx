@@ -67,15 +67,15 @@ const Dashboard = () => {
         <Typography variant="h3" sx={{ margin: "30px" }}>
           Dashboard
         </Typography>
-        <Grid container rowSpacing={2} columnSpacing={{ xs: 1, sm: 2, md: 1 }}>
+        <Grid container rowSpacing={2} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
           <Grid
             container
             item
             md={12}
             sx={{
               paddingBottom: "20px",
-              borderTop: "1px solid lightgray",
               borderBottom: "1px solid lightgray",
+              boxShadow: "10px 0.5px 5px #aaaaaa",
             }}
           >
             <Grid item md={4}>
@@ -92,12 +92,20 @@ const Dashboard = () => {
             container
             md={12}
             sx={{
-              borderBottom: "1px solid lightgray",
               paddingTop: "20px",
               paddingBottom: "20px",
+              justifyContent: "space-evenly",
             }}
           >
-            <Grid item md={6} sm={12}>
+            <Grid
+              item
+              md={5}
+              sm={12}
+              sx={{
+                border: "1px solid lightgray",
+                boxShadow: "10px 0.5px 5px #aaaaaa",
+              }}
+            >
               <HighchartsReact
                 highcharts={Highcharts}
                 options={{
@@ -137,7 +145,15 @@ const Dashboard = () => {
                 }}
               />
             </Grid>
-            <Grid item md={6} sm={12}>
+            <Grid
+              item
+              md={5}
+              sm={12}
+              sx={{
+                border: "1px solid lightgray",
+                boxShadow: "10px 0.5px 5px #aaaaaa",
+              }}
+            >
               <HighchartsReact
                 highcharts={Highcharts}
                 options={{
@@ -186,53 +202,70 @@ const Dashboard = () => {
               />
             </Grid>
           </Grid>
-          <Grid item md={12} sm={12}>
+          <Grid
+            container
+            md={12}
+            sm={12}
+            sx={{
+              justifyContent: "center",
+            }}
+          >
             {allPostCodeStats && (
-              <HighchartsReact
-                highcharts={Highcharts}
-                umber
-                of
-                options={{
-                  plotOptions: {
-                    column: {
-                      colorByPoint: true,
-                    },
-                  },
-                  chart: {
-                    type: "column",
-                  },
-                  xAxis: {
-                    categories: postCodeCatagories,
-                    crosshair: true,
-                    colors: [
-                      "#2f7ed8",
-                      "#0d233a",
-                      "#8bbc21",
-                      "#910000",
-                      "#1aadce",
-                      "#492970",
-                      "#f28f43",
-                      "#77a1e5",
-                      "#c42525",
-                      "#a6c96a",
-                    ],
-                  },
-                  yAxis: {
-                    title: {
-                      text: "Contact Numbers",
-                    },
-                  },
-                  title: {
-                    text: "Postcode Demographic - All Contacts",
-                  },
-                  series: [
-                    {
-                      showInLegend: false,
-                      data: postCodeSeries,
-                    },
-                  ],
+              <Grid
+                item
+                md={10}
+                sx={{
+                  border: "1px solid lightgray",
+                  boxShadow: "10px 0.5px 5px #aaaaaa",
+                  marginBottom: "10px",
                 }}
-              />
+              >
+                <HighchartsReact
+                  highcharts={Highcharts}
+                  umber
+                  of
+                  options={{
+                    plotOptions: {
+                      column: {
+                        colorByPoint: true,
+                      },
+                    },
+                    chart: {
+                      type: "column",
+                    },
+                    xAxis: {
+                      categories: postCodeCatagories,
+                      crosshair: true,
+                      colors: [
+                        "#2f7ed8",
+                        "#0d233a",
+                        "#8bbc21",
+                        "#910000",
+                        "#1aadce",
+                        "#492970",
+                        "#f28f43",
+                        "#77a1e5",
+                        "#c42525",
+                        "#a6c96a",
+                      ],
+                    },
+                    yAxis: {
+                      title: {
+                        text: "Contact Numbers",
+                      },
+                    },
+                    title: {
+                      text: "Postcode Demographic - All Contacts",
+                    },
+                    series: [
+                      {
+                        showInLegend: false,
+                        data: postCodeSeries,
+                      },
+                    ],
+                  }}
+                />
+              </Grid>
             )}
           </Grid>
         </Grid>
