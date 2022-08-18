@@ -5,6 +5,7 @@ import useNetworkRequest from "../Hooks/useNetworkRequest";
 import { useEffect, useState } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import Typography from "@mui/material/Typography";
 
 const Dashboard = () => {
   const [response, setResponse] = useState(null);
@@ -22,19 +23,9 @@ const Dashboard = () => {
   }, []);
 
   const eventData = response && response.mostRecentEvents;
-
   const allPostCodes = response && response.postcodes;
-
   const eventCatagories = eventData?.map((item) => item.name);
   const eventSeries = eventData?.map((item) => item.contactCount);
-
-  // const ageDemographics = {
-  //   "Under 10": 0,
-  //   "Ten to Twenty": 0,
-  //   "Twenty to Forty": 0,
-  //   "Forty to Sixty": 0,
-  //   "Sixty Plus": 0,
-  // };
 
   const ageDemographics = [
     { name: "Under 10", y: 0 },
@@ -53,9 +44,6 @@ const Dashboard = () => {
     if (item.age > 60) ageDemographics[4].y += 1;
   });
 
-  console.log("DEMOS", ageDemographics);
-  const ageDemographicCatagories =
-    (ageDemographics && Object.keys(ageDemographics)) || [];
   const ageDemographicSeries =
     (ageDemographics && Object.values(ageDemographics)) || [];
 
@@ -68,98 +56,137 @@ const Dashboard = () => {
     return acc;
   }, {});
 
-  console.log("post code", allPostCodeStats);
-
   const postCodeCatagories =
     (allPostCodeStats && Object.keys(allPostCodeStats)) || [];
   const postCodeSeries =
     (allPostCodeStats && Object.values(allPostCodeStats)) || [];
 
-  // const postCodes = contactData?.map((item) => item.postCodes);
-
-  console.log("cats", eventCatagories);
-  console.log("conts", eventSeries);
-
-  console.log("response", response);
   return (
     <div className="dashboard">
-      <Box sx={{ padding: "10px" }}>
-        <h1>Dashboard</h1>
-        <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-          <Grid item md={4}>
-            <p>Total Contacts: {response?.numberOfContacts} </p>
+      <Box>
+        <Typography variant="h3" sx={{ margin: "30px" }}>
+          Dashboard
+        </Typography>
+        <Grid container rowSpacing={2} columnSpacing={{ xs: 1, sm: 2, md: 1 }}>
+          <Grid
+            container
+            item
+            md={12}
+            sx={{
+              paddingBottom: "20px",
+              borderTop: "1px solid lightgray",
+              borderBottom: "1px solid lightgray",
+            }}
+          >
+            <Grid item md={4}>
+              <p>Total Contacts: {response?.numberOfContacts} </p>
+            </Grid>
+            <Grid item md={4}>
+              <p>Total Organisations: {response?.numberOfOrganisations} </p>
+            </Grid>
+            <Grid item md={4}>
+              <p>Total Events: {response?.numberOfEvents}</p>
+            </Grid>
           </Grid>
-          <Grid item md={4}>
-            <p>Total Organisations: {response?.numberOfOrganisations} </p>
-          </Grid>
-          <Grid item md={4}>
-            <p>Total Events: {response?.numberOfEvents}</p>
-          </Grid>
-          <Grid item md={6}>
-            <HighchartsReact
-              highcharts={Highcharts}
-              options={{
-                colors: ["#2f7ed8", "#0d233a", "#8bbc21", "#910000", "#1aadce"],
-                plotOptions: {
-                  allowPointSelect: true,
-                  cursor: "pointer",
-                  dataLabels: {
-                    enabled: true,
-                    format: "<b>{point.name}</b>: {point.percentage:.1f} %",
+          <Grid
+            container
+            md={12}
+            sx={{
+              borderBottom: "1px solid lightgray",
+              paddingTop: "20px",
+              paddingBottom: "20px",
+            }}
+          >
+            <Grid item md={6} sm={12}>
+              <HighchartsReact
+                highcharts={Highcharts}
+                options={{
+                  colors: [
+                    "#492970",
+                    "#f28f43",
+                    "#77a1e5",
+                    "#c42525",
+                    "#a6c96a",
+                  ],
+                  plotOptions: {
+                    column: {
+                      colorByPoint: true,
+                    },
                   },
-                },
-                accessibility: {
-                  point: {
-                    valueSuffix: "%",
+                  chart: {
+                    type: "column",
                   },
-                },
-                chart: {
-                  plotBackgroundColor: null,
-                  plotBorderWidth: null,
-                  plotShadow: false,
-                  type: "pie",
-                },
-                tooltip: {
-                  pointFormat: "{series.name}: <b>{point.percentage:.1f}%</b>",
-                },
-                title: {
-                  text: "Age Demographics",
-                },
-                series: [
-                  {
-                    name: "Age Demographic",
-                    colorByPoint: true,
-                    data: ageDemographicSeries,
+                  xAxis: {
+                    categories: eventCatagories,
+                    crosshair: true,
                   },
-                ],
-              }}
-            />
+                  yAxis: {
+                    title: {
+                      text: "Participants",
+                    },
+                  },
+                  title: {
+                    text: "Five Most Recent Events",
+                  },
+                  series: [
+                    {
+                      showInLegend: false,
+                      data: eventSeries,
+                    },
+                  ],
+                }}
+              />
+            </Grid>
+            <Grid item md={6} sm={12}>
+              <HighchartsReact
+                highcharts={Highcharts}
+                options={{
+                  colors: [
+                    "#2f7ed8",
+                    "#0d233a",
+                    "#8bbc21",
+                    "#910000",
+                    "#1aadce",
+                  ],
+                  plotOptions: {
+                    allowPointSelect: true,
+                    cursor: "pointer",
+                    dataLabels: {
+                      enabled: true,
+                      format: "<b>{point.name}</b>: {point.percentage:.1f} %",
+                    },
+                  },
+                  accessibility: {
+                    point: {
+                      valueSuffix: "%",
+                    },
+                  },
+                  chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: "pie",
+                  },
+                  tooltip: {
+                    pointFormat:
+                      "{series.name}: <b>{point.percentage:.1f}%</b>",
+                  },
+                  title: {
+                    text: "Age Demographics",
+                  },
+                  series: [
+                    {
+                      showInLegend: false,
+                      name: "Age Demographic",
+                      colorByPoint: true,
+                      data: ageDemographicSeries,
+                    },
+                  ],
+                }}
+              />
+            </Grid>
           </Grid>
-          <Grid item md={6}>
-            <HighchartsReact
-              highcharts={Highcharts}
-              options={{
-                colors: ["#492970", "#f28f43", "#77a1e5", "#c42525", "#a6c96a"],
-                plotOptions: {
-                  column: {
-                    colorByPoint: true,
-                  },
-                },
-                chart: {
-                  type: "column",
-                },
-                xAxis: {
-                  categories: eventCatagories,
-                  crosshair: true,
-                },
-                title: {
-                  text: "Five Most Recent Events",
-                },
-                series: [{ data: eventSeries }],
-              }}
-            />
-          </Grid>
-          <Grid item md={12}>
+          <Grid item md={12} sm={12}>
             {allPostCodeStats && (
               <HighchartsReact
                 highcharts={Highcharts}
@@ -190,10 +217,20 @@ const Dashboard = () => {
                       "#a6c96a",
                     ],
                   },
+                  yAxis: {
+                    title: {
+                      text: "Contact Numbers",
+                    },
+                  },
                   title: {
                     text: "Postcode Demographic - All Contacts",
                   },
-                  series: [{ data: postCodeSeries }],
+                  series: [
+                    {
+                      showInLegend: false,
+                      data: postCodeSeries,
+                    },
+                  ],
                 }}
               />
             )}

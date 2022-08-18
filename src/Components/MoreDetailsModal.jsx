@@ -3,8 +3,6 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
-import ToggleSwitch from "./ToggleSwitch";
-import Grid from "@mui/material/Grid";
 import { useState } from "react";
 import Form from "../Components/Form";
 
@@ -13,13 +11,13 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: "80%",
+  width: "65%",
   bgcolor: "background.paper",
   border: "1px solid gray",
   boxShadow: 24,
+  padding: "70px",
   p: 4,
   overflow: "scroll",
-  height: "500px",
 };
 
 export default function MoreDetailsModal({
@@ -61,31 +59,15 @@ export default function MoreDetailsModal({
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Update {itemTitle}
           </Typography>
-          <Grid
-            container
-            rowSpacing={1}
-            columnSpacing={{ xs: 1, sm: 2, md: 3 }}
-          >
-            <Grid item md={10}>
-              <Form
-                editMode={editMode}
-                itemData={itemData}
-                updateItem={updateItem}
-                itemTitle={itemTitle}
-                relationshipData={relationshipData}
-                buttonLabel={buttonLabel}
-              />
-            </Grid>
-            {buttonLabel === "Update" ? (
-              <Grid item md={2}>
-                <ToggleSwitch
-                  label="Edit"
-                  updateEditMode={updateEditMode}
-                  editMode={editMode}
-                />
-              </Grid>
-            ) : null}
-          </Grid>
+          <Form
+            editMode={editMode}
+            itemData={itemData}
+            updateItem={updateItem}
+            itemTitle={itemTitle}
+            relationshipData={relationshipData}
+            buttonLabel={buttonLabel}
+            updateEditMode={updateEditMode}
+          />
         </Box>
       </Modal>
     </div>

@@ -4,48 +4,32 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Select from "../Components/Select";
+import Grid from "@mui/material/Grid";
+import ToggleSwitch from "./ToggleSwitch";
 import { useState } from "react";
 
 const RelationshipList = ({
   itemData,
-  editMode,
   itemTitle,
+  editMode,
   relationshipData,
   handleChange,
 }) => {
-  const flexType = editMode ? "row" : "column";
-  const relationshipsToUpdate = Object.keys(relationshipData);
-  const allowUpdate = (item) =>
-    relationshipsToUpdate.includes(item.replace("s", ""));
-
   return (
-    <Box sx={{ display: "flex", flexDirection: flexType }}>
+    <Box sx={{ display: "flex" }}>
       {Object.keys(itemData).map((item) => {
+        const selectData = editMode
+          ? relationshipData[item.replace("s", "")]
+          : itemData[item];
+
         if (Array.isArray(itemData[item]) && item !== itemTitle.toLowerCase()) {
           return (
             <Box sx={{ display: "flex", flexDirection: "column" }}>
-              {(editMode && allowUpdate(item) && (
-                <Select
-                  label={item}
-                  data={relationshipData[item.replace("s", "")]}
-                  handleChange={handleChange}
-                />
-              )) ||
-                (!editMode && (
-                  <>
-                    <p>{item}</p>
-                    <ul>
-                      {itemData[item].length > 0 &&
-                        itemData[item].map((item) => (
-                          <li data-org-id={itemData.id}>
-                            {item.firstName} {item.lastName}
-                            {item.name}
-                            {item.orgName}
-                          </li>
-                        ))}
-                    </ul>
-                  </>
-                ))}
+              <Select
+                label={item}
+                data={selectData}
+                handleChange={handleChange}
+              />
             </Box>
           );
         } else {
@@ -61,10 +45,12 @@ export default function Form({
   itemData,
   updateItem,
   itemTitle,
+  updateEditMode,
   relationshipData,
   buttonLabel,
 }) {
   const [formPayload, updateFormPayload] = useState({ id: itemData?.id });
+
   const handleChange = (e, type, name) => {
     if (type === "relationship") {
       const stagedPayload = formPayload;
@@ -77,11 +63,10 @@ export default function Form({
     }
   };
 
-  console.log("ITEM DATA", itemData);
-
   const handleUpdate = () => {
     updateItem(formPayload);
   };
+
   return (
     <Box
       component="form"
@@ -92,7 +77,21 @@ export default function Form({
       autoComplete="off"
     >
       <div>
-        <p>ID: {itemData?.id || null}</p>
+        <Grid container spacing={7}>
+          <Grid item md={10}>
+            <p>ID: {itemData?.id || null}</p>
+          </Grid>
+          <Grid item md={2}>
+            {buttonLabel === "Update" ? (
+              <ToggleSwitch
+                label="Edit"
+                updateEditMode={updateEditMode}
+                editMode={editMode}
+              />
+            ) : null}
+          </Grid>
+        </Grid>
+
         {itemData ? (
           <>
             {Object.keys(itemData).map((item, index) => {
