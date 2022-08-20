@@ -5,7 +5,7 @@ import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Table from "../Components/Table";
-import MoreDetailsModal from "../Components/MoreDetailsModal";
+import UpdateModal from "../Components/UpdateModal";
 import useNetworkRequest from "../Hooks/useNetworkRequest";
 import { useState, useEffect } from "react";
 
@@ -54,7 +54,7 @@ const Organisations = () => {
   });
 
   const [singleOrganisation, setSingleOrganisation] = useState(null);
-  const [relationshipData, setRelationshipData] = useState({});
+  const [contactAndTagData, setContactAndTagData] = useState({});
   const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
 
   const getRelationshipData = () => {
@@ -65,9 +65,9 @@ const Organisations = () => {
       const response = await getItems(
         `http://localhost:8080/api/v1/${item}/getAll`
       );
-      const relationData = relationshipData;
+      const relationData = contactAndTagData;
       relationData[item] = response;
-      setRelationshipData(relationData);
+      setContactAndTagData(relationData);
     });
   };
 
@@ -179,16 +179,16 @@ const Organisations = () => {
       <NavBar />
       <Box sx={{ padding: "10px" }}>
         <h1 className="section-heading">Organisations</h1>
-        <MoreDetailsModal
+        <UpdateModal
           modalStatus={modalStatus.updateOrganisationModalStatus}
           setModalStatus={setModalStatus}
           labels={{ itemTitle: "Organisation", buttonLabel: "Update" }}
           itemData={singleOrganisation}
           updateItem={updateOrganisation}
-          relationshipData={relationshipData}
+          contactAndTagData={contactAndTagData}
           setEditMode={false}
         />
-        <MoreDetailsModal
+        <UpdateModal
           modalStatus={modalStatus.addOrganisationModalStatus}
           labels={{ itemTitle: "Organisation", buttonLabel: "Add" }}
           setEditMode={true}
@@ -201,7 +201,7 @@ const Organisations = () => {
           }}
           addItem={addOrganisation}
           setModalStatus={setModalStatus}
-          relationshipData={relationshipData}
+          contactAndTagData={contactAndTagData}
           updateItem={addOrganisation}
         />
         <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>

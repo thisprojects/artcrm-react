@@ -3,59 +3,10 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import Select from "../Components/Select";
-import MultipleSelect from "./MultiSelect";
+import FormSelectors from "./FormSelectors";
 import Grid from "@mui/material/Grid";
 import ToggleSwitch from "./ToggleSwitch";
 import { useState } from "react";
-
-const RelationshipList = ({
-  itemData,
-  itemTitle,
-  editMode,
-  relationshipData,
-  handleChange,
-}) => {
-  console.log("itemData", itemData);
-  return (
-    <Box sx={{ display: "flex" }}>
-      {Object.keys(itemData).map((item) => {
-        const relations = relationshipData[item.replace("s", "")];
-        const items = itemData[item];
-        let removedDuplicates = [];
-
-        if (Array.isArray(items) && Array.isArray(relations)) {
-          removedDuplicates = relations.filter(
-            (filterItem) =>
-              !items.find((findItem) => findItem.id == filterItem.id)
-          );
-        }
-
-        if (Array.isArray(itemData[item]) && item !== itemTitle.toLowerCase()) {
-          return (
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
-              {editMode ? (
-                <MultipleSelect
-                  label={item}
-                  data={removedDuplicates}
-                  handleChange={handleChange}
-                />
-              ) : (
-                <Select
-                  label={item}
-                  data={itemData[item]}
-                  handleChange={handleChange}
-                />
-              )}
-            </Box>
-          );
-        } else {
-          return null;
-        }
-      })}
-    </Box>
-  );
-};
 
 export default function Form({
   editMode,
@@ -63,17 +14,18 @@ export default function Form({
   updateItem,
   itemTitle,
   updateEditMode,
-  relationshipData,
+  contactAndTagData,
   buttonLabel,
 }) {
   const [formPayload, updateFormPayload] = useState({ id: itemData?.id });
 
-  console.log("FormPayload", formPayload);
   const handleChange = (e, type, name) => {
     if (type === "relationship") {
       const stagedPayload = formPayload;
       if (stagedPayload[name]) {
-        stagedPayload[name].push({ id: e.id });
+        if (!stagedPayload[name].find((item) => item.id === e.id)) {
+          stagedPayload[name].push({ id: e.id });
+        }
       } else {
         stagedPayload[name] = [{ id: e.id }];
       }
@@ -86,7 +38,6 @@ export default function Form({
   };
 
   const handleUpdate = () => {
-    console.log("FORM PL", formPayload);
     updateItem(formPayload);
   };
 
@@ -99,7 +50,7 @@ export default function Form({
       noValidate
       autoComplete="off"
     >
-      <div>
+      <div id="form-component">
         <Grid container spacing={7}>
           <Grid item md={10}>
             <p>ID: {itemData?.id || null}</p>
@@ -133,11 +84,11 @@ export default function Form({
                 );
               }
             })}
-            <RelationshipList
+            <FormSelectors
               itemData={itemData}
               editMode={editMode}
               itemTitle={itemTitle}
-              relationshipData={relationshipData}
+              contactAndTagData={contactAndTagData}
               handleChange={handleChange}
             />
           </>

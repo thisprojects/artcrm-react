@@ -5,7 +5,7 @@ import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Table from "../Components/Table";
-import MoreDetailsModal from "../Components/MoreDetailsModal";
+import UpdateModal from "../Components/UpdateModal";
 import useNetworkRequest from "../Hooks/useNetworkRequest";
 import { useState, useEffect } from "react";
 
@@ -54,7 +54,7 @@ const Events = () => {
   });
 
   const [singleEvent, setSingleEvent] = useState(null);
-  const [relationshipData, setRelationshipData] = useState({});
+  const [contactAndTagData, setContactAndTagData] = useState({});
   const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
 
   const getRelationshipData = () => {
@@ -65,9 +65,9 @@ const Events = () => {
       const response = await getItems(
         `http://localhost:8080/api/v1/${item}/getAll`
       );
-      const relationData = relationshipData;
+      const relationData = contactAndTagData;
       relationData[item] = response;
-      setRelationshipData(relationData);
+      setContactAndTagData(relationData);
     });
   };
 
@@ -179,16 +179,16 @@ const Events = () => {
       <NavBar />
       <Box sx={{ padding: "10px" }}>
         <h1 className="section-heading">Events</h1>
-        <MoreDetailsModal
+        <UpdateModal
           modalStatus={modalStatus.updateEventModalStatus}
           setModalStatus={setModalStatus}
           labels={{ itemTitle: "Event", buttonLabel: "Update" }}
           itemData={singleEvent}
           updateItem={updateEvent}
-          relationshipData={relationshipData}
+          contactAndTagData={contactAndTagData}
           setEditMode={false}
         />
-        <MoreDetailsModal
+        <UpdateModal
           modalStatus={modalStatus.addEventModalStatus}
           labels={{ itemTitle: "Event", buttonLabel: "Add" }}
           setEditMode={true}
@@ -201,7 +201,7 @@ const Events = () => {
           }}
           addItem={addEvent}
           setModalStatus={setModalStatus}
-          relationshipData={relationshipData}
+          contactAndTagData={contactAndTagData}
           updateItem={addEvent}
         />
         <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>

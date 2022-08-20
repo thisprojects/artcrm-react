@@ -5,7 +5,7 @@ import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Table from "../Components/Table";
-import MoreDetailsModal from "../Components/MoreDetailsModal";
+import UpdateModal from "../Components/UpdateModal";
 import useNetworkRequest from "../Hooks/useNetworkRequest";
 import { useState, useEffect } from "react";
 
@@ -167,7 +167,7 @@ const Integrations = () => {
       <NavBar />
       <Box sx={{ padding: "10px" }}>
         <h1 className="section-heading">Integrations</h1>
-        <MoreDetailsModal
+        <UpdateModal
           modalStatus={modalStatus.updateIntegrationModalStatus}
           setModalStatus={setModalStatus}
           labels={{ itemTitle: "Integration", buttonLabel: "Update" }}
@@ -176,7 +176,7 @@ const Integrations = () => {
           relationshipData={relationshipData}
           setEditMode={false}
         />
-        <MoreDetailsModal
+        <UpdateModal
           modalStatus={modalStatus.addIntegrationModalStatus}
           labels={{ itemTitle: "Integration", buttonLabel: "Add" }}
           setEditMode={true}

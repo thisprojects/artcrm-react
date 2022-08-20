@@ -40,7 +40,7 @@ export default function RelationshipSelect({ label, data, handleChange }) {
           ))}
       </Select>
       <FormHelperText>
-        Add {label.toLowerCase()} from the drop-down menu
+        View {label.toLowerCase()} from the drop-down menu
       </FormHelperText>
     </FormControl>
   );

@@ -5,7 +5,7 @@ import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Table from "../Components/Table";
-import MoreDetailsModal from "../Components/MoreDetailsModal";
+import UpdateModal from "../Components/UpdateModal";
 import BulkUploader from "../Components/BulkUploader";
 import useNetworkRequest from "../Hooks/useNetworkRequest";
 import { useState, useEffect } from "react";
@@ -71,7 +71,7 @@ const Contacts = () => {
     },
   });
   const [singleContact, setSingleContact] = useState(null);
-  const [relationshipData, setRelationshipData] = useState({});
+  const [contactAndTagData, setContatAndTagData] = useState({});
   const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
 
   const getRelationshipData = () => {
@@ -82,9 +82,10 @@ const Contacts = () => {
       const response = await getItems(
         `http://localhost:8080/api/v1/${item}/getAll`
       );
-      const relationData = relationshipData;
+      const relationData = contactAndTagData;
       relationData[item] = response;
-      setRelationshipData(relationData);
+      console.log("relationData", relationData);
+      setContatAndTagData(relationData);
     });
   };
 
@@ -235,13 +236,13 @@ const Contacts = () => {
       <NavBar />
       <Box sx={{ padding: "10px" }}>
         <h1 className="section-heading">Contacts</h1>
-        <MoreDetailsModal
+        <UpdateModal
           modalStatus={modalStatus.updateContactModalStatus}
           setModalStatus={setModalStatus}
           labels={{ itemTitle: "Contact", buttonLabel: "Update" }}
           itemData={singleContact}
           updateItem={updateContact}
-          relationshipData={relationshipData}
+          contactAndTagData={contactAndTagData}
           setEditMode={false}
         />
         <BulkUploader
@@ -249,7 +250,7 @@ const Contacts = () => {
           setModalStatus={setModalStatus}
           updateItem={addBulkContact}
         />
-        <MoreDetailsModal
+        <UpdateModal
           modalStatus={modalStatus.addContactModalStatus}
           labels={{ itemTitle: "Contact", buttonLabel: "Add" }}
           setEditMode={true}
@@ -263,7 +264,7 @@ const Contacts = () => {
           }}
           addItem={addContact}
           setModalStatus={setModalStatus}
-          relationshipData={relationshipData}
+          contactAndTagData={contactAndTagData}
           updateItem={addContact}
         />
         <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>

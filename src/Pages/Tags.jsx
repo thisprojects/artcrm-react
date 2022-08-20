@@ -5,11 +5,9 @@ import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Table from "../Components/Table";
-import MoreDetailsModal from "../Components/MoreDetailsModal";
+import UpdateModal from "../Components/UpdateModal";
 import useNetworkRequest from "../Hooks/useNetworkRequest";
 import { useState, useEffect } from "react";
-
-const relationshipsToUpdate = ["tags", "contacts"];
 
 const headCells = [
   {
@@ -42,25 +40,9 @@ const Tags = () => {
   });
 
   const [singleTag, setSingleTag] = useState(null);
-  const [relationshipData, setRelationshipData] = useState({});
   const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
 
-  const getRelationshipData = () => {
-    const relationshipNetworkEndpoints = relationshipsToUpdate.map((item) =>
-      item.replace("s", "")
-    );
-    relationshipNetworkEndpoints.forEach(async (item) => {
-      const response = await getItems(
-        `http://localhost:8080/api/v1/${item}/getAll`
-      );
-      const relationData = relationshipData;
-      relationData[item] = response;
-      setRelationshipData(relationData);
-    });
-  };
-
   const handleAddTag = () => {
-    getRelationshipData();
     setModalStatus((state) => ({
       ...state,
       addTagModalStatus: {
@@ -81,12 +63,11 @@ const Tags = () => {
     }
   };
 
-  const openModal = async (modalValue, itemId) => {
+  const openEditModal = async (modalValue, itemId) => {
     const response = await getItems(
       `http://localhost:8080/api/v1/tag/getSingle/${itemId}`
     );
     setSingleTag(response);
-    getRelationshipData();
     setModalStatus((state) => ({
       ...state,
       updateTagModalStatus: {
@@ -165,16 +146,16 @@ const Tags = () => {
       <NavBar />
       <Box sx={{ padding: "10px" }}>
         <h1 className="section-heading">Tags</h1>
-        <MoreDetailsModal
+        <UpdateModal
           modalStatus={modalStatus.updateTagModalStatus}
           setModalStatus={setModalStatus}
           labels={{ itemTitle: "Tag", buttonLabel: "Update" }}
           itemData={singleTag}
           updateItem={updateTag}
-          relationshipData={relationshipData}
+          contactAndTagData={[]}
           setEditMode={false}
         />
-        <MoreDetailsModal
+        <UpdateModal
           modalStatus={modalStatus.addTagModalStatus}
           labels={{ itemTitle: "Tag", buttonLabel: "Add" }}
           setEditMode={true}
@@ -183,7 +164,7 @@ const Tags = () => {
           }}
           addItem={addTag}
           setModalStatus={setModalStatus}
-          relationshipData={relationshipData}
+          contactAndTagData={[]}
           updateItem={addTag}
         />
         <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
@@ -192,7 +173,7 @@ const Tags = () => {
               <Table
                 headCells={headCells}
                 tableRowData={resp}
-                openModal={openModal}
+                openModal={openEditModal}
                 deleteItems={multiDelete}
               />
             )}

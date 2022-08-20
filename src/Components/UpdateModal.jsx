@@ -4,7 +4,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { useState } from "react";
-import Form from "../Components/Form";
+import Form from "./Form";
 
 const style = {
   position: "absolute",
@@ -25,7 +25,7 @@ export default function MoreDetailsModal({
   itemData,
   setModalStatus,
   updateItem,
-  relationshipData,
+  contactAndTagData,
   labels: { itemTitle, buttonLabel },
   setEditMode,
 }) {
@@ -70,7 +70,7 @@ export default function MoreDetailsModal({
             itemData={itemData}
             updateItem={updateItem}
             itemTitle={itemTitle}
-            relationshipData={relationshipData}
+            contactAndTagData={contactAndTagData}
             buttonLabel={buttonLabel}
             updateEditMode={updateEditMode}
           />

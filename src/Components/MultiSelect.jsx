@@ -1,12 +1,12 @@
 import * as React from "react";
-import { useTheme } from "@mui/material/styles";
-import Box from "@mui/material/Box";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
+import ListItemText from "@mui/material/ListItemText";
 import Select from "@mui/material/Select";
-import Chip from "@mui/material/Chip";
+import Checkbox from "@mui/material/Checkbox";
+import FormControl from "@mui/material/FormControl";
+import FormHelperText from "@mui/material/FormHelperText";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -19,18 +19,14 @@ const MenuProps = {
   },
 };
 
-function getStyles(name, personName, theme) {
-  return {
-    fontWeight:
-      personName.indexOf(name) === -1
-        ? theme.typography.fontWeightRegular
-        : theme.typography.fontWeightMedium,
-  };
-}
-
-export default function MultipleSelect({ label, data, handleChange }) {
-  const theme = useTheme();
-  const [personName, setPersonName] = React.useState([]);
+export default function MultipleSelect({
+  label,
+  data,
+  handleChange,
+  existingItems,
+  personMaker,
+}) {
+  const [personName, setPersonName] = React.useState(existingItems);
   const [selectList, setSelectList] = React.useState(data);
 
   const handleSelectChange = (event) => {
@@ -38,58 +34,65 @@ export default function MultipleSelect({ label, data, handleChange }) {
       target: { value },
     } = event;
 
-    const names = value.map((item) => {
-      if (item.firstName) return `${item.firstName} ${item.lastName}`;
-      else return item;
-    });
-
+    let namesArray = value;
     const selectedObject = value.find((item) => item.id);
+    const person =
+      selectedObject?.name ||
+      `${selectedObject?.firstName} ${selectedObject?.lastName}`;
+
+    if (personName.includes(person)) {
+      const index = namesArray.indexOf(person);
+      namesArray.splice(index, 1);
+      namesArray.pop();
+      selectedObject.delete = true;
+    }
+
+    const names = personMaker(namesArray);
     setSelectList(selectList.filter((item) => item !== selectedObject));
-
-    setPersonName(
-      // On autofill we get a stringified value.
-      typeof names === "string" ? names.split(",") : names
-    );
-
+    setPersonName(names);
     handleChange(selectedObject, "relationship", label);
   };
 
   React.useEffect(() => {
     setSelectList(data);
-  }, data.length);
+  }, [data]);
 
   return (
     <div>
       <FormControl sx={{ m: 1, width: 300 }}>
-        <InputLabel id="demo-multiple-chip-label">Chip</InputLabel>
+        <InputLabel id="demo-multiple-chip-label">{label}</InputLabel>
         <Select
           labelId="demo-multiple-chip-label"
           id="demo-multiple-chip"
           multiple
           value={personName}
           onChange={handleSelectChange}
-          input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
-          renderValue={(selected) => (
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-              {selected.map((value) => (
-                <Chip key={value} label={value} />
-              ))}
-            </Box>
-          )}
+          input={<OutlinedInput id="select-multiple-chip" label="Tag" />}
+          renderValue={(selected) => selected.join(", ")}
           MenuProps={MenuProps}
         >
-          {selectList.map((dataItem) => (
+          {data.map((dataItem) => (
             <MenuItem
               name={label}
               data-id={dataItem.id}
               id={dataItem.id}
               value={dataItem}
-              style={getStyles(dataItem.firstName, personName, theme)}
             >
-              {dataItem.name || dataItem.firstName}
+              <Checkbox
+                checked={
+                  personName.indexOf(
+                    dataItem.name ||
+                      `${dataItem.firstName} ${dataItem.lastName}`
+                  ) > -1
+                }
+              />
+              <ListItemText primary={dataItem.name || dataItem.firstName} />
             </MenuItem>
           ))}
         </Select>
+        <FormHelperText>
+          Add {label.toLowerCase()} from the drop-down menu
+        </FormHelperText>
       </FormControl>
     </div>
   );
