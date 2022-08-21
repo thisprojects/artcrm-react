@@ -7,9 +7,8 @@ import Box from "@mui/material/Box";
 import Table from "../Components/Table";
 import UpdateModal from "../Components/UpdateModal";
 import useNetworkRequest from "../Hooks/useNetworkRequest";
+import NoData from "../Components/NoData";
 import { useState, useEffect } from "react";
-
-const relationshipsToUpdate = ["tags", "contacts"];
 
 const headCells = [
   {
@@ -27,6 +26,7 @@ const headCells = [
 
 const Integrations = () => {
   const [resp, setResponse] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [modalStatus, setModalStatus] = useState({
     updateIntegrationModalStatus: {
@@ -45,22 +45,7 @@ const Integrations = () => {
   const [relationshipData, setRelationshipData] = useState({});
   const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
 
-  const getRelationshipData = () => {
-    const relationshipNetworkEndpoints = relationshipsToUpdate.map((item) =>
-      item.replace("s", "")
-    );
-    relationshipNetworkEndpoints.forEach(async (item) => {
-      const response = await getItems(
-        `http://localhost:8080/api/v1/${item}/getAll`
-      );
-      const relationData = relationshipData;
-      relationData[item] = response;
-      setRelationshipData(relationData);
-    });
-  };
-
   const handleAddIntegration = () => {
-    getRelationshipData();
     setModalStatus((state) => ({
       ...state,
       addIntegrationModalStatus: {
@@ -77,6 +62,7 @@ const Integrations = () => {
       payload
     );
     if (response.ok === true) {
+      setLoading(true);
       getAllIntegrations();
     }
   };
@@ -86,7 +72,6 @@ const Integrations = () => {
       `http://localhost:8080/api/v1/integration/getSingle/${itemId}`
     );
     setSingleIntegration(response);
-    getRelationshipData();
     setModalStatus((state) => ({
       ...state,
       updateIntegrationModalStatus: {
@@ -111,6 +96,7 @@ const Integrations = () => {
           label: "updateIntegrationModalStatus",
         },
       }));
+      setLoading(true);
       getAllIntegrations();
     } else {
       setModalStatus((state) => ({
@@ -138,6 +124,7 @@ const Integrations = () => {
           label: "addIntegrationModalStatus",
         },
       }));
+      setLoading(true);
       getAllIntegrations();
     } else {
       setModalStatus((state) => ({
@@ -156,9 +143,11 @@ const Integrations = () => {
       "http://localhost:8080/api/v1/integration/getAll"
     );
     setResponse(response);
+    setLoading(false);
   };
 
   useEffect(() => {
+    setLoading(true);
     getAllIntegrations();
   }, []);
 
@@ -166,14 +155,13 @@ const Integrations = () => {
     <div className="Integrations">
       <NavBar />
       <Box sx={{ padding: "10px" }}>
-        <h1 className="section-heading">Integrations</h1>
         <UpdateModal
           modalStatus={modalStatus.updateIntegrationModalStatus}
           setModalStatus={setModalStatus}
           labels={{ itemTitle: "Integration", buttonLabel: "Update" }}
           itemData={singleIntegration}
           updateItem={updateIntegration}
-          relationshipData={relationshipData}
+          contactAndTagData={[]}
           setEditMode={false}
         />
         <UpdateModal
@@ -182,30 +170,34 @@ const Integrations = () => {
           setEditMode={true}
           itemData={{
             name: "",
-            email: "",
-            postCode: "",
-            tags: [],
-            contacts: [],
           }}
           addItem={addIntegration}
           setModalStatus={setModalStatus}
-          relationshipData={relationshipData}
+          contactAndTagData={[]}
           updateItem={addIntegration}
         />
         <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
           <Grid item md={10}>
-            {resp.length > 0 && (
+            {resp.length > 0 ? (
               <Table
                 headCells={headCells}
                 tableRowData={resp}
                 openModal={openModal}
                 deleteItems={multiDelete}
+                label="Integrations"
               />
+            ) : (
+              <NoData label={"Integration"} loading={loading} />
             )}
           </Grid>
           <Grid item md={2}>
             <Stack direction="column" spacing={2}>
-              <Button onClick={handleAddIntegration}>Add Integrations</Button>
+              <Button
+                sx={{ backgroundColor: "white" }}
+                onClick={handleAddIntegration}
+              >
+                Add Integrations
+              </Button>
             </Stack>
           </Grid>
         </Grid>

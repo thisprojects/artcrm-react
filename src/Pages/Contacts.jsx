@@ -8,6 +8,7 @@ import Table from "../Components/Table";
 import UpdateModal from "../Components/UpdateModal";
 import BulkUploader from "../Components/BulkUploader";
 import useNetworkRequest from "../Hooks/useNetworkRequest";
+import NoData from "../Components/NoData";
 import { useState, useEffect } from "react";
 
 const headCells = [
@@ -73,6 +74,7 @@ const Contacts = () => {
   const [singleContact, setSingleContact] = useState(null);
   const [contactAndTagData, setContatAndTagData] = useState({});
   const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
+  const [loading, setLoading] = useState(true);
 
   const getRelationshipData = () => {
     const relationshipNetworkEndpoints = relationshipsToUpdate.map((item) =>
@@ -118,6 +120,7 @@ const Contacts = () => {
       payload
     );
     if (response.ok === true) {
+      setLoading(true);
       getAllContacts();
     }
   };
@@ -152,6 +155,7 @@ const Contacts = () => {
           label: "updateContactModalStatus",
         },
       }));
+      setLoading(true);
       getAllContacts();
     } else {
       setModalStatus((state) => ({
@@ -179,6 +183,7 @@ const Contacts = () => {
           label: "addContactModalStatus",
         },
       }));
+      setLoading(true);
       getAllContacts();
     } else {
       setModalStatus((state) => ({
@@ -207,6 +212,7 @@ const Contacts = () => {
           label: "bulkAddContactModalStatus",
         },
       }));
+      setLoading(true);
       getAllContacts();
     } else {
       setModalStatus((state) => ({
@@ -225,9 +231,11 @@ const Contacts = () => {
       "http://localhost:8080/api/v1/contact/getAll"
     );
     setResponse(response);
+    setLoading(false);
   };
 
   useEffect(() => {
+    setLoading(true);
     getAllContacts();
   }, []);
 
@@ -235,7 +243,6 @@ const Contacts = () => {
     <div className="contacts">
       <NavBar />
       <Box sx={{ padding: "10px" }}>
-        <h1 className="section-heading">Contacts</h1>
         <UpdateModal
           modalStatus={modalStatus.updateContactModalStatus}
           setModalStatus={setModalStatus}
@@ -267,21 +274,34 @@ const Contacts = () => {
           contactAndTagData={contactAndTagData}
           updateItem={addContact}
         />
-        <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+        <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 2 }}>
           <Grid item md={10}>
-            {resp.length > 0 && (
+            {resp.length > 0 ? (
               <Table
                 headCells={headCells}
                 tableRowData={resp}
                 openModal={openModal}
                 deleteItems={multiDelete}
+                label={"Contacts"}
               />
+            ) : (
+              <NoData label={"Contact"} loading={loading} />
             )}
           </Grid>
           <Grid item md={2}>
             <Stack direction="column" spacing={2}>
-              <Button onClick={handleAddContact}>Add Single Contact</Button>
-              <Button onClick={handleBulkAddContact}>Add Bulk Contacts</Button>
+              <Button
+                sx={{ backgroundColor: "white" }}
+                onClick={handleAddContact}
+              >
+                Add Single Contact
+              </Button>
+              <Button
+                sx={{ backgroundColor: "white" }}
+                onClick={handleBulkAddContact}
+              >
+                Add Bulk Contacts
+              </Button>
             </Stack>
           </Grid>
         </Grid>

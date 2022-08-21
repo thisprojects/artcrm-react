@@ -1,8 +1,26 @@
-
+.dashboard {
+  text-align: center;
+}
 
 th, td {
   padding: 10px;
 }
+
+.section-heading{
+  margin-bottom: 0px;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
 
 .nav-links {
   color: white;
@@ -14,15 +32,6 @@ th, td {
   line-height: 1.75;
   letter-spacing: 0.02857em;
   text-transform: uppercase;
-}
-
-/* #form-component .MuiSelect-select{
-  overflow: auto;
-  max-height: 110px;
-} */
-
-.section-heading{
-  margin-bottom: 0px;
 }
 
 

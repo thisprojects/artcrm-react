@@ -5,7 +5,7 @@ import useNetworkRequest from "../Hooks/useNetworkRequest";
 import { useEffect, useState } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import Typography from "@mui/material/Typography";
+import Loading from "../Components/Loading";
 
 const Dashboard = () => {
   const [response, setResponse] = useState(null);
@@ -64,33 +64,44 @@ const Dashboard = () => {
   return (
     <div className="dashboard">
       <Box>
-        <Typography variant="h3" sx={{ margin: "30px" }}>
-          Dashboard
-        </Typography>
         <Grid container rowSpacing={2} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
           <Grid
             container
             item
             md={12}
             sx={{
-              paddingBottom: "20px",
+              paddingBottom: "10px",
+              borderTop: "1px solid lightgray",
               borderBottom: "1px solid lightgray",
-              boxShadow: "10px 0.5px 5px #aaaaaa",
+              boxShadow: "0 5px 10px -5px #aaaaaa",
+              backgroundColor: "white",
+              marginTop: "30px",
             }}
           >
             <Grid item md={4}>
-              <p>Total Contacts: {response?.numberOfContacts} </p>
+              {response ? (
+                <p>Total Contacts: {response?.numberOfContacts} </p>
+              ) : (
+                <Loading />
+              )}
             </Grid>
             <Grid item md={4}>
-              <p>Total Organisations: {response?.numberOfOrganisations} </p>
+              {response ? (
+                <p>Total Organisations: {response?.numberOfOrganisations} </p>
+              ) : (
+                <Loading />
+              )}
             </Grid>
             <Grid item md={4}>
-              <p>Total Events: {response?.numberOfEvents}</p>
+              {response ? (
+                <p>Total Events: {response?.numberOfEvents}</p>
+              ) : (
+                <Loading />
+              )}
             </Grid>
           </Grid>
           <Grid
             container
-            md={12}
             sx={{
               paddingTop: "20px",
               paddingBottom: "20px",
@@ -104,46 +115,55 @@ const Dashboard = () => {
               sx={{
                 border: "1px solid lightgray",
                 boxShadow: "10px 0.5px 5px #aaaaaa",
+                backgroundColor: "white",
+                justifyContent: "center",
+                alignItems: "center",
+                display: "flex",
+                minHeight: "300px",
               }}
             >
-              <HighchartsReact
-                highcharts={Highcharts}
-                options={{
-                  colors: [
-                    "#492970",
-                    "#f28f43",
-                    "#77a1e5",
-                    "#c42525",
-                    "#a6c96a",
-                  ],
-                  plotOptions: {
-                    column: {
-                      colorByPoint: true,
+              {response ? (
+                <HighchartsReact
+                  highcharts={Highcharts}
+                  options={{
+                    colors: [
+                      "#492970",
+                      "#f28f43",
+                      "#77a1e5",
+                      "#c42525",
+                      "#a6c96a",
+                    ],
+                    plotOptions: {
+                      column: {
+                        colorByPoint: true,
+                      },
                     },
-                  },
-                  chart: {
-                    type: "column",
-                  },
-                  xAxis: {
-                    categories: eventCatagories,
-                    crosshair: true,
-                  },
-                  yAxis: {
+                    chart: {
+                      type: "column",
+                    },
+                    xAxis: {
+                      categories: eventCatagories,
+                      crosshair: true,
+                    },
+                    yAxis: {
+                      title: {
+                        text: "Participants",
+                      },
+                    },
                     title: {
-                      text: "Participants",
+                      text: "Five Most Recent Events",
                     },
-                  },
-                  title: {
-                    text: "Five Most Recent Events",
-                  },
-                  series: [
-                    {
-                      showInLegend: false,
-                      data: eventSeries,
-                    },
-                  ],
-                }}
-              />
+                    series: [
+                      {
+                        showInLegend: false,
+                        data: eventSeries,
+                      },
+                    ],
+                  }}
+                />
+              ) : (
+                <Loading />
+              )}
             </Grid>
             <Grid
               item
@@ -152,78 +172,87 @@ const Dashboard = () => {
               sx={{
                 border: "1px solid lightgray",
                 boxShadow: "10px 0.5px 5px #aaaaaa",
+                backgroundColor: "white",
+                justifyContent: "center",
+                alignItems: "center",
+                display: "flex",
               }}
             >
-              <HighchartsReact
-                highcharts={Highcharts}
-                options={{
-                  colors: [
-                    "#2f7ed8",
-                    "#0d233a",
-                    "#8bbc21",
-                    "#910000",
-                    "#1aadce",
-                  ],
-                  plotOptions: {
-                    allowPointSelect: true,
-                    cursor: "pointer",
-                    dataLabels: {
-                      enabled: true,
-                      format: "<b>{point.name}</b>: {point.percentage:.1f} %",
+              {response ? (
+                <HighchartsReact
+                  highcharts={Highcharts}
+                  options={{
+                    colors: [
+                      "#2f7ed8",
+                      "#0d233a",
+                      "#8bbc21",
+                      "#910000",
+                      "#1aadce",
+                    ],
+                    plotOptions: {
+                      allowPointSelect: true,
+                      cursor: "pointer",
+                      dataLabels: {
+                        enabled: true,
+                        format: "<b>{point.name}</b>: {point.percentage:.1f} %",
+                      },
                     },
-                  },
-                  accessibility: {
-                    point: {
-                      valueSuffix: "%",
+                    accessibility: {
+                      point: {
+                        valueSuffix: "%",
+                      },
                     },
-                  },
-                  chart: {
-                    plotBackgroundColor: null,
-                    plotBorderWidth: null,
-                    plotShadow: false,
-                    type: "pie",
-                  },
-                  tooltip: {
-                    pointFormat:
-                      "{series.name}: <b>{point.percentage:.1f}%</b>",
-                  },
-                  title: {
-                    text: "Age Demographics",
-                  },
-                  series: [
-                    {
-                      showInLegend: false,
-                      name: "Age Demographic",
-                      colorByPoint: true,
-                      data: ageDemographicSeries,
+                    chart: {
+                      plotBackgroundColor: null,
+                      plotBorderWidth: null,
+                      plotShadow: false,
+                      type: "pie",
                     },
-                  ],
-                }}
-              />
+                    tooltip: {
+                      pointFormat:
+                        "{series.name}: <b>{point.percentage:.1f}%</b>",
+                    },
+                    title: {
+                      text: "Age Demographics",
+                    },
+                    series: [
+                      {
+                        showInLegend: false,
+                        name: "Age Demographic",
+                        colorByPoint: true,
+                        data: ageDemographicSeries,
+                      },
+                    ],
+                  }}
+                />
+              ) : (
+                <Loading />
+              )}
             </Grid>
           </Grid>
           <Grid
             container
-            md={12}
-            sm={12}
             sx={{
               justifyContent: "center",
             }}
           >
-            {allPostCodeStats && (
-              <Grid
-                item
-                md={10}
-                sx={{
-                  border: "1px solid lightgray",
-                  boxShadow: "10px 0.5px 5px #aaaaaa",
-                  marginBottom: "10px",
-                }}
-              >
+            <Grid
+              item
+              md={10}
+              sx={{
+                border: "1px solid lightgray",
+                boxShadow: "10px 0.5px 5px #aaaaaa",
+                marginBottom: "10px",
+                backgroundColor: "white",
+                justifyContent: "center",
+                alignItems: "center",
+                display: "flex",
+                minHeight: "300px",
+              }}
+            >
+              {allPostCodeStats ? (
                 <HighchartsReact
                   highcharts={Highcharts}
-                  umber
-                  of
                   options={{
                     plotOptions: {
                       column: {
@@ -265,8 +294,10 @@ const Dashboard = () => {
                     ],
                   }}
                 />
-              </Grid>
-            )}
+              ) : (
+                <Loading />
+              )}
+            </Grid>
           </Grid>
         </Grid>
       </Box>

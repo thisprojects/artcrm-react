@@ -7,6 +7,7 @@ import Box from "@mui/material/Box";
 import Table from "../Components/Table";
 import UpdateModal from "../Components/UpdateModal";
 import useNetworkRequest from "../Hooks/useNetworkRequest";
+import NoData from "../Components/NoData";
 import { useState, useEffect } from "react";
 
 const headCells = [
@@ -41,6 +42,7 @@ const Tags = () => {
 
   const [singleTag, setSingleTag] = useState(null);
   const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
+  const [loading, setLoading] = useState(true);
 
   const handleAddTag = () => {
     setModalStatus((state) => ({
@@ -59,6 +61,7 @@ const Tags = () => {
       payload
     );
     if (response.ok === true) {
+      setLoading(true);
       getAllTags();
     }
   };
@@ -92,6 +95,7 @@ const Tags = () => {
           label: "updateTagModalStatus",
         },
       }));
+      setLoading(true);
       getAllTags();
     } else {
       setModalStatus((state) => ({
@@ -119,6 +123,7 @@ const Tags = () => {
           label: "addTagModalStatus",
         },
       }));
+      setLoading(true);
       getAllTags();
     } else {
       setModalStatus((state) => ({
@@ -135,9 +140,11 @@ const Tags = () => {
   const getAllTags = async () => {
     const response = await getItems("http://localhost:8080/api/v1/tag/getAll");
     setResponse(response);
+    setLoading(false);
   };
 
   useEffect(() => {
+    setLoading(true);
     getAllTags();
   }, []);
 
@@ -145,7 +152,6 @@ const Tags = () => {
     <div className="Tags">
       <NavBar />
       <Box sx={{ padding: "10px" }}>
-        <h1 className="section-heading">Tags</h1>
         <UpdateModal
           modalStatus={modalStatus.updateTagModalStatus}
           setModalStatus={setModalStatus}
@@ -169,18 +175,23 @@ const Tags = () => {
         />
         <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
           <Grid item md={10}>
-            {resp.length > 0 && (
+            {resp.length > 0 ? (
               <Table
+                label="Tags"
                 headCells={headCells}
                 tableRowData={resp}
                 openModal={openEditModal}
                 deleteItems={multiDelete}
               />
+            ) : (
+              <NoData label={"Tag"} loading={loading} />
             )}
           </Grid>
           <Grid item md={2}>
             <Stack direction="column" spacing={2}>
-              <Button onClick={handleAddTag}>Add Tags</Button>
+              <Button sx={{ backgroundColor: "white" }} onClick={handleAddTag}>
+                Add Tags
+              </Button>
             </Stack>
           </Grid>
         </Grid>

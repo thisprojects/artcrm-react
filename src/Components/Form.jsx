@@ -6,6 +6,7 @@ import Button from "@mui/material/Button";
 import FormSelectors from "./FormSelectors";
 import Grid from "@mui/material/Grid";
 import ToggleSwitch from "./ToggleSwitch";
+import DatePicker from "./DatePicker";
 import { useState } from "react";
 
 export default function Form({
@@ -20,8 +21,9 @@ export default function Form({
   const [formPayload, updateFormPayload] = useState({ id: itemData?.id });
 
   const handleChange = (e, type, name) => {
+    const stagedPayload = formPayload;
+    console.log("EVENT", e);
     if (type === "relationship") {
-      const stagedPayload = formPayload;
       if (stagedPayload[name]) {
         if (!stagedPayload[name].find((item) => item.id === e.id)) {
           stagedPayload[name].push({ id: e.id });
@@ -29,12 +31,12 @@ export default function Form({
       } else {
         stagedPayload[name] = [{ id: e.id }];
       }
-      updateFormPayload(stagedPayload);
+    } else if (type === "date") {
+      stagedPayload.eventDate = e;
     } else {
-      const stagedPayload = formPayload;
-      stagedPayload[e.target.name] = e.target.value;
-      updateFormPayload(stagedPayload);
+      stagedPayload[e.target?.name] = e.target.value;
     }
+    updateFormPayload(stagedPayload);
   };
 
   const handleUpdate = () => {
@@ -71,6 +73,14 @@ export default function Form({
             {Object.keys(itemData).map((item, index) => {
               if (item === "id" || Array.isArray(itemData[item])) {
                 return null;
+              } else if (item === "eventDate") {
+                return (
+                  <DatePicker
+                    handleChange={handleChange}
+                    editMode={editMode}
+                    currDate={itemData[item]}
+                  />
+                );
               } else {
                 return (
                   <TextField

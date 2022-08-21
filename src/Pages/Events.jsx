@@ -6,6 +6,7 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Table from "../Components/Table";
 import UpdateModal from "../Components/UpdateModal";
+import NoData from "../Components/NoData";
 import useNetworkRequest from "../Hooks/useNetworkRequest";
 import { useState, useEffect } from "react";
 
@@ -27,6 +28,12 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: "Venue Name",
+  },
+  {
+    id: "eventDate",
+    numberic: false,
+    disablePadding: false,
+    label: "Event Date",
   },
   {
     id: "inspect",
@@ -56,6 +63,7 @@ const Events = () => {
   const [singleEvent, setSingleEvent] = useState(null);
   const [contactAndTagData, setContactAndTagData] = useState({});
   const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
+  const [loading, setLoading] = useState(true);
 
   const getRelationshipData = () => {
     const relationshipNetworkEndpoints = relationshipsToUpdate.map((item) =>
@@ -72,7 +80,6 @@ const Events = () => {
   };
 
   const handleAddEvent = () => {
-    getRelationshipData();
     setModalStatus((state) => ({
       ...state,
       addEventModalStatus: {
@@ -89,6 +96,7 @@ const Events = () => {
       payload
     );
     if (response.ok === true) {
+      setLoading(true);
       getAllEvents();
     }
   };
@@ -97,6 +105,7 @@ const Events = () => {
     const response = await getItems(
       `http://localhost:8080/api/v1/event/getSingle/${itemId}`
     );
+
     setSingleEvent(response);
     getRelationshipData();
     setModalStatus((state) => ({
@@ -123,6 +132,7 @@ const Events = () => {
           label: "updateEventModalStatus",
         },
       }));
+      setLoading(true);
       getAllEvents();
     } else {
       setModalStatus((state) => ({
@@ -150,6 +160,7 @@ const Events = () => {
           label: "addEventModalStatus",
         },
       }));
+      setLoading(true);
       getAllEvents();
     } else {
       setModalStatus((state) => ({
@@ -168,9 +179,12 @@ const Events = () => {
       "http://localhost:8080/api/v1/event/getAll"
     );
     setResponse(response);
+    setLoading(false);
   };
 
   useEffect(() => {
+    setLoading(true);
+    getRelationshipData();
     getAllEvents();
   }, []);
 
@@ -178,7 +192,6 @@ const Events = () => {
     <div className="events">
       <NavBar />
       <Box sx={{ padding: "10px" }}>
-        <h1 className="section-heading">Events</h1>
         <UpdateModal
           modalStatus={modalStatus.updateEventModalStatus}
           setModalStatus={setModalStatus}
@@ -196,6 +209,7 @@ const Events = () => {
             name: "",
             venueName: "",
             postCode: "",
+            eventDate: "",
             tags: [],
             contacts: [],
           }}
@@ -204,20 +218,28 @@ const Events = () => {
           contactAndTagData={contactAndTagData}
           updateItem={addEvent}
         />
-        <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+        <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 2 }}>
           <Grid item md={10}>
-            {resp.length > 0 && (
+            {resp.length > 0 ? (
               <Table
                 headCells={headCells}
                 tableRowData={resp}
                 openModal={openModal}
                 deleteItems={multiDelete}
+                label={"Events"}
               />
+            ) : (
+              <NoData label={"Event"} loading={loading} />
             )}
           </Grid>
           <Grid item md={2}>
             <Stack direction="column" spacing={2}>
-              <Button onClick={handleAddEvent}>Add Event</Button>
+              <Button
+                sx={{ backgroundColor: "white" }}
+                onClick={handleAddEvent}
+              >
+                Add Event
+              </Button>
             </Stack>
           </Grid>
         </Grid>

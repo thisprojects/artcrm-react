@@ -12,7 +12,6 @@ import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import Paper from "@mui/material/Paper";
 import IconButton from "@mui/material/IconButton";
 import Checkbox from "@mui/material/Checkbox";
@@ -106,9 +105,13 @@ function EnhancedTableHead(props) {
   );
 }
 
-const EnhancedTableToolbar = (props) => {
-  const { numSelected, rows, applyFilter, handleDelete } = props;
-
+const EnhancedTableToolbar = ({
+  numSelected,
+  rows,
+  applyFilter,
+  handleDelete,
+  label,
+}) => {
   return (
     <Toolbar
       sx={{
@@ -138,7 +141,9 @@ const EnhancedTableToolbar = (props) => {
           variant="h6"
           id="tableTitle"
           component="div"
-        ></Typography>
+        >
+          {label}
+        </Typography>
       )}
 
       {numSelected > 0 ? (
@@ -159,12 +164,12 @@ export default function EnhancedTable({
   tableRowData,
   openModal,
   deleteItems,
+  label,
 }) {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [rows, setRows] = React.useState([]);
 
@@ -190,9 +195,10 @@ export default function EnhancedTable({
           item?.firstName?.toLowerCase().includes(filterText?.toLowerCase())) ||
         item?.lastName?.toLowerCase().includes(filterText?.toLowerCase()) ||
         item?.postCode?.toLowerCase().includes(filterText?.toLowerCase()) ||
+        item?.name?.toLowerCase().includes(filterText?.toLowerCase()) ||
+        item?.venueName?.toLowerCase().includes(filterText?.toLowerCase()) ||
         item?.email?.toLowerCase().includes(filterText?.toLowerCase())
     );
-    console.log(filterText, filteredRows);
     if (filteredRows.length > 0) {
       setRows(filteredRows);
     } else {
@@ -242,7 +248,6 @@ export default function EnhancedTable({
   };
 
   const handleEdit = (event) => {
-    console.log(event.target.getAttribute("data-id"));
     const itemId = event.target.getAttribute("data-id");
     openModal(true, itemId);
   };
@@ -266,12 +271,13 @@ export default function EnhancedTable({
           rows={rows}
           applyFilter={applyFilter}
           handleDelete={handleDelete}
+          label={label}
         />
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
             aria-labelledby="tableTitle"
-            size={dense ? "small" : "medium"}
+            size={"medium"}
           >
             <EnhancedTableHead
               headCells={headCells}
@@ -347,7 +353,7 @@ export default function EnhancedTable({
                 {emptyRows > 0 && (
                   <TableRow
                     style={{
-                      height: (dense ? 33 : 53) * emptyRows,
+                      height: 53 * emptyRows,
                     }}
                   >
                     <TableCell colSpan={6} />

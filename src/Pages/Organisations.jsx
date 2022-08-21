@@ -8,6 +8,7 @@ import Table from "../Components/Table";
 import UpdateModal from "../Components/UpdateModal";
 import useNetworkRequest from "../Hooks/useNetworkRequest";
 import { useState, useEffect } from "react";
+import NoData from "../Components/NoData";
 
 const headCells = [
   {
@@ -56,6 +57,7 @@ const Organisations = () => {
   const [singleOrganisation, setSingleOrganisation] = useState(null);
   const [contactAndTagData, setContactAndTagData] = useState({});
   const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
+  const [loading, setLoading] = useState(true);
 
   const getRelationshipData = () => {
     const relationshipNetworkEndpoints = relationshipsToUpdate.map((item) =>
@@ -89,6 +91,7 @@ const Organisations = () => {
       payload
     );
     if (response.ok === true) {
+      setLoading(true);
       getAllOrganisations();
     }
   };
@@ -123,6 +126,7 @@ const Organisations = () => {
           label: "updateOrganisationModalStatus",
         },
       }));
+      setLoading(true);
       getAllOrganisations();
     } else {
       setModalStatus((state) => ({
@@ -150,6 +154,7 @@ const Organisations = () => {
           label: "addorganisationModalStatus",
         },
       }));
+      setLoading(true);
       getAllOrganisations();
     } else {
       setModalStatus((state) => ({
@@ -168,9 +173,11 @@ const Organisations = () => {
       "http://localhost:8080/api/v1/organisation/getAll"
     );
     setResponse(response);
+    setLoading(false);
   };
 
   useEffect(() => {
+    setLoading(true);
     getAllOrganisations();
   }, []);
 
@@ -178,7 +185,6 @@ const Organisations = () => {
     <div className="organisations">
       <NavBar />
       <Box sx={{ padding: "10px" }}>
-        <h1 className="section-heading">Organisations</h1>
         <UpdateModal
           modalStatus={modalStatus.updateOrganisationModalStatus}
           setModalStatus={setModalStatus}
@@ -206,18 +212,26 @@ const Organisations = () => {
         />
         <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
           <Grid item md={10}>
-            {resp.length > 0 && (
+            {resp.length > 0 ? (
               <Table
+                label="Organisations"
                 headCells={headCells}
                 tableRowData={resp}
                 openModal={openModal}
                 deleteItems={multiDelete}
               />
+            ) : (
+              <NoData label={"Organisation"} loading={loading} />
             )}
           </Grid>
           <Grid item md={2}>
             <Stack direction="column" spacing={2}>
-              <Button onClick={handleAddOrganisation}>Add Organisation</Button>
+              <Button
+                sx={{ backgroundColor: "white" }}
+                onClick={handleAddOrganisation}
+              >
+                Add Organisation
+              </Button>
             </Stack>
           </Grid>
         </Grid>

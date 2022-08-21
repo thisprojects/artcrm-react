@@ -4,19 +4,24 @@ import Papa from "papaparse";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Button from "@mui/material/Button";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
 
 const style = {
   position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: "80%",
+  width: "50%",
   bgcolor: "background.paper",
   border: "1px solid gray",
   boxShadow: 24,
   p: 4,
   overflow: "scroll",
   height: "500px",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  flexDirection: "column",
 };
 
 function BulkUploader({ modalStatus, setModalStatus, updateItem }) {
@@ -85,16 +90,22 @@ function BulkUploader({ modalStatus, setModalStatus, updateItem }) {
           <p>Error</p>
         ) : (
           <>
-            <input
-              type="file"
-              name="file"
-              onChange={changeHandler}
-              accept=".csv"
-              style={{ display: "block", margin: "10px auto" }}
-            />
-            <br />
-            <br />
+            {tableRows.length === 0 && (
+              <>
+                <UploadFileIcon sx={{ fontSize: "350px", color: "#1976d2" }} />
 
+                <label for="file">Choose CSV file to upload</label>
+                <input
+                  type="file"
+                  name="file"
+                  onChange={changeHandler}
+                  accept=".csv"
+                  style={{ display: "block", margin: "10px auto" }}
+                />
+                <br />
+                <br />
+              </>
+            )}
             <table>
               <thead>
                 <tr>
@@ -115,7 +126,11 @@ function BulkUploader({ modalStatus, setModalStatus, updateItem }) {
                 })}
               </tbody>
             </table>
-            <Button onClick={handleUpload}>Upload Data</Button>
+            {tableRows.length > 0 && (
+              <Button sx={{ padding: "20px" }} onClick={handleUpload}>
+                Upload Data
+              </Button>
+            )}
           </>
         )}
       </Box>

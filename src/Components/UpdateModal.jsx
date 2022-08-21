@@ -63,7 +63,7 @@ export default function MoreDetailsModal({
       >
         <Box sx={style}>
           <Typography id="modal-modal-title" variant="h6" component="h2">
-            Update {itemTitle}
+            {buttonLabel} {itemTitle}
           </Typography>
           <Form
             editMode={editMode}
