@@ -17,9 +17,11 @@ export default function Form({
   updateEditMode,
   contactAndTagData,
   buttonLabel,
+  emailExists,
 }) {
   const [formPayload, updateFormPayload] = useState({ id: itemData?.id });
 
+  const [formErrors, setFormErrors] = useState({ age: false, email: false });
   const handleChange = (e, type, name) => {
     const stagedPayload = formPayload;
     console.log("EVENT", e);
@@ -40,7 +42,13 @@ export default function Form({
   };
 
   const handleUpdate = () => {
-    updateItem(formPayload);
+    if (isNaN(Number(formPayload?.age))) {
+      setFormErrors((state) => ({ ...state, age: true }));
+    } else if (!formPayload?.email || emailExists(formPayload?.email)) {
+      setFormErrors((state) => ({ ...state, email: true }));
+    } else {
+      updateItem(formPayload);
+    }
   };
 
   return (
@@ -71,6 +79,7 @@ export default function Form({
         {itemData ? (
           <>
             {Object.keys(itemData).map((item, index) => {
+              console.log("ITEM", item);
               if (item === "id" || Array.isArray(itemData[item])) {
                 return null;
               } else if (item === "eventDate") {
@@ -85,11 +94,18 @@ export default function Form({
                 return (
                   <TextField
                     name={item}
+                    error={formErrors[item]}
                     disabled={!editMode}
                     onChange={handleChange}
                     id="outlined-required"
                     label={item}
                     defaultValue={itemData[item] || null}
+                    helperText={
+                      formErrors[item] &&
+                      (item === "age"
+                        ? "Age must be a number"
+                        : "Unique Email Required")
+                    }
                   />
                 );
               }

@@ -64,11 +64,9 @@ const Dashboard = () => {
   return (
     <div className="dashboard">
       <Box>
-        <Grid container rowSpacing={2} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+        <Grid container columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
           <Grid
             container
-            item
-            md={12}
             sx={{
               paddingBottom: "10px",
               borderTop: "1px solid lightgray",
@@ -76,6 +74,7 @@ const Dashboard = () => {
               boxShadow: "0 5px 10px -5px #aaaaaa",
               backgroundColor: "white",
               marginTop: "30px",
+              justifyContent: "space-evenly",
             }}
           >
             <Grid item md={4}>
@@ -103,7 +102,7 @@ const Dashboard = () => {
           <Grid
             container
             sx={{
-              paddingTop: "20px",
+              marginTop: "20px",
               paddingBottom: "20px",
               justifyContent: "space-evenly",
             }}
@@ -111,7 +110,8 @@ const Dashboard = () => {
             <Grid
               item
               md={5}
-              sm={12}
+              sm={10}
+              xs={10}
               sx={{
                 border: "1px solid lightgray",
                 boxShadow: "10px 0.5px 5px #aaaaaa",
@@ -120,6 +120,7 @@ const Dashboard = () => {
                 alignItems: "center",
                 display: "flex",
                 minHeight: "300px",
+                marginBottom: "20px",
               }}
             >
               {response ? (
@@ -163,12 +164,13 @@ const Dashboard = () => {
                 />
               ) : (
                 <Loading />
-              )}
+              )}{" "}
             </Grid>
             <Grid
               item
               md={5}
-              sm={12}
+              sm={10}
+              xs={10}
               sx={{
                 border: "1px solid lightgray",
                 boxShadow: "10px 0.5px 5px #aaaaaa",
@@ -176,6 +178,7 @@ const Dashboard = () => {
                 justifyContent: "center",
                 alignItems: "center",
                 display: "flex",
+                marginBottom: "20px",
               }}
             >
               {response ? (
@@ -237,8 +240,10 @@ const Dashboard = () => {
             }}
           >
             <Grid
-              item
               md={10}
+              sm={10}
+              xs={10}
+              item
               sx={{
                 border: "1px solid lightgray",
                 boxShadow: "10px 0.5px 5px #aaaaaa",

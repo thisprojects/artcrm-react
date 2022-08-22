@@ -5,6 +5,7 @@ import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { useState } from "react";
 import Form from "./Form";
+import NoData from "./NoData";
 
 const style = {
   position: "absolute",
@@ -28,6 +29,7 @@ export default function MoreDetailsModal({
   contactAndTagData,
   labels: { itemTitle, buttonLabel },
   setEditMode,
+  emailExists,
 }) {
   const [editMode, updateEditMode] = useState(setEditMode);
 
@@ -62,18 +64,25 @@ export default function MoreDetailsModal({
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            {buttonLabel} {itemTitle}
-          </Typography>
-          <Form
-            editMode={editMode}
-            itemData={itemData}
-            updateItem={updateItem}
-            itemTitle={itemTitle}
-            contactAndTagData={contactAndTagData}
-            buttonLabel={buttonLabel}
-            updateEditMode={updateEditMode}
-          />
+          {modalStatus.error ? (
+            <NoData error={modalStatus.error} />
+          ) : (
+            <>
+              <Typography id="modal-modal-title" variant="h6" component="h2">
+                {buttonLabel} {itemTitle}
+              </Typography>
+              <Form
+                emailExists={emailExists}
+                editMode={editMode}
+                itemData={itemData}
+                updateItem={updateItem}
+                itemTitle={itemTitle}
+                contactAndTagData={contactAndTagData}
+                buttonLabel={buttonLabel}
+                updateEditMode={updateEditMode}
+              />
+            </>
+          )}
         </Box>
       </Modal>
     </div>

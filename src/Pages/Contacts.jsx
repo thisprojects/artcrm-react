@@ -234,6 +234,10 @@ const Contacts = () => {
     setLoading(false);
   };
 
+  const emailExists = (email) => {
+    return resp?.find((item) => item.email === email);
+  };
+
   useEffect(() => {
     setLoading(true);
     getAllContacts();
@@ -251,6 +255,7 @@ const Contacts = () => {
           updateItem={updateContact}
           contactAndTagData={contactAndTagData}
           setEditMode={false}
+          emailExists={emailExists}
         />
         <BulkUploader
           modalStatus={modalStatus.bulkAddContactModalStatus}
@@ -269,6 +274,7 @@ const Contacts = () => {
             age: "",
             tags: [],
           }}
+          emailExists={emailExists}
           addItem={addContact}
           setModalStatus={setModalStatus}
           contactAndTagData={contactAndTagData}
