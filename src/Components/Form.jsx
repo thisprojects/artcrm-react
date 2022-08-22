@@ -9,6 +9,10 @@ import ToggleSwitch from "./ToggleSwitch";
 import DatePicker from "./DatePicker";
 import { useState } from "react";
 
+const hasEmailProperty = ["Contact", "Organisation"];
+const hasAgeProperty = ["Contact"];
+const hasDateProperty = ["Event"];
+
 export default function Form({
   editMode,
   itemData,
@@ -20,12 +24,51 @@ export default function Form({
   emailExists,
 }) {
   const [formPayload, updateFormPayload] = useState({ id: itemData?.id });
+  const [formErrors, setFormErrors] = useState({
+    age: false,
+    email: false,
+    eventDate: false,
+  });
+  const hasEmail = hasEmailProperty.includes(itemTitle);
+  const hasAge = hasAgeProperty.includes(itemTitle);
+  const shouldHaveDate = hasDateProperty.includes(itemTitle);
 
-  const [formErrors, setFormErrors] = useState({ age: false, email: false });
+  const Errors = (formPayload) => {
+    let ageError = false;
+    let emailError = false;
+    let dateError = false;
+
+    if (
+      hasAge &&
+      (formPayload?.age?.length === 0 || isNaN(Number(formPayload?.age)))
+    ) {
+      ageError = true;
+      setFormErrors((state) => ({ ...state, age: ageError }));
+    } else {
+      setFormErrors((state) => ({ ...state, age: ageError }));
+    }
+
+    if (hasEmail && (!formPayload?.email || emailExists(formPayload?.email))) {
+      emailError = true;
+      setFormErrors((state) => ({ ...state, email: emailError }));
+    } else {
+      setFormErrors((state) => ({ ...state, email: emailError }));
+    }
+
+    if (shouldHaveDate && !formPayload?.eventDate) {
+      dateError = true;
+      setFormErrors((state) => ({ ...state, eventDate: dateError }));
+    } else {
+      setFormErrors((state) => ({ ...state, eventDate: dateError }));
+    }
+
+    return ageError || emailError || dateError;
+  };
+
   const handleChange = (e, type, name) => {
     const stagedPayload = formPayload;
-    console.log("EVENT", e);
-    if (type === "relationship") {
+
+    const setRelationships = () => {
       if (stagedPayload[name]) {
         if (!stagedPayload[name].find((item) => item.id === e.id)) {
           stagedPayload[name].push({ id: e.id });
@@ -33,20 +76,22 @@ export default function Form({
       } else {
         stagedPayload[name] = [{ id: e.id }];
       }
+    };
+
+    if (type === "relationship") {
+      setRelationships();
     } else if (type === "date") {
       stagedPayload.eventDate = e;
     } else {
       stagedPayload[e.target?.name] = e.target.value;
     }
-    updateFormPayload(stagedPayload);
+    if (!Errors(stagedPayload)) {
+      updateFormPayload(stagedPayload);
+    }
   };
 
   const handleUpdate = () => {
-    if (isNaN(Number(formPayload?.age))) {
-      setFormErrors((state) => ({ ...state, age: true }));
-    } else if (!formPayload?.email || emailExists(formPayload?.email)) {
-      setFormErrors((state) => ({ ...state, email: true }));
-    } else {
+    if (!Errors(formPayload)) {
       updateItem(formPayload);
     }
   };
@@ -75,20 +120,25 @@ export default function Form({
             ) : null}
           </Grid>
         </Grid>
-
         {itemData ? (
           <>
             {Object.keys(itemData).map((item, index) => {
-              console.log("ITEM", item);
               if (item === "id" || Array.isArray(itemData[item])) {
                 return null;
               } else if (item === "eventDate") {
                 return (
-                  <DatePicker
-                    handleChange={handleChange}
-                    editMode={editMode}
-                    currDate={itemData[item]}
-                  />
+                  <>
+                    <DatePicker
+                      handleChange={handleChange}
+                      editMode={editMode}
+                      currDate={itemData[item]}
+                    />
+                    {formErrors.eventDate && (
+                      <p style={{ paddingLeft: "10px", color: "red" }}>
+                        Event Date Required
+                      </p>
+                    )}
+                  </>
                 );
               } else {
                 return (
