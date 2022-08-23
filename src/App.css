@@ -21,6 +21,12 @@ th, td {
   color: white;
 }
 
+.fill-form{
+  margin: 0px 10px;
+  color: rgb(202, 2, 2);
+  font-weight: 100;
+  font-size: 13px;
+}
 
 .nav-links {
   color: white;

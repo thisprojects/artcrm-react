@@ -9,10 +9,6 @@ import ToggleSwitch from "./ToggleSwitch";
 import DatePicker from "./DatePicker";
 import { useState } from "react";
 
-const hasEmailProperty = ["Contact", "Organisation"];
-const hasAgeProperty = ["Contact"];
-const hasDateProperty = ["Event"];
-
 export default function Form({
   editMode,
   itemData,
@@ -29,71 +25,77 @@ export default function Form({
     email: false,
     eventDate: false,
   });
-  const hasEmail = hasEmailProperty.includes(itemTitle);
-  const hasAge = hasAgeProperty.includes(itemTitle);
-  const shouldHaveDate = hasDateProperty.includes(itemTitle);
 
-  const Errors = (formPayload) => {
-    let ageError = false;
-    let emailError = false;
-    let dateError = false;
+  const formTitleNames = Object.keys(itemData).filter(
+    (item) =>
+      item !== "tags" &&
+      item !== "contacts" &&
+      item !== "events" &&
+      item !== "organisations"
+  );
 
-    if (
-      hasAge &&
-      (formPayload?.age?.length === 0 || isNaN(Number(formPayload?.age)))
-    ) {
-      ageError = true;
-      setFormErrors((state) => ({ ...state, age: ageError }));
-    } else {
-      setFormErrors((state) => ({ ...state, age: ageError }));
-    }
+  const formIsEmpty =
+    buttonLabel !== "Update" &&
+    !formTitleNames.every((item) => {
+      return formPayload[item];
+    });
 
-    if (hasEmail && (!formPayload?.email || emailExists(formPayload?.email))) {
-      emailError = true;
-      setFormErrors((state) => ({ ...state, email: emailError }));
-    } else {
-      setFormErrors((state) => ({ ...state, email: emailError }));
-    }
+  const errors = formErrors.age || formErrors.email || formErrors.eventDate;
 
-    if (shouldHaveDate && !formPayload?.eventDate) {
-      dateError = true;
-      setFormErrors((state) => ({ ...state, eventDate: dateError }));
-    } else {
-      setFormErrors((state) => ({ ...state, eventDate: dateError }));
-    }
+  console.log("FORM IS EMPTY", formIsEmpty);
+  console.log("FORM DATA", Object.keys(formPayload));
 
-    return ageError || emailError || dateError;
-  };
-
-  const handleChange = (e, type, name) => {
-    const stagedPayload = formPayload;
-
-    const setRelationships = () => {
-      if (stagedPayload[name]) {
-        if (!stagedPayload[name].find((item) => item.id === e.id)) {
-          stagedPayload[name].push({ id: e.id });
+  const handleChange = {
+    default(e) {
+      updateFormPayload((state) => ({
+        ...state,
+        [e.target?.name]: e.target.value,
+      }));
+    },
+    date(e) {
+      updateFormPayload((state) => ({ ...state, eventDate: e }));
+    },
+    email(e) {
+      if (emailExists(e.target?.value)) {
+        setFormErrors((state) => ({ ...state, email: true }));
+      } else {
+        setFormErrors((state) => ({ ...state, email: false }));
+        updateFormPayload((state) => ({
+          ...state,
+          email: e.target.value,
+        }));
+      }
+    },
+    age(e) {
+      if (isNaN(Number(e.target.value))) {
+        setFormErrors((state) => ({ ...state, age: true }));
+      } else {
+        setFormErrors((state) => ({ ...state, age: false }));
+        updateFormPayload((state) => ({
+          ...state,
+          age: e.target.value,
+        }));
+      }
+    },
+    relationship(e, name) {
+      if (formPayload[name]) {
+        if (!formPayload[name].find((item) => item.id === e.id)) {
+          updateFormPayload((state) => ({
+            ...state,
+            [name]: [...state.name, { id: e.id }],
+          }));
         }
       } else {
-        stagedPayload[name] = [{ id: e.id }];
+        updateFormPayload((state) => ({
+          ...state,
+          [name]: [{ id: e.id }],
+        }));
       }
-    };
-
-    if (type === "relationship") {
-      setRelationships();
-    } else if (type === "date") {
-      stagedPayload.eventDate = e;
-    } else {
-      stagedPayload[e.target?.name] = e.target.value;
-    }
-    if (!Errors(stagedPayload)) {
-      updateFormPayload(stagedPayload);
-    }
+    },
   };
 
   const handleUpdate = () => {
-    if (!Errors(formPayload)) {
-      updateItem(formPayload);
-    }
+    updateItem(formPayload);
   };
 
   return (
@@ -129,7 +131,7 @@ export default function Form({
                 return (
                   <>
                     <DatePicker
-                      handleChange={handleChange}
+                      handleChange={handleChange.date}
                       editMode={editMode}
                       currDate={itemData[item]}
                     />
@@ -146,7 +148,7 @@ export default function Form({
                     name={item}
                     error={formErrors[item]}
                     disabled={!editMode}
-                    onChange={handleChange}
+                    onChange={handleChange[item] || handleChange.default}
                     id="outlined-required"
                     label={item}
                     defaultValue={itemData[item] || null}
@@ -165,7 +167,7 @@ export default function Form({
               editMode={editMode}
               itemTitle={itemTitle}
               contactAndTagData={contactAndTagData}
-              handleChange={handleChange}
+              handleChange={handleChange.relationship}
             />
           </>
         ) : (
@@ -174,12 +176,13 @@ export default function Form({
       </div>
       <Button
         variant="contained"
-        disabled={!editMode}
+        disabled={!editMode || errors || formIsEmpty}
         sx={{ margin: "8px" }}
         onClick={handleUpdate}
       >
         {buttonLabel} {itemTitle}
       </Button>
+      {formIsEmpty && <p className="fill-form">Please fill in the form</p>}
     </Box>
   );
 }
