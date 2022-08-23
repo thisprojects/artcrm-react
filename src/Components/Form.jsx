@@ -17,13 +17,14 @@ export default function Form({
   updateEditMode,
   contactAndTagData,
   buttonLabel,
-  emailExists,
+  uniqueItemAlreadyExists,
 }) {
   const [formPayload, updateFormPayload] = useState({ id: itemData?.id });
   const [formErrors, setFormErrors] = useState({
-    age: false,
-    email: false,
-    eventDate: false,
+    age: { status: false, msg: "Age must be a number" },
+    email: { status: false, msg: "Email must be unique" },
+    eventDate: { status: false, msg: "Event date required" },
+    name: { statis: false, msg: "Name must be unique" },
   });
 
   const formTitleNames = Object.keys(itemData).filter(
@@ -40,10 +41,15 @@ export default function Form({
       return formPayload[item];
     });
 
-  const errors = formErrors.age || formErrors.email || formErrors.eventDate;
+  const errors =
+    formErrors.age.status ||
+    formErrors.email.status ||
+    formErrors.eventDate.status ||
+    formErrors.name.status;
 
   console.log("FORM IS EMPTY", formIsEmpty);
   console.log("FORM DATA", Object.keys(formPayload));
+  console.log("FORM TITLE", formTitleNames);
 
   const handleChange = {
     default(e) {
@@ -56,21 +62,59 @@ export default function Form({
       updateFormPayload((state) => ({ ...state, eventDate: e }));
     },
     email(e) {
-      if (emailExists(e.target?.value)) {
-        setFormErrors((state) => ({ ...state, email: true }));
+      console.log("E", e);
+      if (uniqueItemAlreadyExists(e.target?.value)) {
+        setFormErrors((state) => ({
+          ...state,
+          email: { ...state.email, status: true },
+        }));
       } else {
-        setFormErrors((state) => ({ ...state, email: false }));
+        setFormErrors((state) => ({
+          ...state,
+          email: { ...state.email, status: false },
+        }));
         updateFormPayload((state) => ({
           ...state,
           email: e.target.value,
         }));
       }
     },
+    name(e) {
+      console.log("ITEM TITLE", itemTitle);
+      if (itemTitle !== "Tag" && itemTitle !== "Integration") {
+        updateFormPayload((state) => ({
+          ...state,
+          [e.target?.name]: e.target.value,
+        }));
+        return;
+      }
+      if (uniqueItemAlreadyExists(e.target?.value)) {
+        setFormErrors((state) => ({
+          ...state,
+          name: { ...state.name, status: true },
+        }));
+      } else {
+        setFormErrors((state) => ({
+          ...state,
+          name: { ...state.name, status: false },
+        }));
+        updateFormPayload((state) => ({
+          ...state,
+          name: e.target.value,
+        }));
+      }
+    },
     age(e) {
       if (isNaN(Number(e.target.value))) {
-        setFormErrors((state) => ({ ...state, age: true }));
+        setFormErrors((state) => ({
+          ...state,
+          age: { ...state.age, status: true },
+        }));
       } else {
-        setFormErrors((state) => ({ ...state, age: false }));
+        setFormErrors((state) => ({
+          ...state,
+          age: { ...state.age, status: false },
+        }));
         updateFormPayload((state) => ({
           ...state,
           age: e.target.value,
@@ -82,7 +126,7 @@ export default function Form({
         if (!formPayload[name].find((item) => item.id === e.id)) {
           updateFormPayload((state) => ({
             ...state,
-            [name]: [...state.name, { id: e.id }],
+            [name]: [...state[name], { id: e.id }],
           }));
         }
       } else {
@@ -135,9 +179,9 @@ export default function Form({
                       editMode={editMode}
                       currDate={itemData[item]}
                     />
-                    {formErrors.eventDate && (
+                    {formErrors.eventDate.status && (
                       <p style={{ paddingLeft: "10px", color: "red" }}>
-                        Event Date Required
+                        {formErrors.eventDate.msg}
                       </p>
                     )}
                   </>
@@ -146,17 +190,14 @@ export default function Form({
                 return (
                   <TextField
                     name={item}
-                    error={formErrors[item]}
+                    error={formErrors[item]?.status}
                     disabled={!editMode}
                     onChange={handleChange[item] || handleChange.default}
                     id="outlined-required"
                     label={item}
                     defaultValue={itemData[item] || null}
                     helperText={
-                      formErrors[item] &&
-                      (item === "age"
-                        ? "Age must be a number"
-                        : "Unique Email Required")
+                      formErrors[item]?.status && formErrors[item]?.msg
                     }
                   />
                 );

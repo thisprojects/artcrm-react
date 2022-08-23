@@ -143,6 +143,12 @@ const Tags = () => {
     setLoading(false);
   };
 
+  const uniqueItemAlreadyExists = (name) => {
+    return resp?.find(
+      (item) => item?.name?.toLowerCase() === name?.toLowerCase()
+    );
+  };
+
   useEffect(() => {
     setLoading(true);
     getAllTags();
@@ -160,6 +166,7 @@ const Tags = () => {
           updateItem={updateTag}
           contactAndTagData={[]}
           setEditMode={false}
+          uniqueItemAlreadyExists={uniqueItemAlreadyExists}
         />
         <UpdateModal
           modalStatus={modalStatus.addTagModalStatus}
@@ -172,6 +179,7 @@ const Tags = () => {
           setModalStatus={setModalStatus}
           contactAndTagData={[]}
           updateItem={addTag}
+          uniqueItemAlreadyExists={uniqueItemAlreadyExists}
         />
         <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
           <Grid item md={10}>

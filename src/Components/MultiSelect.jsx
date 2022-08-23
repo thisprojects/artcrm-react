@@ -50,7 +50,7 @@ export default function MultipleSelect({
     const names = personMaker(namesArray);
     setSelectList(selectList.filter((item) => item !== selectedObject));
     setPersonName(names);
-    handleChange(selectedObject, "relationship", label);
+    handleChange(selectedObject, label);
   };
 
   React.useEffect(() => {

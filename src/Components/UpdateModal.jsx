@@ -29,7 +29,7 @@ export default function MoreDetailsModal({
   contactAndTagData,
   labels: { itemTitle, buttonLabel },
   setEditMode,
-  emailExists,
+  uniqueItemAlreadyExists,
 }) {
   const [editMode, updateEditMode] = useState(setEditMode);
 
@@ -72,7 +72,7 @@ export default function MoreDetailsModal({
                 {buttonLabel} {itemTitle}
               </Typography>
               <Form
-                emailExists={emailExists}
+                uniqueItemAlreadyExists={uniqueItemAlreadyExists}
                 editMode={editMode}
                 itemData={itemData}
                 updateItem={updateItem}

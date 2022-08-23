@@ -176,8 +176,10 @@ const Organisations = () => {
     setLoading(false);
   };
 
-  const emailExists = (email) => {
-    return resp?.find((item) => item.email === email);
+  const uniqueItemAlreadyExists = (email) => {
+    return resp?.find(
+      (item) => item?.email?.toLowerCase() === email?.toLowerCase()
+    );
   };
 
   useEffect(() => {
@@ -197,7 +199,7 @@ const Organisations = () => {
           updateItem={updateOrganisation}
           contactAndTagData={contactAndTagData}
           setEditMode={false}
-          emailExists={emailExists}
+          uniqueItemAlreadyExists={uniqueItemAlreadyExists}
         />
         <UpdateModal
           modalStatus={modalStatus.addOrganisationModalStatus}
@@ -214,7 +216,7 @@ const Organisations = () => {
           setModalStatus={setModalStatus}
           contactAndTagData={contactAndTagData}
           updateItem={addOrganisation}
-          emailExists={emailExists}
+          uniqueItemAlreadyExists={uniqueItemAlreadyExists}
         />
         <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
           <Grid item md={10}>
