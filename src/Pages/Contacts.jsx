@@ -81,9 +81,8 @@ const Contacts = () => {
       item.replace("s", "")
     );
     relationshipNetworkEndpoints.forEach(async (item) => {
-      const response = await getItems(
-        `http://localhost:8080/api/v1/${item}/getAll`
-      );
+      console.log("ITS NEW", item);
+      const response = await getItems(`/api/v1/${item}/getAll`);
       const relationData = contactAndTagData;
       relationData[item] = response;
       console.log("relationData", relationData);
@@ -115,10 +114,7 @@ const Contacts = () => {
   };
 
   const multiDelete = async (payload) => {
-    const response = await deleteItem(
-      "http://localhost:8080/api/v1/contact/deleteMulti/",
-      payload
-    );
+    const response = await deleteItem("/api/v1/contact/deleteMulti/", payload);
     if (response.ok === true) {
       setLoading(true);
       getAllContacts();
@@ -126,9 +122,7 @@ const Contacts = () => {
   };
 
   const openModal = async (modalValue, itemId) => {
-    const response = await getItems(
-      `http://localhost:8080/api/v1/contact/getSingle/${itemId}`
-    );
+    const response = await getItems(`/api/v1/contact/getSingle/${itemId}`);
     setSingleContact(response);
     getRelationshipData();
     setModalStatus((state) => ({
@@ -143,7 +137,7 @@ const Contacts = () => {
 
   const updateContact = async (formPayload) => {
     const response = await putItem(
-      `http://localhost:8080/api/v1/contact/updatejson/${formPayload.id}/`,
+      `/api/v1/contact/updatejson/${formPayload.id}/`,
       formPayload
     );
     if (response.ok === true) {
@@ -170,10 +164,7 @@ const Contacts = () => {
   };
 
   const addContact = async (formPayload) => {
-    const response = await postItem(
-      `http://localhost:8080/api/v1/contact/create/`,
-      formPayload
-    );
+    const response = await postItem(`/api/v1/contact/create/`, formPayload);
     if (response.ok === true) {
       setModalStatus((state) => ({
         ...state,
@@ -198,10 +189,7 @@ const Contacts = () => {
   };
 
   const addBulkContact = async (formPayload) => {
-    const response = await postItem(
-      `http://localhost:8080/api/v1/contact/createBulk/`,
-      formPayload
-    );
+    const response = await postItem(`/api/v1/contact/createBulk/`, formPayload);
 
     if (response.ok === true) {
       setModalStatus((state) => ({
@@ -227,9 +215,8 @@ const Contacts = () => {
   };
 
   const getAllContacts = async () => {
-    const response = await getItems(
-      "http://localhost:8080/api/v1/contact/getAll"
-    );
+    const response = await getItems(`/api/v1/contact/getAll`);
+    console.log("ENV", process.env.REACT_APP_HOSTNAME);
     setResponse(response);
     setLoading(false);
   };

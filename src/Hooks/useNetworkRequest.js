@@ -1,31 +1,42 @@
 const useNetworkRequest = () => {
   const requests = {
     async getItems(endpoint) {
-      return await fetch(endpoint).then((r) => r.json());
+      return await fetch(
+        `http://${process.env.REACT_APP_HOSTNAME}:8080${endpoint}`
+      ).then((r) => r.json());
     },
 
     async postItem(endpoint, formPayload) {
-      return await fetch(endpoint, {
-        method: "POST",
-        body: JSON.stringify(formPayload),
-        headers: { "Content-Type": "application/json" },
-      }).then((r) => r);
+      return await fetch(
+        `http://${process.env.REACT_APP_HOSTNAME}:8080${endpoint}`,
+        {
+          method: "POST",
+          body: JSON.stringify(formPayload),
+          headers: { "Content-Type": "application/json" },
+        }
+      ).then((r) => r);
     },
 
     async putItem(endpoint, formPayload) {
-      return await fetch(endpoint, {
-        method: "PUT",
-        body: JSON.stringify(formPayload),
-        headers: { "Content-Type": "application/json" },
-      });
+      return await fetch(
+        `http://${process.env.REACT_APP_HOSTNAME}:8080${endpoint}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(formPayload),
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     },
 
     async deleteItem(endpoint, payload) {
-      return await fetch(endpoint, {
-        method: "DELETE",
-        body: JSON.stringify(payload),
-        headers: { "Content-Type": "application/json" },
-      }).then((r) => r);
+      return await fetch(
+        `http://${process.env.REACT_APP_HOSTNAME}:8080${endpoint}`,
+        {
+          method: "DELETE",
+          body: JSON.stringify(payload),
+          headers: { "Content-Type": "application/json" },
+        }
+      ).then((r) => r);
     },
   };
 
