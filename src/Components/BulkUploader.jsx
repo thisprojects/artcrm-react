@@ -17,7 +17,7 @@ const style = {
   boxShadow: 24,
   p: 4,
   overflow: "scroll",
-  height: "500px",
+  height: "570px",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
@@ -102,6 +102,19 @@ function BulkUploader({ modalStatus, setModalStatus, updateItem }) {
                   accept=".csv"
                   style={{ display: "block", margin: "10px auto" }}
                 />
+                <span style={{ margin: "30px" }}>
+                  CSV columns must be in format: "firstName, lastName, postCode,
+                  email, age"
+                </span>
+                <span>
+                  A template can be downloaded{" "}
+                  <a
+                    href
+                    link={process.env.PUBLIC_URL + "/BulkUploadTemplate.csv"}
+                  >
+                    here
+                  </a>
+                </span>
                 <br />
                 <br />
               </>
