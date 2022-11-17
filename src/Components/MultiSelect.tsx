@@ -73,7 +73,7 @@ export default function MultipleSelect({
         >
           {data.map((dataItem) => (
             <MenuItem
-              name={label}
+              data-name={label}
               data-id={dataItem.id}
               id={dataItem.id}
               value={dataItem}

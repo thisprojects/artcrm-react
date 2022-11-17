@@ -8,8 +8,13 @@ import Table from "../Components/Table";
 import UpdateModal from "../Components/UpdateModal";
 import BulkUploader from "../Components/BulkUploader";
 import useNetworkRequest from "../Hooks/useNetworkRequest";
+import Contact from "../Models/Contacts";
 import NoData from "../Components/NoData";
 import { useState, useEffect } from "react";
+
+interface FormPayload {
+  id: String;
+}
 
 const headCells = [
   {
@@ -52,7 +57,7 @@ const headCells = [
 const relationshipsToUpdate = ["tags"];
 
 const Contacts = () => {
-  const [resp, setResponse] = useState([]);
+  const [resp, setResponse] = useState<Array<Contact>>([]);
 
   const [modalStatus, setModalStatus] = useState({
     updateContactModalStatus: {
@@ -80,12 +85,10 @@ const Contacts = () => {
     const relationshipNetworkEndpoints = relationshipsToUpdate.map((item) =>
       item.replace("s", "")
     );
-    relationshipNetworkEndpoints.forEach(async (item) => {
-      console.log("ITS NEW", item);
+    relationshipNetworkEndpoints.forEach(async (item: string) => {
       const response = await getItems(`/api/v1/${item}/getAll`);
-      const relationData = contactAndTagData;
+      const relationData: Record<string, Array<object>> = contactAndTagData;
       relationData[item] = response;
-      console.log("relationData", relationData);
       setContatAndTagData(relationData);
     });
   };
@@ -113,7 +116,7 @@ const Contacts = () => {
     }));
   };
 
-  const multiDelete = async (payload) => {
+  const multiDelete = async (payload: string) => {
     const response = await deleteItem("/api/v1/contact/deleteMulti/", payload);
     if (response.ok === true) {
       setLoading(true);
@@ -121,7 +124,7 @@ const Contacts = () => {
     }
   };
 
-  const openModal = async (modalValue, itemId) => {
+  const openModal = async (modalValue: boolean, itemId: string) => {
     const response = await getItems(`/api/v1/contact/getSingle/${itemId}`);
     setSingleContact(response);
     getRelationshipData();
@@ -135,7 +138,7 @@ const Contacts = () => {
     }));
   };
 
-  const updateContact = async (formPayload) => {
+  const updateContact = async (formPayload: FormPayload) => {
     const response = await putItem(
       `/api/v1/contact/updatejson/${formPayload.id}/`,
       formPayload
@@ -163,7 +166,7 @@ const Contacts = () => {
     }
   };
 
-  const addContact = async (formPayload) => {
+  const addContact = async (formPayload: FormPayload) => {
     const response = await postItem(`/api/v1/contact/create/`, formPayload);
     if (response.ok === true) {
       setModalStatus((state) => ({
@@ -188,7 +191,7 @@ const Contacts = () => {
     }
   };
 
-  const addBulkContact = async (formPayload) => {
+  const addBulkContact = async (formPayload: string) => {
     const response = await postItem(`/api/v1/contact/createBulk/`, formPayload);
 
     if (response.ok === true) {
@@ -216,14 +219,13 @@ const Contacts = () => {
 
   const getAllContacts = async () => {
     const response = await getItems(`/api/v1/contact/getAll`);
-    console.log("ENV", process.env.REACT_APP_HOSTNAME);
     setResponse(response);
     setLoading(false);
   };
 
-  const uniqueItemAlreadyExists = (email) => {
+  const uniqueItemAlreadyExists = (email: string) => {
     return resp?.find(
-      (item) => item?.email?.toLowerCase() === email?.toLowerCase()
+      (item) => item?.GetEmail()?.toLowerCase() === email?.toLowerCase()
     );
   };
 
@@ -264,7 +266,6 @@ const Contacts = () => {
             tags: [],
           }}
           uniqueItemAlreadyExists={uniqueItemAlreadyExists}
-          addItem={addContact}
           setModalStatus={setModalStatus}
           contactAndTagData={contactAndTagData}
           updateItem={addContact}
@@ -280,7 +281,7 @@ const Contacts = () => {
                 label={"Contacts"}
               />
             ) : (
-              <NoData label={"Contact"} loading={loading} />
+              <NoData label={"Contact"} loading={loading} error={null} />
             )}
           </Grid>
           <Grid item md={2}>

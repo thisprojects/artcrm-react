@@ -15,10 +15,9 @@ import { useState } from "react";
 const pages = ["Contacts", "Events", "Organisations", "Tags", "Integrations"];
 
 const ResponsiveAppBar = () => {
-  const [anchorElNav, setAnchorElNav] = useState("");
-  const [anchorElUser, setAnchorElUser] = useState("");
+  const [anchorElNav, setAnchorElNav] = useState<null | Element>(null);
 
-  const handleOpenNavMenu = (event) => {
+  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>): void => {
     setAnchorElNav(event.currentTarget);
   };
 
@@ -28,7 +27,7 @@ const ResponsiveAppBar = () => {
 
   return (
     <AppBar position="static">
-      <Container maxWidth="false">
+      <Container maxWidth={false}>
         <Toolbar disableGutters>
           <Typography
             variant="h6"
@@ -51,9 +50,6 @@ const ResponsiveAppBar = () => {
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
               onClick={handleOpenNavMenu}
               color="inherit"
             >

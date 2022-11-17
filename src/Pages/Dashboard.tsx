@@ -12,9 +12,7 @@ const Dashboard = () => {
   const { getItems } = useNetworkRequest();
 
   const getAnalytics = async () => {
-    const response = await getItems(
-      "http://localhost:8080/api/v1/analysis/getAnalysis"
-    );
+    const response = await getItems("/api/v1/analysis/getAnalysis");
     setResponse(response);
   };
 
@@ -69,6 +67,7 @@ const Dashboard = () => {
             container
             sx={{
               paddingBottom: "10px",
+              paddingTop: "10px",
               borderTop: "1px solid lightgray",
               borderBottom: "1px solid lightgray",
               boxShadow: "0 5px 10px -5px #aaaaaa",

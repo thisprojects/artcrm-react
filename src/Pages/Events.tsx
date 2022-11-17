@@ -6,9 +6,9 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Table from "../Components/Table";
 import UpdateModal from "../Components/UpdateModal";
+import NoData from "../Components/NoData";
 import useNetworkRequest from "../Hooks/useNetworkRequest";
 import { useState, useEffect } from "react";
-import NoData from "../Components/NoData";
 
 const headCells = [
   {
@@ -24,37 +24,43 @@ const headCells = [
     label: "Post Code",
   },
   {
-    id: "email",
+    id: "venueName",
     numeric: false,
     disablePadding: false,
-    label: "E-Mail",
+    label: "Venue Name",
+  },
+  {
+    id: "eventDate",
+    numberic: false,
+    disablePadding: false,
+    label: "Event Date",
   },
   {
     id: "inspect",
-    numeric: false,
+    numberic: false,
     disablePadding: false,
   },
 ];
 
 const relationshipsToUpdate = ["tags", "contacts"];
 
-const Organisations = () => {
+const Events = () => {
   const [resp, setResponse] = useState([]);
 
   const [modalStatus, setModalStatus] = useState({
-    updateOrganisationModalStatus: {
+    updateEventModalStatus: {
       open: false,
       error: false,
-      label: "updateOrganisationModalStatus",
+      label: "updateEventModalStatus",
     },
-    addOrganisationModalStatus: {
+    addEventModalStatus: {
       open: false,
       error: false,
-      label: "addOrganisationModalStatus",
+      label: "addEventModalStatus",
     },
   });
 
-  const [singleOrganisation, setSingleOrganisation] = useState(null);
+  const [singleEvent, setSingleEvent] = useState(null);
   const [contactAndTagData, setContactAndTagData] = useState({});
   const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
   const [loading, setLoading] = useState(true);
@@ -64,181 +70,164 @@ const Organisations = () => {
       item.replace("s", "")
     );
     relationshipNetworkEndpoints.forEach(async (item) => {
-      const response = await getItems(
-        `http://localhost:8080/api/v1/${item}/getAll`
-      );
+      const response = await getItems(`/api/v1/${item}/getAll`);
       const relationData = contactAndTagData;
       relationData[item] = response;
       setContactAndTagData(relationData);
     });
   };
 
-  const handleAddOrganisation = () => {
-    getRelationshipData();
+  const handleAddEvent = () => {
     setModalStatus((state) => ({
       ...state,
-      addOrganisationModalStatus: {
+      addEventModalStatus: {
         open: true,
         error: false,
-        label: "addOrganisationModalStatus",
+        label: "addEventModalStatus",
       },
     }));
   };
 
   const multiDelete = async (payload) => {
-    const response = await deleteItem(
-      "http://localhost:8080/api/v1/organisation/deleteMulti/",
-      payload
-    );
+    const response = await deleteItem("/api/v1/event/deleteMulti/", payload);
     if (response.ok === true) {
       setLoading(true);
-      getAllOrganisations();
+      getAllEvents();
     }
   };
 
   const openModal = async (modalValue, itemId) => {
-    const response = await getItems(
-      `http://localhost:8080/api/v1/organisation/getSingle/${itemId}`
-    );
-    setSingleOrganisation(response);
+    const response = await getItems(`/api/v1/event/getSingle/${itemId}`);
+
+    setSingleEvent(response);
     getRelationshipData();
     setModalStatus((state) => ({
       ...state,
-      updateOrganisationModalStatus: {
+      updateEventModalStatus: {
         open: modalValue,
         error: false,
-        label: "updateOrganisationModalStatus",
+        label: "updateEventModalStatus",
       },
     }));
   };
 
-  const updateOrganisation = async (formPayload) => {
+  const updateEvent = async (formPayload) => {
     const response = await putItem(
-      `http://localhost:8080/api/v1/organisation/updatejson/${formPayload.id}/`,
+      `/api/v1/event/updatejson/${formPayload.id}/`,
       formPayload
     );
     if (response.ok === true) {
       setModalStatus((state) => ({
         ...state,
-        updateOrganisationModalStatus: {
+        updateEventModalStatus: {
           open: false,
           error: false,
-          label: "updateOrganisationModalStatus",
+          label: "updateEventModalStatus",
         },
       }));
       setLoading(true);
-      getAllOrganisations();
+      getAllEvents();
     } else {
       setModalStatus((state) => ({
         ...state,
-        updateOrganisationModalStatus: {
+        updateEventModalStatus: {
           open: true,
           error: true,
-          label: "updateOrganisationModalStatus",
+          label: "updateEventModalStatus",
         },
       }));
     }
   };
 
-  const addOrganisation = async (formPayload) => {
-    const response = await postItem(
-      `http://localhost:8080/api/v1/organisation/create/`,
-      formPayload
-    );
+  const addEvent = async (formPayload) => {
+    const response = await postItem(`/api/v1/event/create/`, formPayload);
     if (response.ok === true) {
       setModalStatus((state) => ({
         ...state,
-        addOrganisationModalStatus: {
+        addEventModalStatus: {
           open: false,
           error: false,
-          label: "addorganisationModalStatus",
+          label: "addEventModalStatus",
         },
       }));
       setLoading(true);
-      getAllOrganisations();
+      getAllEvents();
     } else {
       setModalStatus((state) => ({
         ...state,
-        addOrganisationModalStatus: {
+        addEventModalStatus: {
           open: true,
           error: true,
-          label: "addorganisationModalStatus",
+          label: "addEventModalStatus",
         },
       }));
     }
   };
 
-  const getAllOrganisations = async () => {
-    const response = await getItems(
-      "http://localhost:8080/api/v1/organisation/getAll"
-    );
+  const getAllEvents = async () => {
+    const response = await getItems("/api/v1/event/getAll");
     setResponse(response);
     setLoading(false);
   };
 
-  const uniqueItemAlreadyExists = (email) => {
-    return resp?.find(
-      (item) => item?.email?.toLowerCase() === email?.toLowerCase()
-    );
-  };
-
   useEffect(() => {
     setLoading(true);
-    getAllOrganisations();
+    getRelationshipData();
+    getAllEvents();
   }, []);
 
   return (
-    <div className="organisations">
+    <div className="events">
       <NavBar />
       <Box sx={{ padding: "10px" }}>
         <UpdateModal
-          modalStatus={modalStatus.updateOrganisationModalStatus}
+          modalStatus={modalStatus.updateEventModalStatus}
           setModalStatus={setModalStatus}
-          labels={{ itemTitle: "Organisation", buttonLabel: "Update" }}
-          itemData={singleOrganisation}
-          updateItem={updateOrganisation}
+          labels={{ itemTitle: "Event", buttonLabel: "Update" }}
+          itemData={singleEvent}
+          updateItem={updateEvent}
           contactAndTagData={contactAndTagData}
           setEditMode={false}
-          uniqueItemAlreadyExists={uniqueItemAlreadyExists}
+          uniqueItemAlreadyExists={false}
         />
         <UpdateModal
-          modalStatus={modalStatus.addOrganisationModalStatus}
-          labels={{ itemTitle: "Organisation", buttonLabel: "Add" }}
+          modalStatus={modalStatus.addEventModalStatus}
+          labels={{ itemTitle: "Event", buttonLabel: "Add" }}
           setEditMode={true}
           itemData={{
             name: "",
-            email: "",
+            venueName: "",
             postCode: "",
+            eventDate: "",
             tags: [],
             contacts: [],
           }}
-          addItem={addOrganisation}
+          uniqueItemAlreadyExists={false}
           setModalStatus={setModalStatus}
           contactAndTagData={contactAndTagData}
-          updateItem={addOrganisation}
-          uniqueItemAlreadyExists={uniqueItemAlreadyExists}
+          updateItem={addEvent}
         />
-        <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+        <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 2 }}>
           <Grid item md={10}>
             {resp.length > 0 ? (
               <Table
-                label="Organisations"
                 headCells={headCells}
                 tableRowData={resp}
                 openModal={openModal}
                 deleteItems={multiDelete}
+                label={"Events"}
               />
             ) : (
-              <NoData label={"Organisation"} loading={loading} />
+              <NoData label={"Event"} loading={loading} error={false} />
             )}
           </Grid>
           <Grid item md={2}>
             <Stack direction="column" spacing={2}>
               <Button
                 sx={{ backgroundColor: "white" }}
-                onClick={handleAddOrganisation}
+                onClick={handleAddEvent}
               >
-                Add Organisation
+                Add Event
               </Button>
             </Stack>
           </Grid>
@@ -248,4 +237,4 @@ const Organisations = () => {
   );
 };
 
-export default Organisations;
+export default Events;

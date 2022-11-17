@@ -24,7 +24,7 @@ export default function Form({
     age: { status: false, msg: "Age must be a number" },
     email: { status: false, msg: "Email must be unique" },
     eventDate: { status: false, msg: "Event date required" },
-    name: { statis: false, msg: "Name must be unique" },
+    name: { status: false, msg: "Name must be unique" },
   });
 
   const formTitleNames = Object.keys(itemData).filter(
@@ -47,10 +47,6 @@ export default function Form({
     formErrors.eventDate.status ||
     formErrors.name.status;
 
-  console.log("FORM IS EMPTY", formIsEmpty);
-  console.log("FORM DATA", Object.keys(formPayload));
-  console.log("FORM TITLE", formTitleNames);
-
   const handleChange = {
     default(e) {
       updateFormPayload((state) => ({
@@ -62,7 +58,6 @@ export default function Form({
       updateFormPayload((state) => ({ ...state, eventDate: e }));
     },
     email(e) {
-      console.log("E", e);
       if (uniqueItemAlreadyExists(e.target?.value)) {
         setFormErrors((state) => ({
           ...state,
@@ -80,7 +75,6 @@ export default function Form({
       }
     },
     name(e) {
-      console.log("ITEM TITLE", itemTitle);
       if (itemTitle !== "Tag" && itemTitle !== "Integration") {
         updateFormPayload((state) => ({
           ...state,

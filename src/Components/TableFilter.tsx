@@ -6,9 +6,9 @@ import IconButton from "@mui/material/IconButton";
 import FilterListIcon from "@mui/icons-material/FilterList";
 
 export default function BasicPopover({ applyFilter }) {
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = React.useState<null | Element>(null);
 
-  const handleClick = (event) => {
+  const handleClick = (event: React.MouseEvent<HTMLElement>): void => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -25,11 +25,7 @@ export default function BasicPopover({ applyFilter }) {
 
   return (
     <div>
-      <IconButton
-        aria-describedby={id}
-        variant="contained"
-        onClick={handleClick}
-      >
+      <IconButton aria-describedby={id} onClick={handleClick}>
         <FilterListIcon />
       </IconButton>
       <Popover

@@ -5,6 +5,7 @@ import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Button from "@mui/material/Button";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
+import { ContactModalStatus } from "../Models/ModalStatus";
 
 const style = {
   position: "absolute",
@@ -24,11 +25,19 @@ const style = {
   flexDirection: "column",
 };
 
-function BulkUploader({ modalStatus, setModalStatus, updateItem }) {
+interface BulkUploaderProps {
+  modalStatus: ContactModalStatus;
+  setModalStatus: React.Dispatch<React.SetStateAction<ContactModalStatus>>;
+  updateItem: (formPayload: string) => void;
+}
+
+function BulkUploader({
+  modalStatus,
+  setModalStatus,
+  updateItem,
+}: BulkUploaderProps) {
   // State to store parsed data
   const [parsedData, setParsedData] = useState([]);
-
-  console.log("modal status - bulk upload", modalStatus);
 
   //State to store table Column name
   const [tableRows, setTableRows] = useState([]);
@@ -94,7 +103,7 @@ function BulkUploader({ modalStatus, setModalStatus, updateItem }) {
               <>
                 <UploadFileIcon sx={{ fontSize: "350px", color: "#1976d2" }} />
 
-                <label for="file">Choose CSV file to upload</label>
+                <label htmlFor="file">Choose CSV file to upload</label>
                 <input
                   type="file"
                   name="file"
@@ -105,15 +114,6 @@ function BulkUploader({ modalStatus, setModalStatus, updateItem }) {
                 <span style={{ margin: "30px" }}>
                   CSV columns must be in format: "firstName, lastName, postCode,
                   email, age"
-                </span>
-                <span>
-                  A template can be downloaded{" "}
-                  <a
-                    href
-                    link={process.env.PUBLIC_URL + "/BulkUploadTemplate.csv"}
-                  >
-                    here
-                  </a>
                 </span>
                 <br />
                 <br />

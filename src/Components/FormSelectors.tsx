@@ -1,7 +1,7 @@
 // Component from material.ui library.
 import * as React from "react";
 import Box from "@mui/material/Box";
-import Select from "../Components/Select";
+import Select from "./Select";
 import MultipleSelect from "./MultiSelect";
 
 const personMaker = (collection) => {

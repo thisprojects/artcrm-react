@@ -56,10 +56,7 @@ const Tags = () => {
   };
 
   const multiDelete = async (payload) => {
-    const response = await deleteItem(
-      "http://localhost:8080/api/v1/tag/deleteMulti/",
-      payload
-    );
+    const response = await deleteItem("/api/v1/tag/deleteMulti/", payload);
     if (response.ok === true) {
       setLoading(true);
       getAllTags();
@@ -67,9 +64,7 @@ const Tags = () => {
   };
 
   const openEditModal = async (modalValue, itemId) => {
-    const response = await getItems(
-      `http://localhost:8080/api/v1/tag/getSingle/${itemId}`
-    );
+    const response = await getItems(`/api/v1/tag/getSingle/${itemId}`);
     setSingleTag(response);
     setModalStatus((state) => ({
       ...state,
@@ -83,7 +78,7 @@ const Tags = () => {
 
   const updateTag = async (formPayload) => {
     const response = await putItem(
-      `http://localhost:8080/api/v1/tag/updatejson/${formPayload.id}/`,
+      `/api/v1/tag/updatejson/${formPayload.id}/`,
       formPayload
     );
     if (response.ok === true) {
@@ -110,10 +105,7 @@ const Tags = () => {
   };
 
   const addTag = async (formPayload) => {
-    const response = await postItem(
-      `http://localhost:8080/api/v1/tag/create/`,
-      formPayload
-    );
+    const response = await postItem(`/api/v1/tag/create/`, formPayload);
     if (response.ok === true) {
       setModalStatus((state) => ({
         ...state,
@@ -138,7 +130,7 @@ const Tags = () => {
   };
 
   const getAllTags = async () => {
-    const response = await getItems("http://localhost:8080/api/v1/tag/getAll");
+    const response = await getItems("/api/v1/tag/getAll");
     setResponse(response);
     setLoading(false);
   };
@@ -175,7 +167,6 @@ const Tags = () => {
           itemData={{
             name: "",
           }}
-          addItem={addTag}
           setModalStatus={setModalStatus}
           contactAndTagData={[]}
           updateItem={addTag}
@@ -192,7 +183,7 @@ const Tags = () => {
                 deleteItems={multiDelete}
               />
             ) : (
-              <NoData label={"Tag"} loading={loading} />
+              <NoData label={"Tag"} loading={loading} error={false} />
             )}
           </Grid>
           <Grid item md={2}>

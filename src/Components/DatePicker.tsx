@@ -5,7 +5,6 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 
 export default function DatePicker({ handleChange, editMode, currDate }) {
-  console.log("CURR DATE", currDate);
   const [value, setValue] = React.useState(
     currDate ? new Date(currDate) : new Date()
   );
@@ -18,7 +17,6 @@ export default function DatePicker({ handleChange, editMode, currDate }) {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <DesktopDatePicker
-        name="eventDate"
         label="Event Date"
         disabled={!editMode}
         inputFormat="MM/dd/yyyy"

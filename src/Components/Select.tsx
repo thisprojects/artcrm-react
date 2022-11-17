@@ -30,7 +30,7 @@ export default function RelationshipSelect({ label, data, handleChange }) {
         {data &&
           data.map((dataItem) => (
             <MenuItem
-              name={label}
+              data-name={label}
               data-id={dataItem.id}
               id={dataItem.id}
               value={dataItem}

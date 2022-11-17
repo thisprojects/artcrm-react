@@ -65,7 +65,7 @@ export default function MoreDetailsModal({
       >
         <Box sx={style}>
           {modalStatus.error ? (
-            <NoData error={modalStatus.error} />
+            <NoData error={modalStatus.error} label={null} loading={null} />
           ) : (
             <>
               <Typography id="modal-modal-title" variant="h6" component="h2">

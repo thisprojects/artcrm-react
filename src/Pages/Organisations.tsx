@@ -7,8 +7,8 @@ import Box from "@mui/material/Box";
 import Table from "../Components/Table";
 import UpdateModal from "../Components/UpdateModal";
 import useNetworkRequest from "../Hooks/useNetworkRequest";
-import NoData from "../Components/NoData";
 import { useState, useEffect } from "react";
+import NoData from "../Components/NoData";
 
 const headCells = [
   {
@@ -18,193 +18,220 @@ const headCells = [
     label: "Name",
   },
   {
+    id: "postCode",
+    numeric: false,
+    disablePadding: false,
+    label: "Post Code",
+  },
+  {
+    id: "email",
+    numeric: false,
+    disablePadding: false,
+    label: "E-Mail",
+  },
+  {
     id: "inspect",
     numeric: false,
     disablePadding: false,
   },
 ];
 
-const Integrations = () => {
+const relationshipsToUpdate = ["tags", "contacts"];
+
+const Organisations = () => {
   const [resp, setResponse] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   const [modalStatus, setModalStatus] = useState({
-    updateIntegrationModalStatus: {
+    updateOrganisationModalStatus: {
       open: false,
       error: false,
-      label: "updateIntegrationModalStatus",
+      label: "updateOrganisationModalStatus",
     },
-    addIntegrationModalStatus: {
+    addOrganisationModalStatus: {
       open: false,
       error: false,
-      label: "addIntegrationModalStatus",
+      label: "addOrganisationModalStatus",
     },
   });
 
-  const [singleIntegration, setSingleIntegration] = useState(null);
-  const [relationshipData, setRelationshipData] = useState({});
+  const [singleOrganisation, setSingleOrganisation] = useState(null);
+  const [contactAndTagData, setContactAndTagData] = useState({});
   const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
+  const [loading, setLoading] = useState(true);
 
-  const handleAddIntegration = () => {
+  const getRelationshipData = () => {
+    const relationshipNetworkEndpoints = relationshipsToUpdate.map((item) =>
+      item.replace("s", "")
+    );
+    relationshipNetworkEndpoints.forEach(async (item) => {
+      const response = await getItems(`/api/v1/${item}/getAll`);
+      const relationData = contactAndTagData;
+      relationData[item] = response;
+      setContactAndTagData(relationData);
+    });
+  };
+
+  const handleAddOrganisation = () => {
+    getRelationshipData();
     setModalStatus((state) => ({
       ...state,
-      addIntegrationModalStatus: {
+      addOrganisationModalStatus: {
         open: true,
         error: false,
-        label: "addIntegrationModalStatus",
+        label: "addOrganisationModalStatus",
       },
     }));
   };
 
   const multiDelete = async (payload) => {
     const response = await deleteItem(
-      "http://localhost:8080/api/v1/integration/deleteMulti/",
+      "/api/v1/organisation/deleteMulti/",
       payload
     );
     if (response.ok === true) {
       setLoading(true);
-      getAllIntegrations();
+      getAllOrganisations();
     }
   };
 
   const openModal = async (modalValue, itemId) => {
-    const response = await getItems(
-      `http://localhost:8080/api/v1/integration/getSingle/${itemId}`
-    );
-    setSingleIntegration(response);
+    const response = await getItems(`/api/v1/organisation/getSingle/${itemId}`);
+    setSingleOrganisation(response);
+    getRelationshipData();
     setModalStatus((state) => ({
       ...state,
-      updateIntegrationModalStatus: {
+      updateOrganisationModalStatus: {
         open: modalValue,
         error: false,
-        label: "updateIntegrationModalStatus",
+        label: "updateOrganisationModalStatus",
       },
     }));
   };
 
-  const updateIntegration = async (formPayload) => {
+  const updateOrganisation = async (formPayload) => {
     const response = await putItem(
-      `http://localhost:8080/api/v1/integration/updatejson/${formPayload.id}/`,
+      `/api/v1/organisation/updatejson/${formPayload.id}/`,
       formPayload
     );
     if (response.ok === true) {
       setModalStatus((state) => ({
         ...state,
-        updateIntegrationModalStatus: {
+        updateOrganisationModalStatus: {
           open: false,
           error: false,
-          label: "updateIntegrationModalStatus",
+          label: "updateOrganisationModalStatus",
         },
       }));
       setLoading(true);
-      getAllIntegrations();
+      getAllOrganisations();
     } else {
       setModalStatus((state) => ({
         ...state,
-        updateIntegrationModalStatus: {
+        updateOrganisationModalStatus: {
           open: true,
           error: true,
-          label: "updateIntegrationModalStatus",
+          label: "updateOrganisationModalStatus",
         },
       }));
     }
   };
 
-  const addIntegration = async (formPayload) => {
+  const addOrganisation = async (formPayload) => {
     const response = await postItem(
-      `http://localhost:8080/api/v1/integration/create/`,
+      `/api/v1/organisation/create/`,
       formPayload
     );
     if (response.ok === true) {
       setModalStatus((state) => ({
         ...state,
-        addIntegrationModalStatus: {
+        addOrganisationModalStatus: {
           open: false,
           error: false,
-          label: "addIntegrationModalStatus",
+          label: "addorganisationModalStatus",
         },
       }));
       setLoading(true);
-      getAllIntegrations();
+      getAllOrganisations();
     } else {
       setModalStatus((state) => ({
         ...state,
-        addIntegrationModalStatus: {
+        addOrganisationModalStatus: {
           open: true,
           error: true,
-          label: "addIntegrationModalStatus",
+          label: "addorganisationModalStatus",
         },
       }));
     }
   };
 
-  const getAllIntegrations = async () => {
-    const response = await getItems(
-      "http://localhost:8080/api/v1/integration/getAll"
-    );
+  const getAllOrganisations = async () => {
+    const response = await getItems("/api/v1/organisation/getAll");
     setResponse(response);
     setLoading(false);
   };
 
-  const uniqueItemAlreadyExists = (name) => {
+  const uniqueItemAlreadyExists = (email) => {
     return resp?.find(
-      (item) => item?.name?.toLowerCase() === name?.toLowerCase()
+      (item) => item?.email?.toLowerCase() === email?.toLowerCase()
     );
   };
 
   useEffect(() => {
     setLoading(true);
-    getAllIntegrations();
+    getAllOrganisations();
   }, []);
 
   return (
-    <div className="Integrations">
+    <div className="organisations">
       <NavBar />
       <Box sx={{ padding: "10px" }}>
         <UpdateModal
-          modalStatus={modalStatus.updateIntegrationModalStatus}
+          modalStatus={modalStatus.updateOrganisationModalStatus}
           setModalStatus={setModalStatus}
-          labels={{ itemTitle: "Integration", buttonLabel: "Update" }}
-          itemData={singleIntegration}
-          updateItem={updateIntegration}
-          contactAndTagData={[]}
+          labels={{ itemTitle: "Organisation", buttonLabel: "Update" }}
+          itemData={singleOrganisation}
+          updateItem={updateOrganisation}
+          contactAndTagData={contactAndTagData}
           setEditMode={false}
           uniqueItemAlreadyExists={uniqueItemAlreadyExists}
         />
         <UpdateModal
-          modalStatus={modalStatus.addIntegrationModalStatus}
-          labels={{ itemTitle: "Integration", buttonLabel: "Add" }}
+          modalStatus={modalStatus.addOrganisationModalStatus}
+          labels={{ itemTitle: "Organisation", buttonLabel: "Add" }}
           setEditMode={true}
           itemData={{
             name: "",
+            email: "",
+            postCode: "",
+            tags: [],
+            contacts: [],
           }}
-          addItem={addIntegration}
           setModalStatus={setModalStatus}
-          contactAndTagData={[]}
-          updateItem={addIntegration}
+          contactAndTagData={contactAndTagData}
+          updateItem={addOrganisation}
           uniqueItemAlreadyExists={uniqueItemAlreadyExists}
         />
         <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
           <Grid item md={10}>
             {resp.length > 0 ? (
               <Table
+                label="Organisations"
                 headCells={headCells}
                 tableRowData={resp}
                 openModal={openModal}
                 deleteItems={multiDelete}
-                label="Integrations"
               />
             ) : (
-              <NoData label={"Integration"} loading={loading} />
+              <NoData label={"Organisation"} loading={loading} error={false} />
             )}
           </Grid>
           <Grid item md={2}>
             <Stack direction="column" spacing={2}>
               <Button
                 sx={{ backgroundColor: "white" }}
-                onClick={handleAddIntegration}
+                onClick={handleAddOrganisation}
               >
-                Add Integrations
+                Add Organisation
               </Button>
             </Stack>
           </Grid>
@@ -214,4 +241,4 @@ const Integrations = () => {
   );
 };
 
-export default Integrations;
+export default Organisations;

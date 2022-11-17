@@ -1,14 +1,18 @@
 const useNetworkRequest = () => {
   const requests = {
-    async getItems(endpoint) {
+    async getItems(endpoint: string) {
       return await fetch(
-        `http://${process.env.REACT_APP_HOSTNAME}:8080${endpoint}`
+        `http://${
+          process.env.REACT_APP_HOSTNAME || "localhost"
+        }:8080${endpoint}`
       ).then((r) => r.json());
     },
 
-    async postItem(endpoint, formPayload) {
+    async postItem(endpoint: string, formPayload) {
       return await fetch(
-        `http://${process.env.REACT_APP_HOSTNAME}:8080${endpoint}`,
+        `http://${
+          process.env.REACT_APP_HOSTNAME || "localhost"
+        }:8080${endpoint}`,
         {
           method: "POST",
           body: JSON.stringify(formPayload),
@@ -17,9 +21,11 @@ const useNetworkRequest = () => {
       ).then((r) => r);
     },
 
-    async putItem(endpoint, formPayload) {
+    async putItem(endpoint: string, formPayload) {
       return await fetch(
-        `http://${process.env.REACT_APP_HOSTNAME}:8080${endpoint}`,
+        `http://${
+          process.env.REACT_APP_HOSTNAME || "localhost"
+        }:8080${endpoint}`,
         {
           method: "PUT",
           body: JSON.stringify(formPayload),
@@ -30,7 +36,9 @@ const useNetworkRequest = () => {
 
     async deleteItem(endpoint, payload) {
       return await fetch(
-        `http://${process.env.REACT_APP_HOSTNAME}:8080${endpoint}`,
+        `http://${
+          process.env.REACT_APP_HOSTNAME || "localhost"
+        }:8080${endpoint}`,
         {
           method: "DELETE",
           body: JSON.stringify(payload),
