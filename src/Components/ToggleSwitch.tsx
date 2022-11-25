@@ -3,11 +3,21 @@ import Switch from "@mui/material/Switch";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 
-export default function ToggleSwitch({ label, updateEditMode, editMode }) {
+interface ToggleSwitchProps {
+  label: string;
+  updateEditMode: (editMode: boolean) => void;
+  editMode: boolean;
+}
+
+const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
+  label,
+  updateEditMode,
+  editMode,
+}) => {
   const [checked, setChecked] = React.useState(false);
 
-  const handleChange = (event) => {
-    setChecked(event.target.checked);
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setChecked(event?.target?.checked);
     updateEditMode(!editMode);
   };
 
@@ -29,4 +39,6 @@ export default function ToggleSwitch({ label, updateEditMode, editMode }) {
       />
     </FormGroup>
   );
-}
+};
+
+export default ToggleSwitch;

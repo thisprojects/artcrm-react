@@ -9,10 +9,12 @@ import UpdateModal from "../Components/UpdateModal";
 import BulkUploader from "../Components/BulkUploader";
 import useNetworkRequest from "../Hooks/useNetworkRequest";
 import Contact from "../Models/Contacts";
+import { ISetModalStatus } from "../Models/ModalStatus";
 import NoData from "../Components/NoData";
 import { useState, useEffect } from "react";
+import { ItemData } from "../Components/Form";
 
-interface FormPayload {
+export interface FormPayload {
   id: String;
 }
 
@@ -35,6 +37,7 @@ const headCells = [
     disablePadding: false,
     label: "Post Code",
   },
+
   {
     id: "email",
     numeric: false,
@@ -59,7 +62,7 @@ const relationshipsToUpdate = ["tags"];
 const Contacts = () => {
   const [resp, setResponse] = useState<Array<Contact>>([]);
 
-  const [modalStatus, setModalStatus] = useState({
+  const [modalStatus, setModalStatus] = useState<ISetModalStatus>({
     updateContactModalStatus: {
       open: false,
       error: false,
@@ -76,7 +79,7 @@ const Contacts = () => {
       label: "bulkAddContactModalStatus",
     },
   });
-  const [singleContact, setSingleContact] = useState(null);
+  const [singleContact, setSingleContact] = useState<ItemData>({});
   const [contactAndTagData, setContatAndTagData] = useState({});
   const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
   const [loading, setLoading] = useState(true);
@@ -116,7 +119,7 @@ const Contacts = () => {
     }));
   };
 
-  const multiDelete = async (payload: string) => {
+  const multiDelete = async (payload: object) => {
     const response = await deleteItem("/api/v1/contact/deleteMulti/", payload);
     if (response.ok === true) {
       setLoading(true);
@@ -191,7 +194,7 @@ const Contacts = () => {
     }
   };
 
-  const addBulkContact = async (formPayload: string) => {
+  const addBulkContact = async (formPayload: object) => {
     const response = await postItem(`/api/v1/contact/createBulk/`, formPayload);
 
     if (response.ok === true) {
@@ -223,7 +226,7 @@ const Contacts = () => {
     setLoading(false);
   };
 
-  const uniqueItemAlreadyExists = (email: string) => {
+  const uniqueItemAlreadyExists = (email: string): Contact | undefined => {
     return resp?.find(
       (item) => item?.GetEmail()?.toLowerCase() === email?.toLowerCase()
     );

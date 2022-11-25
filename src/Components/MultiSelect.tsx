@@ -7,6 +7,7 @@ import Select from "@mui/material/Select";
 import Checkbox from "@mui/material/Checkbox";
 import FormControl from "@mui/material/FormControl";
 import FormHelperText from "@mui/material/FormHelperText";
+import { Collection } from "./FormSelectors";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -19,35 +20,53 @@ const MenuProps = {
   },
 };
 
-export default function MultipleSelect({
+interface MultipleSelectProps {
+  label: string;
+  data: Array<Collection>;
+  handleChange: (selectedObject: Collection | undefined, label: string) => void;
+  existingItems: "" | Collection[] | undefined;
+  personMaker: (
+    collection: Array<Collection>
+  ) => Array<string | Collection> | undefined;
+}
+
+interface SelectChange {
+  target: {
+    value: Array<Collection>;
+  };
+}
+
+interface Item {
+  id: string;
+}
+
+const MultipleSelect: React.FC<MultipleSelectProps> = ({
   label,
   data,
   handleChange,
   existingItems,
   personMaker,
-}) {
+}) => {
   const [personName, setPersonName] = React.useState(existingItems);
   const [selectList, setSelectList] = React.useState(data);
 
-  const handleSelectChange = (event) => {
-    const {
-      target: { value },
-    } = event;
+  const handleSelectChange = (event: SelectChange) => {
+    const value = event?.target.value;
 
     let namesArray = value;
-    const selectedObject = value.find((item) => item.id);
+    const selectedObject = value.find((item) => (item as Item).id);
     const person =
-      selectedObject?.name ||
+      (selectedObject as Collection)?.name ||
       `${selectedObject?.firstName} ${selectedObject?.lastName}`;
 
-    if (personName.includes(person)) {
-      const index = namesArray.indexOf(person);
+    if (personName?.includes(person)) {
+      const index = namesArray.indexOf(person as Collection);
       namesArray.splice(index, 1);
       namesArray.pop();
-      selectedObject.delete = true;
+      selectedObject!.delete = true;
     }
 
-    const names = personMaker(namesArray);
+    const names = personMaker(namesArray) as "" | Collection[] | undefined;
     setSelectList(selectList.filter((item) => item !== selectedObject));
     setPersonName(names);
     handleChange(selectedObject, label);
@@ -66,23 +85,20 @@ export default function MultipleSelect({
           id="demo-multiple-chip"
           multiple
           value={personName}
-          onChange={handleSelectChange}
+          onChange={(e) => {
+            handleSelectChange(e as SelectChange);
+          }}
           input={<OutlinedInput id="select-multiple-chip" label="Tag" />}
           renderValue={(selected) => selected.join(", ")}
           MenuProps={MenuProps}
         >
           {data.map((dataItem) => (
-            <MenuItem
-              data-name={label}
-              data-id={dataItem.id}
-              id={dataItem.id}
-              value={dataItem}
-            >
+            <MenuItem>
               <Checkbox
                 checked={
-                  personName.indexOf(
+                  personName!.indexOf(
                     dataItem.name ||
-                      `${dataItem.firstName} ${dataItem.lastName}`
+                      `${dataItem?.firstName} ${dataItem.lastName}`
                   ) > -1
                 }
               />
@@ -96,4 +112,6 @@ export default function MultipleSelect({
       </FormControl>
     </div>
   );
-}
+};
+
+export default MultipleSelect;

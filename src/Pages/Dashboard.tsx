@@ -6,9 +6,19 @@ import { useEffect, useState } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import Loading from "../Components/Loading";
+import Events from "../Models/Events";
+
+interface Response {
+  mostRecentEvents: Array<Events>;
+  postcodes: Array<string>;
+  ageDemographic: Array<{ age: number }>;
+  numberOfContacts: number;
+  numberOfOrganisations: number;
+  numberOfEvents: number;
+}
 
 const Dashboard = () => {
-  const [response, setResponse] = useState(null);
+  const [response, setResponse] = useState<Response>();
   const { getItems } = useNetworkRequest();
 
   const getAnalytics = async () => {
@@ -20,7 +30,7 @@ const Dashboard = () => {
     getAnalytics();
   }, []);
 
-  const eventData = response && response.mostRecentEvents;
+  const eventData = response && response?.mostRecentEvents;
   const allPostCodes = response && response.postcodes;
   const eventCatagories = eventData?.map((item) => item.name);
   const eventSeries = eventData?.map((item) => item.contactCount);
@@ -46,10 +56,10 @@ const Dashboard = () => {
     (ageDemographics && Object.values(ageDemographics)) || [];
 
   const allPostCodeStats = allPostCodes?.reduce((acc, curr) => {
-    if (!acc[curr]) {
-      acc[curr] = 1;
+    if (!acc[curr as keyof object]) {
+      (acc[curr as keyof object] as number) = 1;
     } else {
-      acc[curr]++;
+      acc[curr as keyof object]++;
     }
     return acc;
   }, {});

@@ -1,11 +1,16 @@
 // Component from material.ui library
 import * as React from "react";
+import { Dispatch, SetStateAction } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { useState } from "react";
 import Form from "./Form";
 import NoData from "./NoData";
+import { ISetModalStatus, ContactModalStatus } from "../Models/ModalStatus";
+import { FormPayload } from "../Pages/Contacts";
+import { ItemData } from "./Form";
+import Contact from "../Models/Contacts";
 
 const style = {
   position: "absolute",
@@ -21,7 +26,18 @@ const style = {
   overflow: "scroll",
 };
 
-export default function MoreDetailsModal({
+interface MoreDetailsModalProps {
+  modalStatus: ContactModalStatus | undefined;
+  itemData: ItemData;
+  setModalStatus: Dispatch<SetStateAction<ISetModalStatus>>;
+  updateItem: (formPayload: FormPayload) => void;
+  contactAndTagData: object;
+  labels: { itemTitle: string; buttonLabel: string };
+  setEditMode: boolean;
+  uniqueItemAlreadyExists: (item: string) => Contact | undefined;
+}
+
+const MoreDetailsModal: React.FC<MoreDetailsModalProps> = ({
   modalStatus,
   itemData,
   setModalStatus,
@@ -30,41 +46,41 @@ export default function MoreDetailsModal({
   labels: { itemTitle, buttonLabel },
   setEditMode,
   uniqueItemAlreadyExists,
-}) {
+}) => {
   const [editMode, updateEditMode] = useState(setEditMode);
 
   const handleClose = () => {
-    setModalStatus((state) => ({
+    setModalStatus((state: object) => ({
       ...state,
-      [modalStatus.label]: {
+      [modalStatus?.label as string]: {
         open: false,
         error: false,
-        label: modalStatus.label,
+        label: modalStatus?.label,
       },
     }));
     updateEditMode(false);
   };
 
   React.useEffect(() => {
-    if (modalStatus.error) {
+    if (modalStatus?.error) {
       updateEditMode(false);
     }
-  }, [modalStatus.error]);
+  }, [modalStatus?.error]);
 
   React.useEffect(() => {
     updateEditMode(setEditMode);
-  }, [modalStatus.open]);
+  }, [modalStatus?.open]);
 
   return (
     <div>
       <Modal
-        open={modalStatus.open}
+        open={modalStatus?.open || false}
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          {modalStatus.error ? (
+          {modalStatus?.error ? (
             <NoData error={modalStatus.error} label={null} loading={null} />
           ) : (
             <>
@@ -87,4 +103,6 @@ export default function MoreDetailsModal({
       </Modal>
     </div>
   );
-}
+};
+
+export default MoreDetailsModal;

@@ -9,6 +9,9 @@ import UpdateModal from "../Components/UpdateModal";
 import NoData from "../Components/NoData";
 import useNetworkRequest from "../Hooks/useNetworkRequest";
 import { useState, useEffect } from "react";
+import { FormPayload } from "./Contacts";
+import { ISetModalStatus } from "../Models/ModalStatus";
+import { ItemData } from "../Components/Form";
 
 const headCells = [
   {
@@ -47,7 +50,7 @@ const relationshipsToUpdate = ["tags", "contacts"];
 const Events = () => {
   const [resp, setResponse] = useState([]);
 
-  const [modalStatus, setModalStatus] = useState({
+  const [modalStatus, setModalStatus] = useState<ISetModalStatus>({
     updateEventModalStatus: {
       open: false,
       error: false,
@@ -60,7 +63,7 @@ const Events = () => {
     },
   });
 
-  const [singleEvent, setSingleEvent] = useState(null);
+  const [singleEvent, setSingleEvent] = useState<ItemData>({});
   const [contactAndTagData, setContactAndTagData] = useState({});
   const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
   const [loading, setLoading] = useState(true);
@@ -71,7 +74,7 @@ const Events = () => {
     );
     relationshipNetworkEndpoints.forEach(async (item) => {
       const response = await getItems(`/api/v1/${item}/getAll`);
-      const relationData = contactAndTagData;
+      const relationData: Record<string, Array<object>> = contactAndTagData;
       relationData[item] = response;
       setContactAndTagData(relationData);
     });
@@ -88,7 +91,7 @@ const Events = () => {
     }));
   };
 
-  const multiDelete = async (payload) => {
+  const multiDelete = async (payload: FormPayload) => {
     const response = await deleteItem("/api/v1/event/deleteMulti/", payload);
     if (response.ok === true) {
       setLoading(true);
@@ -96,7 +99,7 @@ const Events = () => {
     }
   };
 
-  const openModal = async (modalValue, itemId) => {
+  const openModal = async (modalValue: boolean, itemId: string) => {
     const response = await getItems(`/api/v1/event/getSingle/${itemId}`);
 
     setSingleEvent(response);
@@ -111,7 +114,7 @@ const Events = () => {
     }));
   };
 
-  const updateEvent = async (formPayload) => {
+  const updateEvent = async (formPayload: FormPayload) => {
     const response = await putItem(
       `/api/v1/event/updatejson/${formPayload.id}/`,
       formPayload
@@ -139,7 +142,7 @@ const Events = () => {
     }
   };
 
-  const addEvent = async (formPayload) => {
+  const addEvent = async (formPayload: FormPayload) => {
     const response = await postItem(`/api/v1/event/create/`, formPayload);
     if (response.ok === true) {
       setModalStatus((state) => ({
@@ -188,7 +191,7 @@ const Events = () => {
           updateItem={updateEvent}
           contactAndTagData={contactAndTagData}
           setEditMode={false}
-          uniqueItemAlreadyExists={false}
+          uniqueItemAlreadyExists={() => undefined}
         />
         <UpdateModal
           modalStatus={modalStatus.addEventModalStatus}
@@ -202,7 +205,7 @@ const Events = () => {
             tags: [],
             contacts: [],
           }}
-          uniqueItemAlreadyExists={false}
+          uniqueItemAlreadyExists={() => undefined}
           setModalStatus={setModalStatus}
           contactAndTagData={contactAndTagData}
           updateItem={addEvent}

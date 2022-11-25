@@ -1,5 +1,6 @@
 // Component from material.ui library.
 import * as React from "react";
+import { Dispatch, SetStateAction } from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
@@ -8,8 +9,54 @@ import Grid from "@mui/material/Grid";
 import ToggleSwitch from "./ToggleSwitch";
 import DatePicker from "./DatePicker";
 import { useState } from "react";
+import { FormPayload } from "../Pages/Contacts";
+import Contact from "../Models/Contacts";
 
-export default function Form({
+interface Items {
+  age?: number;
+  email?: string;
+  eventDate?: Date;
+  name?: string;
+  id: string;
+}
+
+export interface ItemData {
+  [key: string]: unknown | Items[];
+}
+
+interface FormProps {
+  editMode: boolean;
+  itemData: ItemData;
+  updateItem: (formData: FormPayload) => void;
+  itemTitle: string;
+  updateEditMode: Dispatch<SetStateAction<boolean>>;
+  contactAndTagData: object;
+  buttonLabel: string;
+  uniqueItemAlreadyExists: (event: string) => Contact | undefined;
+}
+
+interface FormErrorStatus {
+  status: boolean;
+  msg: string;
+}
+
+interface FormErrors {
+  age: FormErrorStatus;
+  email: FormErrorStatus;
+  eventDate: FormErrorStatus;
+  name: FormErrorStatus;
+}
+
+interface HandleChange {
+  default: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  date: (e: React.ChangeEvent<HTMLInputElement> | Date | null) => void;
+  email: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  name: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  age: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  relationship: (e: ItemData, name: string) => void;
+}
+
+const Form: React.FC<FormProps> = ({
   editMode,
   itemData,
   updateItem,
@@ -18,8 +65,11 @@ export default function Form({
   contactAndTagData,
   buttonLabel,
   uniqueItemAlreadyExists,
-}) {
-  const [formPayload, updateFormPayload] = useState({ id: itemData?.id });
+}) => {
+  const [formPayload, updateFormPayload] = useState<FormPayload>({
+    id: itemData?.id as string,
+  });
+
   const [formErrors, setFormErrors] = useState({
     age: { status: false, msg: "Age must be a number" },
     email: { status: false, msg: "Email must be unique" },
@@ -38,7 +88,7 @@ export default function Form({
   const formIsEmpty =
     buttonLabel !== "Update" &&
     !formTitleNames.every((item) => {
-      return formPayload[item];
+      return formPayload[item as keyof FormPayload];
     });
 
   const errors =
@@ -47,42 +97,45 @@ export default function Form({
     formErrors.eventDate.status ||
     formErrors.name.status;
 
-  const handleChange = {
-    default(e) {
+  const handleChange: HandleChange = {
+    default(e: React.ChangeEvent<HTMLInputElement>) {
+      const target = e.target as HTMLButtonElement;
       updateFormPayload((state) => ({
         ...state,
-        [e.target?.name]: e.target.value,
+        [target?.name]: target?.value,
       }));
     },
-    date(e) {
+    date(e: Date | null | React.ChangeEvent<HTMLInputElement>) {
       updateFormPayload((state) => ({ ...state, eventDate: e }));
     },
-    email(e) {
-      if (uniqueItemAlreadyExists(e.target?.value)) {
+    email(e: React.ChangeEvent<HTMLInputElement>) {
+      const target = e?.target as HTMLButtonElement;
+      if (uniqueItemAlreadyExists(target?.value)) {
         setFormErrors((state) => ({
           ...state,
-          email: { ...state.email, status: true },
+          email: { ...state?.email, status: true },
         }));
       } else {
         setFormErrors((state) => ({
           ...state,
-          email: { ...state.email, status: false },
+          email: { ...state?.email, status: false },
         }));
         updateFormPayload((state) => ({
           ...state,
-          email: e.target.value,
+          email: target?.value,
         }));
       }
     },
-    name(e) {
+    name(e: React.ChangeEvent<HTMLInputElement>) {
+      const target = e?.target as HTMLButtonElement;
       if (itemTitle !== "Tag" && itemTitle !== "Integration") {
         updateFormPayload((state) => ({
           ...state,
-          [e.target?.name]: e.target.value,
+          [target?.name]: target?.value,
         }));
         return;
       }
-      if (uniqueItemAlreadyExists(e.target?.value)) {
+      if (uniqueItemAlreadyExists(target?.value)) {
         setFormErrors((state) => ({
           ...state,
           name: { ...state.name, status: true },
@@ -94,12 +147,13 @@ export default function Form({
         }));
         updateFormPayload((state) => ({
           ...state,
-          name: e.target.value,
+          name: target?.value,
         }));
       }
     },
-    age(e) {
-      if (isNaN(Number(e.target.value))) {
+    age(e: React.ChangeEvent<HTMLInputElement>) {
+      const target = e?.target as HTMLButtonElement;
+      if (isNaN(Number(target?.value))) {
         setFormErrors((state) => ({
           ...state,
           age: { ...state.age, status: true },
@@ -111,16 +165,23 @@ export default function Form({
         }));
         updateFormPayload((state) => ({
           ...state,
-          age: e.target.value,
+          age: target?.value,
         }));
       }
     },
-    relationship(e, name) {
-      if (formPayload[name]) {
-        if (!formPayload[name].find((item) => item.id === e.id)) {
+    relationship(e: ItemData, name: string) {
+      if (formPayload[name as keyof FormPayload]) {
+        if (
+          !(
+            formPayload[name as keyof FormPayload] as unknown as Array<Items>
+          )?.find((item) => item.id === e.id)
+        ) {
           updateFormPayload((state) => ({
             ...state,
-            [name]: [...state[name], { id: e.id }],
+            [name as string]: [
+              ...(state[name as keyof FormPayload] as unknown as Array<Items>),
+              { id: e.id },
+            ],
           }));
         }
       } else {
@@ -148,7 +209,7 @@ export default function Form({
       <div id="form-component">
         <Grid container spacing={7}>
           <Grid item md={10}>
-            <p>ID: {itemData?.id || null}</p>
+            <p>ID: {itemData?.id as React.ReactNode}</p>
           </Grid>
           <Grid item md={2}>
             {buttonLabel === "Update" ? (
@@ -158,6 +219,7 @@ export default function Form({
                 editMode={editMode}
               />
             ) : null}
+            as keyof FormErrors
           </Grid>
         </Grid>
         {itemData ? (
@@ -171,7 +233,7 @@ export default function Form({
                     <DatePicker
                       handleChange={handleChange.date}
                       editMode={editMode}
-                      currDate={itemData[item]}
+                      currDate={itemData[item] as Date}
                     />
                     {formErrors.eventDate.status && (
                       <p style={{ paddingLeft: "10px", color: "red" }}>
@@ -184,14 +246,32 @@ export default function Form({
                 return (
                   <TextField
                     name={item}
-                    error={formErrors[item]?.status}
+                    error={formErrors[item as keyof FormErrors]?.status}
                     disabled={!editMode}
-                    onChange={handleChange[item] || handleChange.default}
+                    onChange={(
+                      e: React.ChangeEvent<HTMLInputElement>,
+                      n?: string
+                    ): void => {
+                      if (item === "relationship") {
+                        return;
+                      } else if (item === "date") {
+                        handleChange.date(e);
+                      } else if (item === "name") {
+                        handleChange.name(e);
+                      } else if (item === "age") {
+                        handleChange.age(e);
+                      } else if (item === "email") {
+                        handleChange.email(e);
+                      } else {
+                        handleChange.default(e);
+                      }
+                    }}
                     id="outlined-required"
                     label={item}
                     defaultValue={itemData[item] || null}
                     helperText={
-                      formErrors[item]?.status && formErrors[item]?.msg
+                      formErrors[item as keyof FormErrors]?.status &&
+                      formErrors[item as keyof FormErrors]?.msg
                     }
                   />
                 );
@@ -220,4 +300,6 @@ export default function Form({
       {formIsEmpty && <p className="fill-form">Please fill in the form</p>}
     </Box>
   );
-}
+};
+
+export default Form;

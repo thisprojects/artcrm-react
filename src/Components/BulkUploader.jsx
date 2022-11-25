@@ -5,7 +5,6 @@ import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Button from "@mui/material/Button";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
-import { ContactModalStatus } from "../Models/ModalStatus";
 
 const style = {
   position: "absolute",
@@ -25,17 +24,13 @@ const style = {
   flexDirection: "column",
 };
 
-interface BulkUploaderProps {
-  modalStatus: ContactModalStatus;
-  setModalStatus: React.Dispatch<React.SetStateAction<ContactModalStatus>>;
-  updateItem: (formPayload: string) => void;
-}
+// interface BulkUploaderProps {
+//   modalStatus: ContactModalStatus;
+//   setModalStatus: React.Dispatch<React.SetStateAction<ContactModalStatus>>;
+//   updateItem: (formPayload: unknown) => void;
+// }
 
-function BulkUploader({
-  modalStatus,
-  setModalStatus,
-  updateItem,
-}: BulkUploaderProps) {
+function BulkUploader({ modalStatus, setModalStatus, updateItem }) {
   // State to store parsed data
   const [parsedData, setParsedData] = useState([]);
 
@@ -63,28 +58,31 @@ function BulkUploader({
 
   const changeHandler = (event) => {
     // Passing file data (event.target.files[0]) to parse using Papa.parse
-    Papa.parse(event.target.files[0], {
-      header: true,
-      skipEmptyLines: true,
-      complete: function (results) {
-        const rowsArray = [];
-        const valuesArray = [];
+    const target = event?.target?.files;
+    if (target && target[0]) {
+      Papa.parse(target[0], {
+        header: true,
+        skipEmptyLines: true,
+        complete: function (results) {
+          const rowsArray = [];
+          const valuesArray = [];
 
-        // Iterating data to get column name and their values
-        results.data.map((d) => {
-          rowsArray.push(Object.keys(d));
-          valuesArray.push(Object.values(d));
-        });
-        // Parsed Data Response in array format
-        setParsedData(results.data);
+          // Iterating data to get column name and their values
+          results.data.map((d) => {
+            rowsArray.push(Object.keys(d));
+            valuesArray.push(Object.values(d));
+          });
+          // Parsed Data Response in array format
+          setParsedData(results.data);
 
-        // Filtered Column Names
-        setTableRows(rowsArray[0]);
+          // Filtered Column Names
+          setTableRows(rowsArray[0]);
 
-        // Filtered Values
-        setValues(valuesArray);
-      },
-    });
+          // Filtered Values
+          setValues(valuesArray);
+        },
+      });
+    }
   };
 
   return (

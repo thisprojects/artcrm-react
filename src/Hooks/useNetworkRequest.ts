@@ -8,7 +8,7 @@ const useNetworkRequest = () => {
       ).then((r) => r.json());
     },
 
-    async postItem(endpoint: string, formPayload) {
+    async postItem(endpoint: string, formPayload: object) {
       return await fetch(
         `http://${
           process.env.REACT_APP_HOSTNAME || "localhost"
@@ -21,7 +21,7 @@ const useNetworkRequest = () => {
       ).then((r) => r);
     },
 
-    async putItem(endpoint: string, formPayload) {
+    async putItem(endpoint: string, formPayload: object) {
       return await fetch(
         `http://${
           process.env.REACT_APP_HOSTNAME || "localhost"
@@ -34,7 +34,7 @@ const useNetworkRequest = () => {
       );
     },
 
-    async deleteItem(endpoint, payload) {
+    async deleteItem(endpoint: string, payload: object) {
       return await fetch(
         `http://${
           process.env.REACT_APP_HOSTNAME || "localhost"

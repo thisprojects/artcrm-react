@@ -170,9 +170,9 @@ const Organisations = () => {
     setLoading(false);
   };
 
-  const uniqueItemAlreadyExists = (email) => {
+  const uniqueItemAlreadyExists = (email: string) => {
     return resp?.find(
-      (item) => item?.email?.toLowerCase() === email?.toLowerCase()
+      (item) => item?.GetEmail()?.toLowerCase() === email?.toLowerCase()
     );
   };
 

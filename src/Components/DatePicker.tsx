@@ -4,14 +4,24 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 
-export default function DatePicker({ handleChange, editMode, currDate }) {
-  const [value, setValue] = React.useState(
+interface DatePicker {
+  handleChange: (e: Date | null) => void;
+  editMode: boolean;
+  currDate: Date;
+}
+
+const DatePicker: React.FC<DatePicker> = ({
+  handleChange,
+  editMode,
+  currDate,
+}) => {
+  const [value, setValue] = React.useState<Date | null>(
     currDate ? new Date(currDate) : new Date()
   );
 
-  const handleDateChange = (newValue) => {
+  const handleDateChange = (newValue: Date | null) => {
     setValue(newValue);
-    handleChange(newValue, "date");
+    handleChange(newValue);
   };
 
   return (
@@ -26,4 +36,6 @@ export default function DatePicker({ handleChange, editMode, currDate }) {
       />
     </LocalizationProvider>
   );
-}
+};
+
+export default DatePicker;

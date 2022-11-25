@@ -5,7 +5,11 @@ import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
 import FilterListIcon from "@mui/icons-material/FilterList";
 
-export default function BasicPopover({ applyFilter }) {
+export default function BasicPopover({
+  applyFilter,
+}: {
+  applyFilter: (value: string) => void;
+}) {
   const [anchorEl, setAnchorEl] = React.useState<null | Element>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>): void => {
@@ -16,8 +20,9 @@ export default function BasicPopover({ applyFilter }) {
     setAnchorEl(null);
   };
 
-  const handleFilter = (e) => {
-    applyFilter(e.target.value);
+  const handleFilter = (e: Event) => {
+    const target = e?.target as HTMLButtonElement;
+    applyFilter(target?.value);
   };
 
   const open = Boolean(anchorEl);
@@ -42,7 +47,9 @@ export default function BasicPopover({ applyFilter }) {
           <TextField
             variant="standard"
             label="Filter"
-            onChange={handleFilter}
+            onChange={(e) => {
+              handleFilter(e as unknown as Event);
+            }}
           />
         </Typography>
       </Popover>

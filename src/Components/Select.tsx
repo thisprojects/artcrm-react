@@ -5,12 +5,25 @@ import MenuItem from "@mui/material/MenuItem";
 import FormHelperText from "@mui/material/FormHelperText";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
+import { Collection } from "./FormSelectors";
+import { ItemData } from "./Form";
 
-export default function RelationshipSelect({ label, data, handleChange }) {
+interface RelationshipSelectProps {
+  label: string;
+  data: Array<Collection>;
+  handleChange: (e: ItemData, name: string) => void;
+}
+
+const RelationshipSelect: React.FC<RelationshipSelectProps> = ({
+  label,
+  data,
+  handleChange,
+}) => {
   const [item, setItem] = React.useState("");
 
-  const handleSelect = (event) => {
-    setItem(event.target.value);
+  const handleSelect = (event: Event) => {
+    const target = event?.target as HTMLButtonElement;
+    setItem(target?.value);
     // handleChange(event.target.value, "relationship", label);
   };
 
@@ -22,21 +35,16 @@ export default function RelationshipSelect({ label, data, handleChange }) {
         id="demo-simple-select-helper"
         value={item}
         label={label}
-        onChange={handleSelect}
+        onChange={(e) => {
+          handleSelect(e as Event);
+        }}
       >
         <MenuItem value="">
           <em>Add {label}</em>
         </MenuItem>
         {data &&
           data.map((dataItem) => (
-            <MenuItem
-              data-name={label}
-              data-id={dataItem.id}
-              id={dataItem.id}
-              value={dataItem}
-            >
-              {dataItem.name || dataItem.firstName}
-            </MenuItem>
+            <MenuItem>{dataItem.name || dataItem.firstName}</MenuItem>
           ))}
       </Select>
       <FormHelperText>
@@ -44,4 +52,6 @@ export default function RelationshipSelect({ label, data, handleChange }) {
       </FormHelperText>
     </FormControl>
   );
-}
+};
+
+export default RelationshipSelect;

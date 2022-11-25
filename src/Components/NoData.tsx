@@ -2,7 +2,13 @@ import "../App.css";
 import Box from "@mui/material/Box";
 import Loading from "./Loading";
 
-export default function NoData({ label, loading, error }) {
+interface NoDataProps {
+  label: string | null;
+  loading: boolean | null;
+  error: boolean | null;
+}
+
+const NoData: React.FC<NoDataProps> = ({ label, loading, error }) => {
   if (loading) {
     return (
       <Box
@@ -44,4 +50,6 @@ export default function NoData({ label, loading, error }) {
       </Box>
     );
   }
-}
+};
+
+export default NoData;
