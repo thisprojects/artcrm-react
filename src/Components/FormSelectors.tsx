@@ -10,6 +10,7 @@ export interface Collection {
   lastName?: string;
   name?: string;
   delete?: boolean;
+  id?: string;
 }
 
 interface FormSelectorsProps {
@@ -17,7 +18,7 @@ interface FormSelectorsProps {
   itemTitle: string;
   editMode: boolean;
   contactAndTagData: object;
-  handleChange: (e: ItemData, name: string) => void;
+  handleChange: (selectedObject: Collection | undefined, label: string) => void;
 }
 
 const personMaker = (

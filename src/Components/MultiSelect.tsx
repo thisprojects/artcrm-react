@@ -24,7 +24,7 @@ interface MultipleSelectProps {
   label: string;
   data: Array<Collection>;
   handleChange: (selectedObject: Collection | undefined, label: string) => void;
-  existingItems: "" | Collection[] | undefined;
+  existingItems: Array<string | Collection> | undefined;
   personMaker: (
     collection: Array<Collection>
   ) => Array<string | Collection> | undefined;
@@ -47,7 +47,9 @@ const MultipleSelect: React.FC<MultipleSelectProps> = ({
   existingItems,
   personMaker,
 }) => {
-  const [personName, setPersonName] = React.useState(existingItems);
+  const castExistingItems = existingItems as "" | Collection[] | undefined;
+
+  const [personName, setPersonName] = React.useState(castExistingItems);
   const [selectList, setSelectList] = React.useState(data);
 
   const handleSelectChange = (event: SelectChange) => {

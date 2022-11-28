@@ -9,6 +9,10 @@ import UpdateModal from "../Components/UpdateModal";
 import useNetworkRequest from "../Hooks/useNetworkRequest";
 import { useState, useEffect } from "react";
 import NoData from "../Components/NoData";
+import { FormPayload } from "./Contacts";
+import { ISetModalStatus } from "../Models/ModalStatus";
+import Contact from "../Models/Contacts";
+import { ItemData } from "../Components/Form";
 
 const headCells = [
   {
@@ -39,9 +43,9 @@ const headCells = [
 const relationshipsToUpdate = ["tags", "contacts"];
 
 const Organisations = () => {
-  const [resp, setResponse] = useState([]);
+  const [resp, setResponse] = useState<Array<Contact>>([]);
 
-  const [modalStatus, setModalStatus] = useState({
+  const [modalStatus, setModalStatus] = useState<ISetModalStatus>({
     updateOrganisationModalStatus: {
       open: false,
       error: false,
@@ -54,7 +58,7 @@ const Organisations = () => {
     },
   });
 
-  const [singleOrganisation, setSingleOrganisation] = useState(null);
+  const [singleOrganisation, setSingleOrganisation] = useState<ItemData>({});
   const [contactAndTagData, setContactAndTagData] = useState({});
   const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
   const [loading, setLoading] = useState(true);
@@ -65,7 +69,7 @@ const Organisations = () => {
     );
     relationshipNetworkEndpoints.forEach(async (item) => {
       const response = await getItems(`/api/v1/${item}/getAll`);
-      const relationData = contactAndTagData;
+      const relationData: Record<string, Array<object>> = contactAndTagData;
       relationData[item] = response;
       setContactAndTagData(relationData);
     });
@@ -83,7 +87,7 @@ const Organisations = () => {
     }));
   };
 
-  const multiDelete = async (payload) => {
+  const multiDelete = async (payload: FormPayload) => {
     const response = await deleteItem(
       "/api/v1/organisation/deleteMulti/",
       payload
@@ -94,7 +98,7 @@ const Organisations = () => {
     }
   };
 
-  const openModal = async (modalValue, itemId) => {
+  const openModal = async (modalValue: boolean, itemId: string) => {
     const response = await getItems(`/api/v1/organisation/getSingle/${itemId}`);
     setSingleOrganisation(response);
     getRelationshipData();
@@ -108,7 +112,7 @@ const Organisations = () => {
     }));
   };
 
-  const updateOrganisation = async (formPayload) => {
+  const updateOrganisation = async (formPayload: FormPayload) => {
     const response = await putItem(
       `/api/v1/organisation/updatejson/${formPayload.id}/`,
       formPayload
@@ -136,7 +140,7 @@ const Organisations = () => {
     }
   };
 
-  const addOrganisation = async (formPayload) => {
+  const addOrganisation = async (formPayload: FormPayload) => {
     const response = await postItem(
       `/api/v1/organisation/create/`,
       formPayload

@@ -4,7 +4,7 @@ import { Dispatch, SetStateAction } from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import FormSelectors from "./FormSelectors";
+import FormSelectors, { Collection } from "./FormSelectors";
 import Grid from "@mui/material/Grid";
 import ToggleSwitch from "./ToggleSwitch";
 import DatePicker from "./DatePicker";
@@ -53,7 +53,7 @@ interface HandleChange {
   email: (e: React.ChangeEvent<HTMLInputElement>) => void;
   name: (e: React.ChangeEvent<HTMLInputElement>) => void;
   age: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  relationship: (e: ItemData, name: string) => void;
+  relationship: (selectedObject: Collection | undefined, label: string) => void;
 }
 
 const Form: React.FC<FormProps> = ({
@@ -169,25 +169,25 @@ const Form: React.FC<FormProps> = ({
         }));
       }
     },
-    relationship(e: ItemData, name: string) {
+    relationship(e, name) {
       if (formPayload[name as keyof FormPayload]) {
         if (
           !(
             formPayload[name as keyof FormPayload] as unknown as Array<Items>
-          )?.find((item) => item.id === e.id)
+          )?.find((item) => item.id === e?.id)
         ) {
           updateFormPayload((state) => ({
             ...state,
             [name as string]: [
               ...(state[name as keyof FormPayload] as unknown as Array<Items>),
-              { id: e.id },
+              { id: e?.id },
             ],
           }));
         }
       } else {
         updateFormPayload((state) => ({
           ...state,
-          [name]: [{ id: e.id }],
+          [name]: [{ id: e?.id }],
         }));
       }
     },

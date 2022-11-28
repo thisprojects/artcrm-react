@@ -9,6 +9,10 @@ import UpdateModal from "../Components/UpdateModal";
 import useNetworkRequest from "../Hooks/useNetworkRequest";
 import NoData from "../Components/NoData";
 import { useState, useEffect } from "react";
+import { FormPayload } from "./Contacts";
+import Contact from "../Models/Contacts";
+import { ISetModalStatus } from "../Models/ModalStatus";
+import { ItemData } from "../Components/Form";
 
 const headCells = [
   {
@@ -25,10 +29,10 @@ const headCells = [
 ];
 
 const Integrations = () => {
-  const [resp, setResponse] = useState([]);
+  const [resp, setResponse] = useState<Array<Contact>>([]);
   const [loading, setLoading] = useState(true);
 
-  const [modalStatus, setModalStatus] = useState({
+  const [modalStatus, setModalStatus] = useState<ISetModalStatus>({
     updateIntegrationModalStatus: {
       open: false,
       error: false,
@@ -41,7 +45,7 @@ const Integrations = () => {
     },
   });
 
-  const [singleIntegration, setSingleIntegration] = useState(null);
+  const [singleIntegration, setSingleIntegration] = useState<ItemData>({});
   const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
 
   const handleAddIntegration = () => {
@@ -55,7 +59,7 @@ const Integrations = () => {
     }));
   };
 
-  const multiDelete = async (payload) => {
+  const multiDelete = async (payload: FormPayload) => {
     const response = await deleteItem(
       "/api/v1/integration/deleteMulti/",
       payload
@@ -66,7 +70,7 @@ const Integrations = () => {
     }
   };
 
-  const openModal = async (modalValue, itemId) => {
+  const openModal = async (modalValue: boolean, itemId: string) => {
     const response = await getItems(`/api/v1/integration/getSingle/${itemId}`);
     setSingleIntegration(response);
     setModalStatus((state) => ({
@@ -79,7 +83,7 @@ const Integrations = () => {
     }));
   };
 
-  const updateIntegration = async (formPayload) => {
+  const updateIntegration = async (formPayload: FormPayload) => {
     const response = await putItem(
       `/api/v1/integration/updatejson/${formPayload.id}/`,
       formPayload
@@ -107,7 +111,7 @@ const Integrations = () => {
     }
   };
 
-  const addIntegration = async (formPayload) => {
+  const addIntegration = async (formPayload: FormPayload) => {
     const response = await postItem(`/api/v1/integration/create/`, formPayload);
     if (response.ok === true) {
       setModalStatus((state) => ({
@@ -138,7 +142,7 @@ const Integrations = () => {
     setLoading(false);
   };
 
-  const uniqueItemAlreadyExists = (name) => {
+  const uniqueItemAlreadyExists = (name: string) => {
     return resp?.find(
       (item) => item?.name?.toLowerCase() === name?.toLowerCase()
     );

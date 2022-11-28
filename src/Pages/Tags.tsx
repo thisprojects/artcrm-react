@@ -9,6 +9,10 @@ import UpdateModal from "../Components/UpdateModal";
 import useNetworkRequest from "../Hooks/useNetworkRequest";
 import NoData from "../Components/NoData";
 import { useState, useEffect } from "react";
+import { FormPayload } from "./Contacts";
+import Contact from "../Models/Contacts";
+import { ISetModalStatus } from "../Models/ModalStatus";
+import { ItemData } from "../Components/Form";
 
 const headCells = [
   {
@@ -25,9 +29,9 @@ const headCells = [
 ];
 
 const Tags = () => {
-  const [resp, setResponse] = useState([]);
+  const [resp, setResponse] = useState<Array<Contact>>([]);
 
-  const [modalStatus, setModalStatus] = useState({
+  const [modalStatus, setModalStatus] = useState<ISetModalStatus>({
     updateTagModalStatus: {
       open: false,
       error: false,
@@ -40,7 +44,7 @@ const Tags = () => {
     },
   });
 
-  const [singleTag, setSingleTag] = useState(null);
+  const [singleTag, setSingleTag] = useState<ItemData>({});
   const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
   const [loading, setLoading] = useState(true);
 
@@ -55,7 +59,7 @@ const Tags = () => {
     }));
   };
 
-  const multiDelete = async (payload) => {
+  const multiDelete = async (payload: FormPayload) => {
     const response = await deleteItem("/api/v1/tag/deleteMulti/", payload);
     if (response.ok === true) {
       setLoading(true);
@@ -63,7 +67,7 @@ const Tags = () => {
     }
   };
 
-  const openEditModal = async (modalValue, itemId) => {
+  const openEditModal = async (modalValue: boolean, itemId: string) => {
     const response = await getItems(`/api/v1/tag/getSingle/${itemId}`);
     setSingleTag(response);
     setModalStatus((state) => ({
@@ -76,7 +80,7 @@ const Tags = () => {
     }));
   };
 
-  const updateTag = async (formPayload) => {
+  const updateTag = async (formPayload: FormPayload) => {
     const response = await putItem(
       `/api/v1/tag/updatejson/${formPayload.id}/`,
       formPayload
@@ -104,7 +108,7 @@ const Tags = () => {
     }
   };
 
-  const addTag = async (formPayload) => {
+  const addTag = async (formPayload: FormPayload) => {
     const response = await postItem(`/api/v1/tag/create/`, formPayload);
     if (response.ok === true) {
       setModalStatus((state) => ({
@@ -135,7 +139,7 @@ const Tags = () => {
     setLoading(false);
   };
 
-  const uniqueItemAlreadyExists = (name) => {
+  const uniqueItemAlreadyExists = (name: string) => {
     return resp?.find(
       (item) => item?.name?.toLowerCase() === name?.toLowerCase()
     );

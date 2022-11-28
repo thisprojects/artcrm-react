@@ -11,7 +11,7 @@ import { ItemData } from "./Form";
 interface RelationshipSelectProps {
   label: string;
   data: Array<Collection>;
-  handleChange: (e: ItemData, name: string) => void;
+  handleChange: (selectedObject: Collection | undefined, label: string) => void;
 }
 
 const RelationshipSelect: React.FC<RelationshipSelectProps> = ({

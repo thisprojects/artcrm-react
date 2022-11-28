@@ -5,14 +5,15 @@ import Tags from "./Tags";
 
 export default class Contacts {
   constructor(
-    private age: number,
-    private email: string,
-    private id: string,
-    private lastName: string,
-    private postCode: string,
-    private events?: Events[],
-    private organisations?: Organisations[],
-    private tags?: Tags[]
+    public age: number,
+    public email: string,
+    public id: string,
+    public lastName: string,
+    public postCode: string,
+    public events?: Events[],
+    public organisations?: Organisations[],
+    public tags?: Tags[],
+    public name?: string
   ) {}
 
   GetEmail(): string {

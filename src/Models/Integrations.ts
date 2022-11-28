@@ -1,3 +1,3 @@
-export default class Integrations {
-  constructor(private id: string, private name: string) {}
+export default class IIntegrations {
+  constructor(public id: string, public name: string) {}
 }

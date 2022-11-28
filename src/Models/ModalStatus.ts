@@ -10,4 +10,10 @@ export interface ISetModalStatus {
   bulkAddContactModalStatus?: ContactModalStatus | undefined;
   updateEventModalStatus?: ContactModalStatus | undefined;
   addEventModalStatus?: ContactModalStatus | undefined;
+  updateIntegrationModalStatus?: ContactModalStatus | undefined;
+  addIntegrationModalStatus?: ContactModalStatus | undefined;
+  updateOrganisationModalStatus?: ContactModalStatus | undefined;
+  addOrganisationModalStatus?: ContactModalStatus | undefined;
+  updateTagModalStatus?: ContactModalStatus | undefined;
+  addTagModalStatus?: ContactModalStatus | undefined;
 }
