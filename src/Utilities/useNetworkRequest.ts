@@ -1,4 +1,4 @@
-const useNetworkRequest = () => {
+function useNetworkRequest() {
   const requests = {
     async getItems(endpoint: string) {
       return await fetch(
@@ -46,9 +46,18 @@ const useNetworkRequest = () => {
         }
       ).then((r) => r);
     },
+
+    async getRelationshipData(relationshipNetworkEndpoints: Array<string>) {
+      const relationData: Record<string, Array<object>> = {};
+      relationshipNetworkEndpoints.forEach(async (item: string) => {
+        const response = await requests.getItems(`/api/v1/${item}/getAll`);
+        relationData[item] = response;
+      });
+      return relationData;
+    },
   };
 
   return requests;
-};
+}
 
 export default useNetworkRequest;

@@ -5,63 +5,33 @@ import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Table from "../Components/Table";
-import UpdateModal from "../Components/UpdateModal";
+import UpdateModal from "../Components/FormModal";
 import NoData from "../Components/NoData";
-import useNetworkRequest from "../Hooks/useNetworkRequest";
+import useNetworkRequest from "../Utilities/useNetworkRequest";
 import { useState, useEffect } from "react";
 import { FormPayload } from "./Contacts";
-import { ISetModalStatus } from "../Models/ModalStatus";
+import {
+  ISetModalStatus,
+  ModalStatusLabel,
+  NetworkRequestStatus,
+} from "../Models/ModalStatus";
 import { ItemData } from "../Components/Form";
+import { tableCellDictionary } from "../Utilities/tableCellDictionary";
+import { modalFactory, modalStatusFactory } from "../Utilities/modalFactory";
 
-const headCells = [
-  {
-    id: "name",
-    numeric: false,
-    disablePadding: false,
-    label: "Name",
-  },
-  {
-    id: "postCode",
-    numeric: false,
-    disablePadding: false,
-    label: "Post Code",
-  },
-  {
-    id: "venueName",
-    numeric: false,
-    disablePadding: false,
-    label: "Venue Name",
-  },
-  {
-    id: "eventDate",
-    numberic: false,
-    disablePadding: false,
-    label: "Event Date",
-  },
-  {
-    id: "inspect",
-    numberic: false,
-    disablePadding: false,
-  },
-];
+const { NEW_FORM_MODAL_STATUS, UPDATE_FORM_MODAL_STATUS } = ModalStatusLabel;
+const { FAIL, SUCCESS } = NetworkRequestStatus;
+
+const headCells = tableCellDictionary["Events"];
 
 const relationshipsToUpdate = ["tags", "contacts"];
 
 const Events = () => {
   const [resp, setResponse] = useState([]);
 
-  const [modalStatus, setModalStatus] = useState<ISetModalStatus>({
-    updateEventModalStatus: {
-      open: false,
-      error: false,
-      label: "updateEventModalStatus",
-    },
-    addEventModalStatus: {
-      open: false,
-      error: false,
-      label: "addEventModalStatus",
-    },
-  });
+  const [modalStatus, setModalStatus] = useState<ISetModalStatus>(
+    modalFactory()
+  );
 
   const [singleEvent, setSingleEvent] = useState<ItemData>({});
   const [contactAndTagData, setContactAndTagData] = useState({});
@@ -80,14 +50,10 @@ const Events = () => {
     });
   };
 
-  const handleAddEvent = () => {
+  const openAddEventModal = () => {
     setModalStatus((state) => ({
       ...state,
-      addEventModalStatus: {
-        open: true,
-        error: false,
-        label: "addEventModalStatus",
-      },
+      NEW_FORM_MODAL_STATUS: modalStatusFactory(NEW_FORM_MODAL_STATUS),
     }));
   };
 
@@ -99,72 +65,53 @@ const Events = () => {
     }
   };
 
-  const openModal = async (modalValue: boolean, itemId: string) => {
+  const openUpdateModal = async (modalValue: boolean, itemId: string) => {
     const response = await getItems(`/api/v1/event/getSingle/${itemId}`);
 
     setSingleEvent(response);
     getRelationshipData();
     setModalStatus((state) => ({
       ...state,
-      updateEventModalStatus: {
-        open: modalValue,
-        error: false,
-        label: "updateEventModalStatus",
-      },
+      UPDATE_FORM_MODAL_STATUS: modalStatusFactory(UPDATE_FORM_MODAL_STATUS),
     }));
   };
 
   const updateEvent = async (formPayload: FormPayload) => {
+    let status: string = FAIL;
     const response = await putItem(
       `/api/v1/event/updatejson/${formPayload.id}/`,
       formPayload
     );
+
     if (response.ok === true) {
-      setModalStatus((state) => ({
-        ...state,
-        updateEventModalStatus: {
-          open: false,
-          error: false,
-          label: "updateEventModalStatus",
-        },
-      }));
+      status = SUCCESS;
       setLoading(true);
       getAllEvents();
-    } else {
-      setModalStatus((state) => ({
-        ...state,
-        updateEventModalStatus: {
-          open: true,
-          error: true,
-          label: "updateEventModalStatus",
-        },
-      }));
     }
+
+    setModalStatus((state) => ({
+      ...state,
+      UPDATE_FORM_MODAL_STATUS: modalStatusFactory(
+        UPDATE_FORM_MODAL_STATUS,
+        status
+      ),
+    }));
   };
 
   const addEvent = async (formPayload: FormPayload) => {
+    let status: string = FAIL;
     const response = await postItem(`/api/v1/event/create/`, formPayload);
+
     if (response.ok === true) {
-      setModalStatus((state) => ({
-        ...state,
-        addEventModalStatus: {
-          open: false,
-          error: false,
-          label: "addEventModalStatus",
-        },
-      }));
+      status = SUCCESS;
       setLoading(true);
       getAllEvents();
-    } else {
-      setModalStatus((state) => ({
-        ...state,
-        addEventModalStatus: {
-          open: true,
-          error: true,
-          label: "addEventModalStatus",
-        },
-      }));
     }
+
+    setModalStatus((state) => ({
+      ...state,
+      NEW_FORM_MODAL_STATUS: modalStatusFactory(NEW_FORM_MODAL_STATUS, status),
+    }));
   };
 
   const getAllEvents = async () => {
@@ -184,7 +131,7 @@ const Events = () => {
       <NavBar />
       <Box sx={{ padding: "10px" }}>
         <UpdateModal
-          modalStatus={modalStatus.updateEventModalStatus}
+          modalStatus={modalStatus[UPDATE_FORM_MODAL_STATUS]}
           setModalStatus={setModalStatus}
           labels={{ itemTitle: "Event", buttonLabel: "Update" }}
           itemData={singleEvent}
@@ -194,7 +141,7 @@ const Events = () => {
           uniqueItemAlreadyExists={() => undefined}
         />
         <UpdateModal
-          modalStatus={modalStatus.addEventModalStatus}
+          modalStatus={modalStatus[NEW_FORM_MODAL_STATUS]}
           labels={{ itemTitle: "Event", buttonLabel: "Add" }}
           setEditMode={true}
           itemData={{
@@ -216,7 +163,7 @@ const Events = () => {
               <Table
                 headCells={headCells}
                 tableRowData={resp}
-                openModal={openModal}
+                openModal={openUpdateModal}
                 deleteItems={multiDelete}
                 label={"Events"}
               />
@@ -228,7 +175,7 @@ const Events = () => {
             <Stack direction="column" spacing={2}>
               <Button
                 sx={{ backgroundColor: "white" }}
-                onClick={handleAddEvent}
+                onClick={openAddEventModal}
               >
                 Add Event
               </Button>

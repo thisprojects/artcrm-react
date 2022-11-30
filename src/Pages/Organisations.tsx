@@ -5,85 +5,48 @@ import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Table from "../Components/Table";
-import UpdateModal from "../Components/UpdateModal";
-import useNetworkRequest from "../Hooks/useNetworkRequest";
+import UpdateModal from "../Components/FormModal";
+import useNetworkRequest from "../Utilities/useNetworkRequest";
 import { useState, useEffect } from "react";
 import NoData from "../Components/NoData";
 import { FormPayload } from "./Contacts";
-import { ISetModalStatus } from "../Models/ModalStatus";
+import {
+  ISetModalStatus,
+  ModalStatusLabel,
+  NetworkRequestStatus,
+} from "../Models/ModalStatus";
 import Contact from "../Models/Contacts";
 import { ItemData } from "../Components/Form";
+import { tableCellDictionary } from "../Utilities/tableCellDictionary";
+import { modalFactory, modalStatusFactory } from "../Utilities/modalFactory";
 
-const headCells = [
-  {
-    id: "name",
-    numeric: false,
-    disablePadding: false,
-    label: "Name",
-  },
-  {
-    id: "postCode",
-    numeric: false,
-    disablePadding: false,
-    label: "Post Code",
-  },
-  {
-    id: "email",
-    numeric: false,
-    disablePadding: false,
-    label: "E-Mail",
-  },
-  {
-    id: "inspect",
-    numeric: false,
-    disablePadding: false,
-  },
-];
-
+const headCells = tableCellDictionary["Organisations"];
+const { NEW_FORM_MODAL_STATUS, UPDATE_FORM_MODAL_STATUS } = ModalStatusLabel;
+const { SUCCESS, FAIL } = NetworkRequestStatus;
 const relationshipsToUpdate = ["tags", "contacts"];
 
 const Organisations = () => {
   const [resp, setResponse] = useState<Array<Contact>>([]);
+  const [modalStatus, setModalStatus] = useState<ISetModalStatus>(
+    modalFactory()
+  );
 
-  const [modalStatus, setModalStatus] = useState<ISetModalStatus>({
-    updateOrganisationModalStatus: {
-      open: false,
-      error: false,
-      label: "updateOrganisationModalStatus",
-    },
-    addOrganisationModalStatus: {
-      open: false,
-      error: false,
-      label: "addOrganisationModalStatus",
-    },
-  });
-
+  const [loading, setLoading] = useState(true);
   const [singleOrganisation, setSingleOrganisation] = useState<ItemData>({});
   const [contactAndTagData, setContactAndTagData] = useState({});
-  const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
-  const [loading, setLoading] = useState(true);
+  const { getItems, postItem, putItem, deleteItem, getRelationshipData } =
+    useNetworkRequest();
 
-  const getRelationshipData = () => {
-    const relationshipNetworkEndpoints = relationshipsToUpdate.map((item) =>
-      item.replace("s", "")
-    );
-    relationshipNetworkEndpoints.forEach(async (item) => {
-      const response = await getItems(`/api/v1/${item}/getAll`);
-      const relationData: Record<string, Array<object>> = contactAndTagData;
-      relationData[item] = response;
-      setContactAndTagData(relationData);
-    });
+  const fetchContactAndTagRelationships = () => {
+    const relationData = getRelationshipData(relationshipsToUpdate);
+    setContactAndTagData(relationData);
   };
 
-  const handleAddOrganisation = () => {
-    getRelationshipData();
+  const openAddOrganisationModal = () => {
+    fetchContactAndTagRelationships();
     setModalStatus((state) => ({
       ...state,
-      addOrganisationModalStatus: {
-        open: true,
-        error: false,
-        label: "addOrganisationModalStatus",
-      },
+      NEW_FORM_MODAL_STATUS: modalStatusFactory(NEW_FORM_MODAL_STATUS),
     }));
   };
 
@@ -98,74 +61,55 @@ const Organisations = () => {
     }
   };
 
-  const openModal = async (modalValue: boolean, itemId: string) => {
+  const openUpdateModal = async (modalValue: boolean, itemId: string) => {
     const response = await getItems(`/api/v1/organisation/getSingle/${itemId}`);
     setSingleOrganisation(response);
-    getRelationshipData();
+    fetchContactAndTagRelationships();
     setModalStatus((state) => ({
       ...state,
-      updateOrganisationModalStatus: {
-        open: modalValue,
-        error: false,
-        label: "updateOrganisationModalStatus",
-      },
+      UPDATE_FORM_MODAL_STATUS: modalStatusFactory(UPDATE_FORM_MODAL_STATUS),
     }));
   };
 
   const updateOrganisation = async (formPayload: FormPayload) => {
+    let status = FAIL;
     const response = await putItem(
       `/api/v1/organisation/updatejson/${formPayload.id}/`,
       formPayload
     );
+
     if (response.ok === true) {
-      setModalStatus((state) => ({
-        ...state,
-        updateOrganisationModalStatus: {
-          open: false,
-          error: false,
-          label: "updateOrganisationModalStatus",
-        },
-      }));
+      status = SUCCESS;
       setLoading(true);
       getAllOrganisations();
-    } else {
-      setModalStatus((state) => ({
-        ...state,
-        updateOrganisationModalStatus: {
-          open: true,
-          error: true,
-          label: "updateOrganisationModalStatus",
-        },
-      }));
     }
+
+    setModalStatus((state) => ({
+      ...state,
+      UPDATE_FORM_MODAL_STATUS: modalStatusFactory(
+        UPDATE_FORM_MODAL_STATUS,
+        status
+      ),
+    }));
   };
 
   const addOrganisation = async (formPayload: FormPayload) => {
+    let status = FAIL;
     const response = await postItem(
       `/api/v1/organisation/create/`,
       formPayload
     );
+
     if (response.ok === true) {
-      setModalStatus((state) => ({
-        ...state,
-        addOrganisationModalStatus: {
-          open: false,
-          error: false,
-          label: "addorganisationModalStatus",
-        },
-      }));
+      status = SUCCESS;
       setLoading(true);
       getAllOrganisations();
-    } else {
-      setModalStatus((state) => ({
-        ...state,
-        addOrganisationModalStatus: {
-          open: true,
-          error: true,
-          label: "addorganisationModalStatus",
-        },
-      }));
     }
+
+    setModalStatus((state) => ({
+      ...state,
+      NEW_FORM_MODAL_STATUS: modalStatusFactory(NEW_FORM_MODAL_STATUS, status),
+    }));
   };
 
   const getAllOrganisations = async () => {
@@ -190,7 +134,7 @@ const Organisations = () => {
       <NavBar />
       <Box sx={{ padding: "10px" }}>
         <UpdateModal
-          modalStatus={modalStatus.updateOrganisationModalStatus}
+          modalStatus={modalStatus[UPDATE_FORM_MODAL_STATUS]}
           setModalStatus={setModalStatus}
           labels={{ itemTitle: "Organisation", buttonLabel: "Update" }}
           itemData={singleOrganisation}
@@ -200,7 +144,7 @@ const Organisations = () => {
           uniqueItemAlreadyExists={uniqueItemAlreadyExists}
         />
         <UpdateModal
-          modalStatus={modalStatus.addOrganisationModalStatus}
+          modalStatus={modalStatus[NEW_FORM_MODAL_STATUS]}
           labels={{ itemTitle: "Organisation", buttonLabel: "Add" }}
           setEditMode={true}
           itemData={{
@@ -222,7 +166,7 @@ const Organisations = () => {
                 label="Organisations"
                 headCells={headCells}
                 tableRowData={resp}
-                openModal={openModal}
+                openModal={openUpdateModal}
                 deleteItems={multiDelete}
               />
             ) : (
@@ -233,7 +177,7 @@ const Organisations = () => {
             <Stack direction="column" spacing={2}>
               <Button
                 sx={{ backgroundColor: "white" }}
-                onClick={handleAddOrganisation}
+                onClick={openAddOrganisationModal}
               >
                 Add Organisation
               </Button>

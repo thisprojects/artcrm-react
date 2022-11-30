@@ -5,50 +5,37 @@ import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Table from "../Components/Table";
-import UpdateModal from "../Components/UpdateModal";
-import useNetworkRequest from "../Hooks/useNetworkRequest";
+import UpdateModal from "../Components/FormModal";
+import useNetworkRequest from "../Utilities/useNetworkRequest";
 import NoData from "../Components/NoData";
 import { useState, useEffect } from "react";
 import { FormPayload } from "./Contacts";
 import Contact from "../Models/Contacts";
-import { ISetModalStatus } from "../Models/ModalStatus";
+import {
+  ISetModalStatus,
+  ModalStatusLabel,
+  NetworkRequestStatus,
+} from "../Models/ModalStatus";
 import { ItemData } from "../Components/Form";
+import { tableCellDictionary } from "../Utilities/tableCellDictionary";
+import { modalFactory } from "../Utilities/modalFactory";
 
-const headCells = [
-  {
-    id: "name",
-    numeric: false,
-    disablePadding: false,
-    label: "Name",
-  },
-  {
-    id: "inspect",
-    numeric: false,
-    disablePadding: false,
-  },
-];
+const headCells = tableCellDictionary["Tags"];
+const { NEW_FORM_MODAL_STATUS, UPDATE_FORM_MODAL_STATUS } = ModalStatusLabel;
+const { SUCCESS, FAIL } = NetworkRequestStatus;
 
 const Tags = () => {
   const [resp, setResponse] = useState<Array<Contact>>([]);
 
-  const [modalStatus, setModalStatus] = useState<ISetModalStatus>({
-    updateTagModalStatus: {
-      open: false,
-      error: false,
-      label: "updateTagModalStatus",
-    },
-    addTagModalStatus: {
-      open: false,
-      error: false,
-      label: "addTagModalStatus",
-    },
-  });
+  const [modalStatus, setModalStatus] = useState<ISetModalStatus>(
+    modalFactory()
+  );
 
   const [singleTag, setSingleTag] = useState<ItemData>({});
   const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
   const [loading, setLoading] = useState(true);
 
-  const handleAddTag = () => {
+  const openAddTagModal = () => {
     setModalStatus((state) => ({
       ...state,
       addTagModalStatus: {
@@ -155,7 +142,7 @@ const Tags = () => {
       <NavBar />
       <Box sx={{ padding: "10px" }}>
         <UpdateModal
-          modalStatus={modalStatus.updateTagModalStatus}
+          modalStatus={modalStatus[UPDATE_FORM_MODAL_STATUS]}
           setModalStatus={setModalStatus}
           labels={{ itemTitle: "Tag", buttonLabel: "Update" }}
           itemData={singleTag}
@@ -165,7 +152,7 @@ const Tags = () => {
           uniqueItemAlreadyExists={uniqueItemAlreadyExists}
         />
         <UpdateModal
-          modalStatus={modalStatus.addTagModalStatus}
+          modalStatus={modalStatus[NEW_FORM_MODAL_STATUS]}
           labels={{ itemTitle: "Tag", buttonLabel: "Add" }}
           setEditMode={true}
           itemData={{
@@ -192,7 +179,10 @@ const Tags = () => {
           </Grid>
           <Grid item md={2}>
             <Stack direction="column" spacing={2}>
-              <Button sx={{ backgroundColor: "white" }} onClick={handleAddTag}>
+              <Button
+                sx={{ backgroundColor: "white" }}
+                onClick={openAddTagModal}
+              >
                 Add Tags
               </Button>
             </Stack>

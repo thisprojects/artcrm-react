@@ -7,7 +7,7 @@ import Modal from "@mui/material/Modal";
 import { useState } from "react";
 import Form from "./Form";
 import NoData from "./NoData";
-import { ISetModalStatus, ContactModalStatus } from "../Models/ModalStatus";
+import { ISetModalStatus, ModalStatus } from "../Models/ModalStatus";
 import { FormPayload } from "../Pages/Contacts";
 import { ItemData } from "./Form";
 import Contact from "../Models/Contacts";
@@ -26,8 +26,8 @@ const style = {
   overflow: "scroll",
 };
 
-interface MoreDetailsModalProps {
-  modalStatus: ContactModalStatus | undefined;
+interface FormModalProps {
+  modalStatus: ModalStatus | undefined;
   itemData: ItemData;
   setModalStatus: Dispatch<SetStateAction<ISetModalStatus>>;
   updateItem: (formPayload: FormPayload) => void;
@@ -37,7 +37,7 @@ interface MoreDetailsModalProps {
   uniqueItemAlreadyExists: (item: string) => Contact | undefined;
 }
 
-const MoreDetailsModal: React.FC<MoreDetailsModalProps> = ({
+const FormModal: React.FC<FormModalProps> = ({
   modalStatus,
   itemData,
   setModalStatus,
@@ -105,4 +105,4 @@ const MoreDetailsModal: React.FC<MoreDetailsModalProps> = ({
   );
 };
 
-export default MoreDetailsModal;
+export default FormModal;

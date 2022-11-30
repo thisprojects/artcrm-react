@@ -5,57 +5,41 @@ import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Table from "../Components/Table";
-import UpdateModal from "../Components/UpdateModal";
-import useNetworkRequest from "../Hooks/useNetworkRequest";
+import UpdateModal from "../Components/FormModal";
+import useNetworkRequest from "../Utilities/useNetworkRequest";
 import NoData from "../Components/NoData";
 import { useState, useEffect } from "react";
 import { FormPayload } from "./Contacts";
 import Contact from "../Models/Contacts";
-import { ISetModalStatus } from "../Models/ModalStatus";
+import {
+  ISetModalStatus,
+  ModalStatusLabel,
+  NetworkRequestStatus,
+} from "../Models/ModalStatus";
 import { ItemData } from "../Components/Form";
+import { tableCellDictionary } from "../Utilities/tableCellDictionary";
+import { modalFactory, modalStatusFactory } from "../Utilities/modalFactory";
 
-const headCells = [
-  {
-    id: "name",
-    numeric: false,
-    disablePadding: false,
-    label: "Name",
-  },
-  {
-    id: "inspect",
-    numeric: false,
-    disablePadding: false,
-  },
-];
+const headCells = tableCellDictionary["Integrations"];
+
+const { NEW_FORM_MODAL_STATUS, UPDATE_FORM_MODAL_STATUS } = ModalStatusLabel;
+const { SUCCESS, FAIL } = NetworkRequestStatus;
 
 const Integrations = () => {
   const [resp, setResponse] = useState<Array<Contact>>([]);
   const [loading, setLoading] = useState(true);
 
-  const [modalStatus, setModalStatus] = useState<ISetModalStatus>({
-    updateIntegrationModalStatus: {
-      open: false,
-      error: false,
-      label: "updateIntegrationModalStatus",
-    },
-    addIntegrationModalStatus: {
-      open: false,
-      error: false,
-      label: "addIntegrationModalStatus",
-    },
-  });
+  const [modalStatus, setModalStatus] = useState<ISetModalStatus>(
+    modalFactory()
+  );
 
   const [singleIntegration, setSingleIntegration] = useState<ItemData>({});
   const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
 
-  const handleAddIntegration = () => {
+  const openAddIntegrationModal = () => {
     setModalStatus((state) => ({
       ...state,
-      addIntegrationModalStatus: {
-        open: true,
-        error: false,
-        label: "addIntegrationModalStatus",
-      },
+      NEW_FORM_MODAL_STATUS: modalStatusFactory(NEW_FORM_MODAL_STATUS),
     }));
   };
 
@@ -70,70 +54,52 @@ const Integrations = () => {
     }
   };
 
-  const openModal = async (modalValue: boolean, itemId: string) => {
+  const openUpdateModal = async (modalValue: boolean, itemId: string) => {
     const response = await getItems(`/api/v1/integration/getSingle/${itemId}`);
     setSingleIntegration(response);
     setModalStatus((state) => ({
       ...state,
-      updateIntegrationModalStatus: {
-        open: modalValue,
-        error: false,
-        label: "updateIntegrationModalStatus",
-      },
+      UPDATE_FORM_MODAL_STATUS: modalStatusFactory(UPDATE_FORM_MODAL_STATUS),
     }));
   };
 
   const updateIntegration = async (formPayload: FormPayload) => {
+    let status = FAIL;
     const response = await putItem(
       `/api/v1/integration/updatejson/${formPayload.id}/`,
       formPayload
     );
     if (response.ok === true) {
-      setModalStatus((state) => ({
-        ...state,
-        updateIntegrationModalStatus: {
-          open: false,
-          error: false,
-          label: "updateIntegrationModalStatus",
-        },
-      }));
+      status = SUCCESS;
       setLoading(true);
       getAllIntegrations();
-    } else {
-      setModalStatus((state) => ({
-        ...state,
-        updateIntegrationModalStatus: {
-          open: true,
-          error: true,
-          label: "updateIntegrationModalStatus",
-        },
-      }));
     }
+
+    setModalStatus((state) => ({
+      ...state,
+      UPDATE_FORM_MODAL_STATUS: modalStatusFactory(
+        UPDATE_FORM_MODAL_STATUS,
+        status
+      ),
+    }));
   };
 
   const addIntegration = async (formPayload: FormPayload) => {
+    let status = FAIL;
     const response = await postItem(`/api/v1/integration/create/`, formPayload);
     if (response.ok === true) {
-      setModalStatus((state) => ({
-        ...state,
-        addIntegrationModalStatus: {
-          open: false,
-          error: false,
-          label: "addIntegrationModalStatus",
-        },
-      }));
+      status = SUCCESS;
       setLoading(true);
       getAllIntegrations();
-    } else {
-      setModalStatus((state) => ({
-        ...state,
-        addIntegrationModalStatus: {
-          open: true,
-          error: true,
-          label: "addIntegrationModalStatus",
-        },
-      }));
     }
+
+    setModalStatus((state) => ({
+      ...state,
+      UPDATE_FORM_MODAL_STATUS: modalStatusFactory(
+        UPDATE_FORM_MODAL_STATUS,
+        status
+      ),
+    }));
   };
 
   const getAllIntegrations = async () => {
@@ -158,7 +124,7 @@ const Integrations = () => {
       <NavBar />
       <Box sx={{ padding: "10px" }}>
         <UpdateModal
-          modalStatus={modalStatus.updateIntegrationModalStatus}
+          modalStatus={modalStatus[UPDATE_FORM_MODAL_STATUS]}
           setModalStatus={setModalStatus}
           labels={{ itemTitle: "Integration", buttonLabel: "Update" }}
           itemData={singleIntegration}
@@ -168,7 +134,7 @@ const Integrations = () => {
           uniqueItemAlreadyExists={uniqueItemAlreadyExists}
         />
         <UpdateModal
-          modalStatus={modalStatus.addIntegrationModalStatus}
+          modalStatus={modalStatus[NEW_FORM_MODAL_STATUS]}
           labels={{ itemTitle: "Integration", buttonLabel: "Add" }}
           setEditMode={true}
           itemData={{
@@ -185,7 +151,7 @@ const Integrations = () => {
               <Table
                 headCells={headCells}
                 tableRowData={resp}
-                openModal={openModal}
+                openModal={openUpdateModal}
                 deleteItems={multiDelete}
                 label="Integrations"
               />
@@ -197,7 +163,7 @@ const Integrations = () => {
             <Stack direction="column" spacing={2}>
               <Button
                 sx={{ backgroundColor: "white" }}
-                onClick={handleAddIntegration}
+                onClick={openAddIntegrationModal}
               >
                 Add Integrations
               </Button>
