@@ -4,12 +4,13 @@ import Box from "@mui/material/Box";
 import Select from "./Select";
 import MultipleSelect from "./MultiSelect";
 import CRMDataModel from "../Models/CRMDataModel";
+import Relationships from "../Models/Relationships";
 
 interface FormSelectorsProps {
   itemData: CRMDataModel;
   itemTitle: string;
   editMode: boolean;
-  contactAndTagData: object;
+  contactAndTagData: Relationships | [];
   handleChange: (
     selectedObject: CRMDataModel | undefined,
     label: string

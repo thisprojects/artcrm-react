@@ -10,6 +10,7 @@ import ToggleSwitch from "./ToggleSwitch";
 import DatePicker from "./DatePicker";
 import { useState } from "react";
 import CRMDataModel from "../Models/CRMDataModel";
+import Relationships from "../Models/Relationships";
 
 interface FormProps {
   editMode: boolean;
@@ -17,7 +18,7 @@ interface FormProps {
   updateItem: (formData: CRMDataModel) => void;
   itemTitle: string;
   updateEditMode: Dispatch<SetStateAction<boolean>>;
-  contactAndTagData: object;
+  contactAndTagData: Relationships | [];
   buttonLabel: string;
   uniqueItemAlreadyExists: (event: string) => CRMDataModel | undefined;
 }

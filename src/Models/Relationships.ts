@@ -3,7 +3,7 @@ import Events from "./IEvent";
 import Organisations from "./IOrganisation";
 import Tags from "./ITag";
 
-export default class Relationships {
+export default interface Relationships {
   contacts?: Contacts[];
   events?: Events[];
   organisations?: Organisations[];

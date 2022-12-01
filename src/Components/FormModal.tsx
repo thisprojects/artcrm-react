@@ -9,6 +9,7 @@ import Form from "./Form";
 import NoData from "./NoData";
 import { ISetModalStatus, IModalStatus } from "../Models/IModalStatus";
 import CRMDataModel from "../Models/CRMDataModel";
+import Relationships from "../Models/Relationships";
 
 const style = {
   position: "absolute",
@@ -29,7 +30,7 @@ interface FormModalProps {
   itemData: CRMDataModel;
   setModalStatus: Dispatch<SetStateAction<ISetModalStatus>>;
   updateItem: (formPayload: CRMDataModel) => void;
-  contactAndTagData: object;
+  contactAndTagData: Relationships | [];
   labels: { itemTitle: string; buttonLabel: string };
   setEditMode: boolean;
   uniqueItemAlreadyExists: (item: string) => CRMDataModel | undefined;
