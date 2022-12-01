@@ -9,16 +9,11 @@ import UpdateModal from "../Components/FormModal";
 import useNetworkRequest from "../Utilities/useNetworkRequest";
 import { useState, useEffect } from "react";
 import NoData from "../Components/NoData";
-import { FormPayload } from "./Contacts";
-import {
-  ISetModalStatus,
-  ModalStatusLabel,
-  NetworkRequestStatus,
-} from "../Models/ModalStatus";
-import Contact from "../Models/Contacts";
-import { ItemData } from "../Components/Form";
+import { ISetModalStatus } from "../Models/IModalStatus";
+import { ModalStatusLabel, NetworkRequestStatus } from "../Models/Enums";
 import { tableCellDictionary } from "../Utilities/tableCellDictionary";
 import { modalFactory, modalStatusFactory } from "../Utilities/modalFactory";
+import CRMDataModel from "../Models/CRMDataModel";
 
 const headCells = tableCellDictionary["Organisations"];
 const { NEW_FORM_MODAL_STATUS, UPDATE_FORM_MODAL_STATUS } = ModalStatusLabel;
@@ -26,19 +21,21 @@ const { SUCCESS, FAIL } = NetworkRequestStatus;
 const relationshipsToUpdate = ["tags", "contacts"];
 
 const Organisations = () => {
-  const [resp, setResponse] = useState<Array<Contact>>([]);
+  const [resp, setResponse] = useState<Array<CRMDataModel>>([]);
   const [modalStatus, setModalStatus] = useState<ISetModalStatus>(
     modalFactory()
   );
 
   const [loading, setLoading] = useState(true);
-  const [singleOrganisation, setSingleOrganisation] = useState<ItemData>({});
+  const [singleOrganisation, setSingleOrganisation] = useState<CRMDataModel>(
+    {}
+  );
   const [contactAndTagData, setContactAndTagData] = useState({});
   const { getItems, postItem, putItem, deleteItem, getRelationshipData } =
     useNetworkRequest();
 
-  const fetchContactAndTagRelationships = () => {
-    const relationData = getRelationshipData(relationshipsToUpdate);
+  const fetchContactAndTagRelationships = async () => {
+    const relationData = await getRelationshipData(relationshipsToUpdate);
     setContactAndTagData(relationData);
   };
 
@@ -50,7 +47,7 @@ const Organisations = () => {
     }));
   };
 
-  const multiDelete = async (payload: FormPayload) => {
+  const multiDelete = async (payload: CRMDataModel) => {
     const response = await deleteItem(
       "/api/v1/organisation/deleteMulti/",
       payload
@@ -61,7 +58,7 @@ const Organisations = () => {
     }
   };
 
-  const openUpdateModal = async (modalValue: boolean, itemId: string) => {
+  const openUpdateModal = async (itemId: string) => {
     const response = await getItems(`/api/v1/organisation/getSingle/${itemId}`);
     setSingleOrganisation(response);
     fetchContactAndTagRelationships();
@@ -71,7 +68,7 @@ const Organisations = () => {
     }));
   };
 
-  const updateOrganisation = async (formPayload: FormPayload) => {
+  const updateOrganisation = async (formPayload: CRMDataModel) => {
     let status = FAIL;
     const response = await putItem(
       `/api/v1/organisation/updatejson/${formPayload.id}/`,
@@ -93,7 +90,7 @@ const Organisations = () => {
     }));
   };
 
-  const addOrganisation = async (formPayload: FormPayload) => {
+  const addOrganisation = async (formPayload: CRMDataModel) => {
     let status = FAIL;
     const response = await postItem(
       `/api/v1/organisation/create/`,
@@ -120,7 +117,7 @@ const Organisations = () => {
 
   const uniqueItemAlreadyExists = (email: string) => {
     return resp?.find(
-      (item) => item?.GetEmail()?.toLowerCase() === email?.toLowerCase()
+      (item) => item?.email?.toLowerCase() === email?.toLowerCase()
     );
   };
 

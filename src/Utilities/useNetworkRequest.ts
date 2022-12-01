@@ -1,3 +1,5 @@
+import CRMDataModel from "../Models/CRMDataModel";
+
 function useNetworkRequest() {
   const requests = {
     async getItems(endpoint: string) {
@@ -8,7 +10,7 @@ function useNetworkRequest() {
       ).then((r) => r.json());
     },
 
-    async postItem(endpoint: string, formPayload: object) {
+    async postItem(endpoint: string, formPayload: CRMDataModel) {
       return await fetch(
         `http://${
           process.env.REACT_APP_HOSTNAME || "localhost"
@@ -21,7 +23,7 @@ function useNetworkRequest() {
       ).then((r) => r);
     },
 
-    async putItem(endpoint: string, formPayload: object) {
+    async putItem(endpoint: string, formPayload: CRMDataModel) {
       return await fetch(
         `http://${
           process.env.REACT_APP_HOSTNAME || "localhost"
@@ -34,7 +36,7 @@ function useNetworkRequest() {
       );
     },
 
-    async deleteItem(endpoint: string, payload: object) {
+    async deleteItem(endpoint: string, payload: CRMDataModel) {
       return await fetch(
         `http://${
           process.env.REACT_APP_HOSTNAME || "localhost"

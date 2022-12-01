@@ -8,21 +8,13 @@ import Table from "../Components/Table";
 import FormModal from "../Components/FormModal";
 import BulkUploader from "../Components/BulkUploader";
 import useNetworkRequest from "../Utilities/useNetworkRequest";
-import Contact from "../Models/Contacts";
-import {
-  ISetModalStatus,
-  ModalStatusLabel,
-  NetworkRequestStatus,
-} from "../Models/ModalStatus";
+import CRMDataModel from "../Models/CRMDataModel";
+import { ISetModalStatus } from "../Models/IModalStatus";
+import { ModalStatusLabel, NetworkRequestStatus } from "../Models/Enums";
 import NoData from "../Components/NoData";
 import { useState, useEffect } from "react";
-import { ItemData } from "../Components/Form";
 import { modalFactory, modalStatusFactory } from "../Utilities/modalFactory";
 import { tableCellDictionary } from "../Utilities/tableCellDictionary";
-
-export interface FormPayload {
-  id: String;
-}
 
 const { SUCCESS, FAIL } = NetworkRequestStatus;
 const { UPDATE_FORM_MODAL_STATUS, NEW_FORM_MODAL_STATUS } = ModalStatusLabel;
@@ -30,20 +22,20 @@ const headCells = tableCellDictionary["Contact"];
 const relationshipsToUpdate = ["tag"];
 
 const Contacts = () => {
-  const [resp, setResponse] = useState<Array<Contact>>([]);
+  const [resp, setResponse] = useState<Array<CRMDataModel>>([]);
   const [modalStatus, setModalStatus] = useState<ISetModalStatus>(
     modalFactory()
   );
 
   const [loading, setLoading] = useState(true);
-  const [singleContact, setSingleContact] = useState<ItemData>({});
+  const [singleContact, setSingleContact] = useState<CRMDataModel>({});
   const [TagRelationships, setTagRelationships] = useState({});
 
   const { getItems, postItem, putItem, deleteItem, getRelationshipData } =
     useNetworkRequest();
 
-  const fetchTagRelationships = () => {
-    const relationData = getRelationshipData(relationshipsToUpdate);
+  const fetchTagRelationships = async () => {
+    const relationData = await getRelationshipData(relationshipsToUpdate);
     setTagRelationships(relationData);
   };
 
@@ -67,7 +59,7 @@ const Contacts = () => {
     }));
   };
 
-  const multiDelete = async (payload: object) => {
+  const multiDelete = async (payload: CRMDataModel) => {
     const response = await deleteItem("/api/v1/contact/deleteMulti/", payload);
     if (response.ok === true) {
       setLoading(true);
@@ -75,7 +67,7 @@ const Contacts = () => {
     }
   };
 
-  const openUpdateModal = async (modalValue: boolean, itemId: string) => {
+  const openUpdateModal = async (itemId: string) => {
     const response = await getItems(`/api/v1/contact/getSingle/${itemId}`);
     setSingleContact(response);
     fetchTagRelationships();
@@ -85,7 +77,7 @@ const Contacts = () => {
     }));
   };
 
-  const updateContact = async (formPayload: FormPayload) => {
+  const updateContact = async (formPayload: CRMDataModel) => {
     let status: string = FAIL;
     const response = await putItem(
       `/api/v1/contact/updatejson/${formPayload.id}/`,
@@ -107,7 +99,7 @@ const Contacts = () => {
     }));
   };
 
-  const addContact = async (formPayload: FormPayload) => {
+  const addContact = async (formPayload: CRMDataModel) => {
     let status: string = FAIL;
     const response = await postItem(`/api/v1/contact/create/`, formPayload);
 
@@ -124,7 +116,7 @@ const Contacts = () => {
   };
 
   // Add bulk contact is unique to contact section.
-  const addBulkContact = async (formPayload: object) => {
+  const addBulkContact = async (formPayload: CRMDataModel) => {
     const response = await postItem(`/api/v1/contact/createBulk/`, formPayload);
 
     if (response.ok === true) {
@@ -156,9 +148,9 @@ const Contacts = () => {
     setLoading(false);
   };
 
-  const uniqueItemAlreadyExists = (email: string): Contact | undefined => {
+  const uniqueItemAlreadyExists = (email: string) => {
     return resp?.find(
-      (item) => item?.GetEmail()?.toLowerCase() === email?.toLowerCase()
+      (item) => item?.email?.toLowerCase() === email?.toLowerCase()
     );
   };
 

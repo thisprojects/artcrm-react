@@ -9,45 +9,37 @@ import UpdateModal from "../Components/FormModal";
 import NoData from "../Components/NoData";
 import useNetworkRequest from "../Utilities/useNetworkRequest";
 import { useState, useEffect } from "react";
-import { FormPayload } from "./Contacts";
-import {
-  ISetModalStatus,
-  ModalStatusLabel,
-  NetworkRequestStatus,
-} from "../Models/ModalStatus";
-import { ItemData } from "../Components/Form";
+import { ISetModalStatus } from "../Models/IModalStatus";
+import { ModalStatusLabel, NetworkRequestStatus } from "../Models/Enums";
 import { tableCellDictionary } from "../Utilities/tableCellDictionary";
 import { modalFactory, modalStatusFactory } from "../Utilities/modalFactory";
+import CRMDataModel from "../Models/CRMDataModel";
 
 const { NEW_FORM_MODAL_STATUS, UPDATE_FORM_MODAL_STATUS } = ModalStatusLabel;
 const { FAIL, SUCCESS } = NetworkRequestStatus;
 
 const headCells = tableCellDictionary["Events"];
 
-const relationshipsToUpdate = ["tags", "contacts"];
+const relationshipsToUpdate = ["tag", "contact"];
 
 const Events = () => {
   const [resp, setResponse] = useState([]);
-
   const [modalStatus, setModalStatus] = useState<ISetModalStatus>(
     modalFactory()
   );
 
-  const [singleEvent, setSingleEvent] = useState<ItemData>({});
-  const [contactAndTagData, setContactAndTagData] = useState({});
-  const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
+  const [singleEvent, setSingleEvent] = useState<CRMDataModel>({});
+  const [contactAndTagRelationships, setContactAndTagRelationships] = useState(
+    {}
+  );
+
+  const { getItems, postItem, putItem, deleteItem, getRelationshipData } =
+    useNetworkRequest();
   const [loading, setLoading] = useState(true);
 
-  const getRelationshipData = () => {
-    const relationshipNetworkEndpoints = relationshipsToUpdate.map((item) =>
-      item.replace("s", "")
-    );
-    relationshipNetworkEndpoints.forEach(async (item) => {
-      const response = await getItems(`/api/v1/${item}/getAll`);
-      const relationData: Record<string, Array<object>> = contactAndTagData;
-      relationData[item] = response;
-      setContactAndTagData(relationData);
-    });
+  const fetchTagRelationships = async () => {
+    const relationData = await getRelationshipData(relationshipsToUpdate);
+    setContactAndTagRelationships(relationData);
   };
 
   const openAddEventModal = () => {
@@ -57,7 +49,7 @@ const Events = () => {
     }));
   };
 
-  const multiDelete = async (payload: FormPayload) => {
+  const multiDelete = async (payload: CRMDataModel) => {
     const response = await deleteItem("/api/v1/event/deleteMulti/", payload);
     if (response.ok === true) {
       setLoading(true);
@@ -65,18 +57,18 @@ const Events = () => {
     }
   };
 
-  const openUpdateModal = async (modalValue: boolean, itemId: string) => {
+  const openUpdateModal = async (itemId: string) => {
     const response = await getItems(`/api/v1/event/getSingle/${itemId}`);
 
     setSingleEvent(response);
-    getRelationshipData();
+    fetchTagRelationships();
     setModalStatus((state) => ({
       ...state,
       UPDATE_FORM_MODAL_STATUS: modalStatusFactory(UPDATE_FORM_MODAL_STATUS),
     }));
   };
 
-  const updateEvent = async (formPayload: FormPayload) => {
+  const updateEvent = async (formPayload: CRMDataModel) => {
     let status: string = FAIL;
     const response = await putItem(
       `/api/v1/event/updatejson/${formPayload.id}/`,
@@ -98,7 +90,7 @@ const Events = () => {
     }));
   };
 
-  const addEvent = async (formPayload: FormPayload) => {
+  const addEvent = async (formPayload: CRMDataModel) => {
     let status: string = FAIL;
     const response = await postItem(`/api/v1/event/create/`, formPayload);
 
@@ -122,7 +114,7 @@ const Events = () => {
 
   useEffect(() => {
     setLoading(true);
-    getRelationshipData();
+    fetchTagRelationships();
     getAllEvents();
   }, []);
 
@@ -136,7 +128,7 @@ const Events = () => {
           labels={{ itemTitle: "Event", buttonLabel: "Update" }}
           itemData={singleEvent}
           updateItem={updateEvent}
-          contactAndTagData={contactAndTagData}
+          contactAndTagData={contactAndTagRelationships}
           setEditMode={false}
           uniqueItemAlreadyExists={() => undefined}
         />
@@ -154,7 +146,7 @@ const Events = () => {
           }}
           uniqueItemAlreadyExists={() => undefined}
           setModalStatus={setModalStatus}
-          contactAndTagData={contactAndTagData}
+          contactAndTagData={contactAndTagRelationships}
           updateItem={addEvent}
         />
         <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 2 }}>

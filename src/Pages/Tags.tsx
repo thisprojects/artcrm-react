@@ -9,44 +9,34 @@ import UpdateModal from "../Components/FormModal";
 import useNetworkRequest from "../Utilities/useNetworkRequest";
 import NoData from "../Components/NoData";
 import { useState, useEffect } from "react";
-import { FormPayload } from "./Contacts";
-import Contact from "../Models/Contacts";
-import {
-  ISetModalStatus,
-  ModalStatusLabel,
-  NetworkRequestStatus,
-} from "../Models/ModalStatus";
-import { ItemData } from "../Components/Form";
+import { ISetModalStatus } from "../Models/IModalStatus";
+import { ModalStatusLabel, NetworkRequestStatus } from "../Models/Enums";
 import { tableCellDictionary } from "../Utilities/tableCellDictionary";
-import { modalFactory } from "../Utilities/modalFactory";
+import { modalFactory, modalStatusFactory } from "../Utilities/modalFactory";
+import CRMDataModel from "../Models/CRMDataModel";
 
 const headCells = tableCellDictionary["Tags"];
 const { NEW_FORM_MODAL_STATUS, UPDATE_FORM_MODAL_STATUS } = ModalStatusLabel;
 const { SUCCESS, FAIL } = NetworkRequestStatus;
 
 const Tags = () => {
-  const [resp, setResponse] = useState<Array<Contact>>([]);
-
+  const [resp, setResponse] = useState<Array<CRMDataModel>>([]);
   const [modalStatus, setModalStatus] = useState<ISetModalStatus>(
     modalFactory()
   );
 
-  const [singleTag, setSingleTag] = useState<ItemData>({});
+  const [singleTag, setSingleTag] = useState<CRMDataModel>({});
   const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
   const [loading, setLoading] = useState(true);
 
   const openAddTagModal = () => {
     setModalStatus((state) => ({
       ...state,
-      addTagModalStatus: {
-        open: true,
-        error: false,
-        label: "addTagModalStatus",
-      },
+      NEW_FORM_MODAL_STATUS: modalStatusFactory(NEW_FORM_MODAL_STATUS),
     }));
   };
 
-  const multiDelete = async (payload: FormPayload) => {
+  const multiDelete = async (payload: CRMDataModel) => {
     const response = await deleteItem("/api/v1/tag/deleteMulti/", payload);
     if (response.ok === true) {
       setLoading(true);
@@ -54,70 +44,51 @@ const Tags = () => {
     }
   };
 
-  const openEditModal = async (modalValue: boolean, itemId: string) => {
+  const openUpdateModal = async (modalValue: boolean, itemId: string) => {
     const response = await getItems(`/api/v1/tag/getSingle/${itemId}`);
     setSingleTag(response);
     setModalStatus((state) => ({
       ...state,
-      updateTagModalStatus: {
-        open: modalValue,
-        error: false,
-        label: "updateTagModalStatus",
-      },
+      UPDATE_FORM_MODAL_STATUS: modalStatusFactory(UPDATE_FORM_MODAL_STATUS),
     }));
   };
 
-  const updateTag = async (formPayload: FormPayload) => {
+  const updateTag = async (formPayload: CRMDataModel) => {
+    let status = FAIL;
     const response = await putItem(
       `/api/v1/tag/updatejson/${formPayload.id}/`,
       formPayload
     );
+
     if (response.ok === true) {
-      setModalStatus((state) => ({
-        ...state,
-        updateTagModalStatus: {
-          open: false,
-          error: false,
-          label: "updateTagModalStatus",
-        },
-      }));
+      status = SUCCESS;
       setLoading(true);
       getAllTags();
-    } else {
-      setModalStatus((state) => ({
-        ...state,
-        updateTagModalStatus: {
-          open: true,
-          error: true,
-          label: "updateTagModalStatus",
-        },
-      }));
     }
+
+    setModalStatus((state) => ({
+      ...state,
+      UPDATE_FORM_MODAL_STATUS: modalStatusFactory(
+        UPDATE_FORM_MODAL_STATUS,
+        status
+      ),
+    }));
   };
 
-  const addTag = async (formPayload: FormPayload) => {
+  const addTag = async (formPayload: CRMDataModel) => {
+    let status = FAIL;
     const response = await postItem(`/api/v1/tag/create/`, formPayload);
+
     if (response.ok === true) {
-      setModalStatus((state) => ({
-        ...state,
-        addTagModalStatus: {
-          open: false,
-          error: false,
-          label: "addTagModalStatus",
-        },
-      }));
+      status = SUCCESS;
       setLoading(true);
       getAllTags();
-    } else {
-      setModalStatus((state) => ({
-        ...state,
-        addTagModalStatus: {
-          open: true,
-          error: true,
-          label: "addTagModalStatus",
-        },
-      }));
     }
+
+    setModalStatus((state) => ({
+      ...state,
+      NEW_FORM_MODAL_STATUS: modalStatusFactory(NEW_FORM_MODAL_STATUS, status),
+    }));
   };
 
   const getAllTags = async () => {
@@ -170,7 +141,7 @@ const Tags = () => {
                 label="Tags"
                 headCells={headCells}
                 tableRowData={resp}
-                openModal={openEditModal}
+                openModal={openUpdateModal}
                 deleteItems={multiDelete}
               />
             ) : (

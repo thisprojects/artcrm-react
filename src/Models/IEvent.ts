@@ -1,11 +1,15 @@
 import Contacts from "./IContact";
-import Events from "./IEvent";
 import Organisations from "./IOrganisation";
 import Tags from "./ITag";
 
-export default class Relationships {
+export default interface IEvent {
+  eventDate?: string;
+  id?: string;
+  name?: string;
+  postCode?: string;
+  venueName?: string;
   contacts?: Contacts[];
-  events?: Events[];
   organisations?: Organisations[];
   tags?: Tags[];
+  contactCount?: number;
 }

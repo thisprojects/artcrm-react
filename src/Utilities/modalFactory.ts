@@ -1,4 +1,4 @@
-import { ModalStatusLabel, NetworkRequestStatus } from "../Models/ModalStatus";
+import { ModalStatusLabel, NetworkRequestStatus } from "../Models/Enums";
 
 const { SUCCESS, FAIL } = NetworkRequestStatus;
 const { NEW_FORM_MODAL_STATUS, UPDATE_FORM_MODAL_STATUS } = ModalStatusLabel;

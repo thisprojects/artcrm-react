@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import Loading from "../Components/Loading";
-import Events from "../Models/Events";
+import Events from "../Models/IEvent";
 
 interface Response {
   mostRecentEvents: Array<Events>;

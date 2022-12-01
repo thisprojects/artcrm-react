@@ -9,16 +9,11 @@ import UpdateModal from "../Components/FormModal";
 import useNetworkRequest from "../Utilities/useNetworkRequest";
 import NoData from "../Components/NoData";
 import { useState, useEffect } from "react";
-import { FormPayload } from "./Contacts";
-import Contact from "../Models/Contacts";
-import {
-  ISetModalStatus,
-  ModalStatusLabel,
-  NetworkRequestStatus,
-} from "../Models/ModalStatus";
-import { ItemData } from "../Components/Form";
+import { ISetModalStatus } from "../Models/IModalStatus";
+import { ModalStatusLabel, NetworkRequestStatus } from "../Models/Enums";
 import { tableCellDictionary } from "../Utilities/tableCellDictionary";
 import { modalFactory, modalStatusFactory } from "../Utilities/modalFactory";
+import CRMDataModel from "../Models/CRMDataModel";
 
 const headCells = tableCellDictionary["Integrations"];
 
@@ -26,14 +21,14 @@ const { NEW_FORM_MODAL_STATUS, UPDATE_FORM_MODAL_STATUS } = ModalStatusLabel;
 const { SUCCESS, FAIL } = NetworkRequestStatus;
 
 const Integrations = () => {
-  const [resp, setResponse] = useState<Array<Contact>>([]);
+  const [resp, setResponse] = useState<Array<CRMDataModel>>([]);
   const [loading, setLoading] = useState(true);
 
   const [modalStatus, setModalStatus] = useState<ISetModalStatus>(
     modalFactory()
   );
 
-  const [singleIntegration, setSingleIntegration] = useState<ItemData>({});
+  const [singleIntegration, setSingleIntegration] = useState<CRMDataModel>({});
   const { getItems, postItem, putItem, deleteItem } = useNetworkRequest();
 
   const openAddIntegrationModal = () => {
@@ -43,7 +38,7 @@ const Integrations = () => {
     }));
   };
 
-  const multiDelete = async (payload: FormPayload) => {
+  const multiDelete = async (payload: CRMDataModel) => {
     const response = await deleteItem(
       "/api/v1/integration/deleteMulti/",
       payload
@@ -63,7 +58,7 @@ const Integrations = () => {
     }));
   };
 
-  const updateIntegration = async (formPayload: FormPayload) => {
+  const updateIntegration = async (formPayload: CRMDataModel) => {
     let status = FAIL;
     const response = await putItem(
       `/api/v1/integration/updatejson/${formPayload.id}/`,
@@ -84,7 +79,7 @@ const Integrations = () => {
     }));
   };
 
-  const addIntegration = async (formPayload: FormPayload) => {
+  const addIntegration = async (formPayload: CRMDataModel) => {
     let status = FAIL;
     const response = await postItem(`/api/v1/integration/create/`, formPayload);
     if (response.ok === true) {
