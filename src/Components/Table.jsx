@@ -249,7 +249,7 @@ export default function EnhancedTable({
 
   const handleEdit = (event) => {
     const itemId = event.target.getAttribute("data-id");
-    openModal(true, itemId);
+    openModal(itemId);
   };
 
   const handleChangeRowsPerPage = (event) => {

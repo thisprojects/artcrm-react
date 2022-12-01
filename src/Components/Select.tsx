@@ -5,13 +5,15 @@ import MenuItem from "@mui/material/MenuItem";
 import FormHelperText from "@mui/material/FormHelperText";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import { Collection } from "./FormSelectors";
-import { ItemData } from "./Form";
+import CRMDataModel from "../Models/CRMDataModel";
 
 interface RelationshipSelectProps {
   label: string;
-  data: Array<Collection>;
-  handleChange: (selectedObject: Collection | undefined, label: string) => void;
+  data: Array<CRMDataModel>;
+  handleChange: (
+    selectedObject: CRMDataModel | undefined,
+    label: string
+  ) => void;
 }
 
 const RelationshipSelect: React.FC<RelationshipSelectProps> = ({
@@ -20,8 +22,9 @@ const RelationshipSelect: React.FC<RelationshipSelectProps> = ({
   handleChange,
 }) => {
   const [item, setItem] = React.useState("");
-
+  console.log("SELECT");
   const handleSelect = (event: Event) => {
+    console.log("EVENT", event);
     const target = event?.target as HTMLButtonElement;
     setItem(target?.value);
     // handleChange(event.target.value, "relationship", label);

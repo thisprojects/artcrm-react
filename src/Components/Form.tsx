@@ -4,35 +4,22 @@ import { Dispatch, SetStateAction } from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import FormSelectors, { Collection } from "./FormSelectors";
+import FormSelectors from "./FormSelectors";
 import Grid from "@mui/material/Grid";
 import ToggleSwitch from "./ToggleSwitch";
 import DatePicker from "./DatePicker";
 import { useState } from "react";
-import { FormPayload } from "../Pages/Contacts";
-import Contact from "../Models/Contacts";
-
-interface Items {
-  age?: number;
-  email?: string;
-  eventDate?: Date;
-  name?: string;
-  id: string;
-}
-
-export interface ItemData {
-  [key: string]: unknown | Items[];
-}
+import CRMDataModel from "../Models/CRMDataModel";
 
 interface FormProps {
   editMode: boolean;
-  itemData: ItemData;
-  updateItem: (formData: FormPayload) => void;
+  itemData: CRMDataModel;
+  updateItem: (formData: CRMDataModel) => void;
   itemTitle: string;
   updateEditMode: Dispatch<SetStateAction<boolean>>;
   contactAndTagData: object;
   buttonLabel: string;
-  uniqueItemAlreadyExists: (event: string) => Contact | undefined;
+  uniqueItemAlreadyExists: (event: string) => CRMDataModel | undefined;
 }
 
 interface FormErrorStatus {
@@ -49,11 +36,14 @@ interface FormErrors {
 
 interface HandleChange {
   default: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  date: (e: React.ChangeEvent<HTMLInputElement> | Date | null) => void;
+  date: (e: React.ChangeEvent<HTMLInputElement>) => void;
   email: (e: React.ChangeEvent<HTMLInputElement>) => void;
   name: (e: React.ChangeEvent<HTMLInputElement>) => void;
   age: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  relationship: (selectedObject: Collection | undefined, label: string) => void;
+  relationship: (
+    selectedObject: CRMDataModel | undefined,
+    label: string
+  ) => void;
 }
 
 const Form: React.FC<FormProps> = ({
@@ -66,7 +56,7 @@ const Form: React.FC<FormProps> = ({
   buttonLabel,
   uniqueItemAlreadyExists,
 }) => {
-  const [formPayload, updateFormPayload] = useState<FormPayload>({
+  const [formPayload, updateFormPayload] = useState<CRMDataModel>({
     id: itemData?.id as string,
   });
 
@@ -88,7 +78,7 @@ const Form: React.FC<FormProps> = ({
   const formIsEmpty =
     buttonLabel !== "Update" &&
     !formTitleNames.every((item) => {
-      return formPayload[item as keyof FormPayload];
+      return formPayload[item as keyof CRMDataModel];
     });
 
   const errors =
@@ -105,9 +95,14 @@ const Form: React.FC<FormProps> = ({
         [target?.name]: target?.value,
       }));
     },
-    date(e: Date | null | React.ChangeEvent<HTMLInputElement>) {
-      updateFormPayload((state) => ({ ...state, eventDate: e }));
+
+    date(e: React.ChangeEvent<HTMLInputElement>) {
+      updateFormPayload((state) => ({
+        ...state,
+        eventDate: e as unknown as string,
+      }));
     },
+
     email(e: React.ChangeEvent<HTMLInputElement>) {
       const target = e?.target as HTMLButtonElement;
       if (uniqueItemAlreadyExists(target?.value)) {
@@ -126,6 +121,7 @@ const Form: React.FC<FormProps> = ({
         }));
       }
     },
+
     name(e: React.ChangeEvent<HTMLInputElement>) {
       const target = e?.target as HTMLButtonElement;
       if (itemTitle !== "Tag" && itemTitle !== "Integration") {
@@ -151,6 +147,7 @@ const Form: React.FC<FormProps> = ({
         }));
       }
     },
+
     age(e: React.ChangeEvent<HTMLInputElement>) {
       const target = e?.target as HTMLButtonElement;
       if (isNaN(Number(target?.value))) {
@@ -169,17 +166,18 @@ const Form: React.FC<FormProps> = ({
         }));
       }
     },
+
     relationship(e, name) {
-      if (formPayload[name as keyof FormPayload]) {
+      if (formPayload[name as keyof CRMDataModel]) {
         if (
           !(
-            formPayload[name as keyof FormPayload] as unknown as Array<Items>
+            formPayload[name as keyof CRMDataModel] as Array<CRMDataModel>
           )?.find((item) => item.id === e?.id)
         ) {
           updateFormPayload((state) => ({
             ...state,
             [name as string]: [
-              ...(state[name as keyof FormPayload] as unknown as Array<Items>),
+              ...(state[name as keyof CRMDataModel] as Array<CRMDataModel>),
               { id: e?.id },
             ],
           }));
@@ -219,13 +217,15 @@ const Form: React.FC<FormProps> = ({
                 editMode={editMode}
               />
             ) : null}
-            as keyof FormErrors
           </Grid>
         </Grid>
         {itemData ? (
           <>
             {Object.keys(itemData).map((item, index) => {
-              if (item === "id" || Array.isArray(itemData[item])) {
+              if (
+                item === "id" ||
+                Array.isArray(itemData[item as keyof CRMDataModel])
+              ) {
                 return null;
               } else if (item === "eventDate") {
                 return (
@@ -233,7 +233,7 @@ const Form: React.FC<FormProps> = ({
                     <DatePicker
                       handleChange={handleChange.date}
                       editMode={editMode}
-                      currDate={itemData[item] as Date}
+                      currDate={itemData[item] as unknown as string}
                     />
                     {formErrors.eventDate.status && (
                       <p style={{ paddingLeft: "10px", color: "red" }}>
@@ -268,7 +268,7 @@ const Form: React.FC<FormProps> = ({
                     }}
                     id="outlined-required"
                     label={item}
-                    defaultValue={itemData[item] || null}
+                    defaultValue={itemData[item as keyof CRMDataModel] || null}
                     helperText={
                       formErrors[item as keyof FormErrors]?.status &&
                       formErrors[item as keyof FormErrors]?.msg

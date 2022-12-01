@@ -3,27 +3,22 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import Select from "./Select";
 import MultipleSelect from "./MultiSelect";
-import { ItemData } from "./Form";
-
-export interface Collection {
-  firstName?: string;
-  lastName?: string;
-  name?: string;
-  delete?: boolean;
-  id?: string;
-}
+import CRMDataModel from "../Models/CRMDataModel";
 
 interface FormSelectorsProps {
-  itemData: object;
+  itemData: CRMDataModel;
   itemTitle: string;
   editMode: boolean;
   contactAndTagData: object;
-  handleChange: (selectedObject: Collection | undefined, label: string) => void;
+  handleChange: (
+    selectedObject: CRMDataModel | undefined,
+    label: string
+  ) => void;
 }
 
 const personMaker = (
-  collection: Array<Collection>
-): Array<string | Collection> | undefined => {
+  collection: Array<CRMDataModel>
+): Array<string | CRMDataModel> | undefined => {
   return collection?.map((item) => {
     if (item.firstName) return `${item.firstName} ${item.lastName}`;
     else if (item.name) return item.name;
@@ -43,6 +38,7 @@ const FormSelectors: React.FC<FormSelectorsProps> = ({
       {Object.keys(itemData).map((item) => {
         const eitherContactsOrTags =
           contactAndTagData[item.replace("s", "") as keyof object];
+
         const isEditable = Object.keys(contactAndTagData).includes(
           item.replace("s", "")
         );

@@ -5,9 +5,9 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 
 interface DatePicker {
-  handleChange: (e: Date | null) => void;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   editMode: boolean;
-  currDate: Date;
+  currDate: string;
 }
 
 const DatePicker: React.FC<DatePicker> = ({
@@ -15,12 +15,12 @@ const DatePicker: React.FC<DatePicker> = ({
   editMode,
   currDate,
 }) => {
-  const [value, setValue] = React.useState<Date | null>(
+  const [value, setValue] = React.useState<Date>(
     currDate ? new Date(currDate) : new Date()
   );
 
-  const handleDateChange = (newValue: Date | null) => {
-    setValue(newValue);
+  const handleDateChange = (newValue: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(newValue as unknown as Date);
     handleChange(newValue);
   };
 
@@ -31,7 +31,9 @@ const DatePicker: React.FC<DatePicker> = ({
         disabled={!editMode}
         inputFormat="MM/dd/yyyy"
         value={value}
-        onChange={handleDateChange}
+        onChange={(e) =>
+          handleDateChange(e as unknown as React.ChangeEvent<HTMLInputElement>)
+        }
         renderInput={(params) => <TextField {...params} />}
       />
     </LocalizationProvider>

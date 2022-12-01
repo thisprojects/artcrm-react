@@ -7,10 +7,8 @@ import Modal from "@mui/material/Modal";
 import { useState } from "react";
 import Form from "./Form";
 import NoData from "./NoData";
-import { ISetModalStatus, ModalStatus } from "../Models/ModalStatus";
-import { FormPayload } from "../Pages/Contacts";
-import { ItemData } from "./Form";
-import Contact from "../Models/Contacts";
+import { ISetModalStatus, IModalStatus } from "../Models/IModalStatus";
+import CRMDataModel from "../Models/CRMDataModel";
 
 const style = {
   position: "absolute",
@@ -27,14 +25,14 @@ const style = {
 };
 
 interface FormModalProps {
-  modalStatus: ModalStatus | undefined;
-  itemData: ItemData;
+  modalStatus: IModalStatus | undefined;
+  itemData: CRMDataModel;
   setModalStatus: Dispatch<SetStateAction<ISetModalStatus>>;
-  updateItem: (formPayload: FormPayload) => void;
+  updateItem: (formPayload: CRMDataModel) => void;
   contactAndTagData: object;
   labels: { itemTitle: string; buttonLabel: string };
   setEditMode: boolean;
-  uniqueItemAlreadyExists: (item: string) => Contact | undefined;
+  uniqueItemAlreadyExists: (item: string) => CRMDataModel | undefined;
 }
 
 const FormModal: React.FC<FormModalProps> = ({

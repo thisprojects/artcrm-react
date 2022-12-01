@@ -7,7 +7,7 @@ import Select from "@mui/material/Select";
 import Checkbox from "@mui/material/Checkbox";
 import FormControl from "@mui/material/FormControl";
 import FormHelperText from "@mui/material/FormHelperText";
-import { Collection } from "./FormSelectors";
+import CRMDataModel from "../Models/CRMDataModel";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -22,17 +22,20 @@ const MenuProps = {
 
 interface MultipleSelectProps {
   label: string;
-  data: Array<Collection>;
-  handleChange: (selectedObject: Collection | undefined, label: string) => void;
-  existingItems: Array<string | Collection> | undefined;
+  data: Array<CRMDataModel>;
+  handleChange: (
+    selectedObject: CRMDataModel | undefined,
+    label: string
+  ) => void;
+  existingItems: Array<string | CRMDataModel> | undefined;
   personMaker: (
-    collection: Array<Collection>
-  ) => Array<string | Collection> | undefined;
+    collection: Array<CRMDataModel>
+  ) => Array<string | CRMDataModel> | undefined;
 }
 
 interface SelectChange {
   target: {
-    value: Array<Collection>;
+    value: Array<CRMDataModel>;
   };
 }
 
@@ -47,28 +50,28 @@ const MultipleSelect: React.FC<MultipleSelectProps> = ({
   existingItems,
   personMaker,
 }) => {
-  const castExistingItems = existingItems as "" | Collection[] | undefined;
+  const castExistingItems = existingItems as "" | CRMDataModel[] | undefined;
 
   const [personName, setPersonName] = React.useState(castExistingItems);
   const [selectList, setSelectList] = React.useState(data);
 
   const handleSelectChange = (event: SelectChange) => {
     const value = event?.target.value;
-
+    console.log("VALUE", value);
     let namesArray = value;
     const selectedObject = value.find((item) => (item as Item).id);
     const person =
-      (selectedObject as Collection)?.name ||
+      (selectedObject as CRMDataModel)?.name ||
       `${selectedObject?.firstName} ${selectedObject?.lastName}`;
 
     if (personName?.includes(person)) {
-      const index = namesArray.indexOf(person as Collection);
+      const index = namesArray.indexOf(person as CRMDataModel);
       namesArray.splice(index, 1);
       namesArray.pop();
       selectedObject!.delete = true;
     }
 
-    const names = personMaker(namesArray) as "" | Collection[] | undefined;
+    const names = personMaker(namesArray) as "" | CRMDataModel[] | undefined;
     setSelectList(selectList.filter((item) => item !== selectedObject));
     setPersonName(names);
     handleChange(selectedObject, label);
@@ -87,15 +90,15 @@ const MultipleSelect: React.FC<MultipleSelectProps> = ({
           id="demo-multiple-chip"
           multiple
           value={personName}
-          onChange={(e) => {
-            handleSelectChange(e as SelectChange);
+          onClick={(e) => {
+            handleSelectChange(e as unknown as SelectChange);
           }}
           input={<OutlinedInput id="select-multiple-chip" label="Tag" />}
           renderValue={(selected) => selected.join(", ")}
           MenuProps={MenuProps}
         >
           {data.map((dataItem) => (
-            <MenuItem>
+            <MenuItem value={dataItem.name}>
               <Checkbox
                 checked={
                   personName!.indexOf(
