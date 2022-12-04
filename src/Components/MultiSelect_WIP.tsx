@@ -1,3 +1,5 @@
+// TODO typescript refactor to satisfy unsupported prop types on MenuItem - see MultiSelect.jsx
+
 import * as React from "react";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import InputLabel from "@mui/material/InputLabel";
@@ -57,7 +59,6 @@ const MultipleSelect: React.FC<MultipleSelectProps> = ({
 
   const handleSelectChange = (event: SelectChange) => {
     const value = event?.target.value;
-    console.log("VALUE", value);
     let namesArray = value;
     const selectedObject = value.find((item) => (item as Item).id);
     const person =

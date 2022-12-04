@@ -1,23 +1,26 @@
 import { ModalStatusLabel, NetworkRequestStatus } from "../Models/Enums";
 
-const { SUCCESS, FAIL } = NetworkRequestStatus;
+const { SUCCESS, FAIL, LOADING } = NetworkRequestStatus;
 const { NEW_FORM_MODAL_STATUS, UPDATE_FORM_MODAL_STATUS } = ModalStatusLabel;
 
 export const modalFactory = () => ({
   UPDATE_FORM_MODAL_STATUS: {
     open: false,
     error: false,
+    loading: false,
     label: UPDATE_FORM_MODAL_STATUS,
   },
   NEW_FORM_MODAL_STATUS: {
     open: false,
     error: false,
+    loading: false,
     label: NEW_FORM_MODAL_STATUS,
   },
   // Only required for contacts, havent added an ENUM.
   bulkAddContactModalStatus: {
     open: false,
     error: false,
+    loading: false,
     label: "bulkAddContactModalStatus",
   },
 });
@@ -31,16 +34,25 @@ export const modalStatusFactory = (
     [`${label}_${SUCCESS}`]: {
       open: false,
       error: false,
+      loading: false,
       label: label,
     },
     [`${label}_${FAIL}`]: {
       open: true,
       error: true,
+      loading: false,
+      label: label,
+    },
+    [`${label}_${LOADING}`]: {
+      open: true,
+      error: false,
+      loading: true,
       label: label,
     },
     OPEN_MODAL: {
       open: true,
       error: false,
+      loading: false,
       label: label,
     },
   };

@@ -36,7 +36,7 @@ function useNetworkRequest() {
       );
     },
 
-    async deleteItem(endpoint: string, payload: CRMDataModel) {
+    async deleteItem(endpoint: string, payload: string[]) {
       return await fetch(
         `http://${
           process.env.REACT_APP_HOSTNAME || "localhost"

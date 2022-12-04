@@ -33,7 +33,7 @@ export default function MultipleSelect({
     const {
       target: { value },
     } = event;
-    console.log("EVENT", event);
+
     let namesArray = value;
     const selectedObject = value.find((item) => item.id);
     const person =

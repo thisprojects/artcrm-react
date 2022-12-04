@@ -2,6 +2,7 @@ export interface IModalStatus {
   open: boolean;
   error: boolean;
   label: string;
+  loading: boolean;
 }
 
 export interface ISetModalStatus {

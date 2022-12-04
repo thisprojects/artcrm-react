@@ -1,27 +1,21 @@
 // Component from material.ui library
 import * as React from "react";
-import { alpha } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
-import TableSortLabel from "@mui/material/TableSortLabel";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
-import IconButton from "@mui/material/IconButton";
 import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
-import Tooltip from "@mui/material/Tooltip";
-import DeleteIcon from "@mui/icons-material/Delete";
-import TableFilter from "./TableFilter";
-import { visuallyHidden } from "@mui/utils";
+import EnhancedTableHead from "./EnhancedTableHead";
+import EnhancedTableToolbar from "./EnhancedTableToolbar";
+import {Order, IHeadCell} from "../../Models/TableInterfaces";
+import CRMDataModel from "../../Models/CRMDataModel";
 
-function descendingComparator(a, b, orderBy) {
+function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
   }
@@ -31,16 +25,22 @@ function descendingComparator(a, b, orderBy) {
   return 0;
 }
 
-function getComparator(order, orderBy) {
-  return order === "desc"
+function getComparator<Key extends keyof any>(
+  order: Order,
+  orderBy: Key,
+): (
+  a: { [key in Key]: string },
+  b: { [key in Key]: string },
+) => number {
+  return order === 'desc'
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
 // This method is created for cross-browser compatibility, if you don't
 // need to support IE11, you can use Array.prototype.sort() directly
-function stableSort(array, comparator) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
+function stableSort<T>(array: CRMDataModel[], comparator: (a: T, b: T) => number) {
+  const  stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
     if (order !== 0) {
@@ -51,129 +51,30 @@ function stableSort(array, comparator) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-function EnhancedTableHead(props) {
-  const {
-    onSelectAllClick,
-    order,
-    orderBy,
-    numSelected,
-    rowCount,
-    onRequestSort,
-    headCells,
-  } = props;
-  const createSortHandler = (property) => (event) => {
-    onRequestSort(event, property);
-  };
 
-  return (
-    <TableHead>
-      <TableRow>
-        <TableCell padding="checkbox">
-          <Checkbox
-            color="primary"
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{
-              "aria-label": "select all desserts",
-            }}
-          />
-        </TableCell>
-        {headCells.map((headCell) => (
-          <TableCell
-            key={headCell.id}
-            align={headCell.numeric ? "right" : "left"}
-            padding={headCell.disablePadding ? "none" : "normal"}
-            sortDirection={orderBy === headCell.id ? order : false}
-          >
-            <TableSortLabel
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : "asc"}
-              onClick={createSortHandler(headCell.id)}
-            >
-              {headCell.label}
-              {orderBy === headCell.id ? (
-                <Box component="span" sx={visuallyHidden}>
-                  {order === "desc" ? "sorted descending" : "sorted ascending"}
-                </Box>
-              ) : null}
-            </TableSortLabel>
-          </TableCell>
-        ))}
-      </TableRow>
-    </TableHead>
-  );
+interface IEnhancedTable{
+  headCells: Array<IHeadCell>;
+  tableRowData: CRMDataModel[];
+  openModal(itemId: string | null):Promise<void>;
+  deleteItems(payload: Array<string>):Promise<void>;
+  label: string;
 }
 
-const EnhancedTableToolbar = ({
-  numSelected,
-  rows,
-  applyFilter,
-  handleDelete,
-  label,
-}) => {
-  return (
-    <Toolbar
-      sx={{
-        pl: { sm: 2 },
-        pr: { xs: 1, sm: 1 },
-        ...(numSelected > 0 && {
-          bgcolor: (theme) =>
-            alpha(
-              theme.palette.primary.main,
-              theme.palette.action.activatedOpacity
-            ),
-        }),
-      }}
-    >
-      {numSelected > 0 ? (
-        <Typography
-          sx={{ flex: "1 1 100%" }}
-          color="inherit"
-          variant="subtitle1"
-          component="div"
-        >
-          {numSelected} selected
-        </Typography>
-      ) : (
-        <Typography
-          sx={{ flex: "1 1 100%" }}
-          variant="h6"
-          id="tableTitle"
-          component="div"
-        >
-          {label}
-        </Typography>
-      )}
-
-      {numSelected > 0 ? (
-        <Tooltip title="Delete">
-          <IconButton onClick={handleDelete}>
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
-      ) : (
-        <TableFilter applyFilter={applyFilter} />
-      )}
-    </Toolbar>
-  );
-};
-
-export default function EnhancedTable({
+const EnhancedTable: React.FC<IEnhancedTable> = ({
   headCells,
   tableRowData,
   openModal,
   deleteItems,
   label,
-}) {
-  const [order, setOrder] = React.useState("asc");
+}) => {
+  const [order, setOrder] = React.useState<Order>("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
-  const [selected, setSelected] = React.useState([]);
-  const [page, setPage] = React.useState(0);
+  const [selected, setSelected] = React.useState<Array<string>>([]);
+  const [page, setPage] = React.useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [rows, setRows] = React.useState([]);
+  const [rows, setRows] = React.useState<Array<CRMDataModel>>([]);
 
-  const handleRequestSort = (event, property) => {
+  const handleRequestSort = (event: React.MouseEvent<unknown, MouseEvent>, property: string) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
@@ -188,7 +89,7 @@ export default function EnhancedTable({
     setRows(tableRowData);
   }, [tableRowData]);
 
-  const applyFilter = (filterText) => {
+  const applyFilter = (filterText: string) => {
     const filteredRows = tableRowData.filter(
       (item) =>
         (filterText?.length > 0 &&
@@ -206,26 +107,31 @@ export default function EnhancedTable({
     }
   };
 
-  const handleSelectAllClick = (event) => {
+  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = rows.map((n) => n.id);
+      const newSelecteds = rows.map((n) => n.id) as Array<string>;
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event, id) => {
-    if (
-      event.target.getAttribute("class").includes("viewMoreButton") ||
-      event.target.parentElement
-        .getAttribute("class")
-        .includes("viewMoreButton")
-    ) {
+  interface ICustomEvent extends Element{
+    parentElement: HTMLElement;
+    value: string;
+  }
+
+  const handleClick = (event: MouseEvent, id: string) => {
+    const target = event?.target as ICustomEvent;
+    const viewMoreButtonIsTarget = target!.getAttribute("class")!.includes("viewMoreButton"); 
+    const parentOfViewMoreButtonIsTarget = target!.parentElement!.getAttribute("class")!.includes("viewMoreButton")
+
+    if ( viewMoreButtonIsTarget || parentOfViewMoreButtonIsTarget) {
       return null;
     }
+
     const selectedIndex = selected.indexOf(id);
-    let newSelected = [];
+    let newSelected: Array<string> = [];
 
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selected, id);
@@ -243,21 +149,22 @@ export default function EnhancedTable({
     setSelected(newSelected);
   };
 
-  const handleChangePage = (event, newPage) => {
+  const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
-  const handleEdit = (event) => {
-    const itemId = event.target.getAttribute("data-id");
+  const handleEdit = (event:React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    const target = event?.target as ICustomEvent;
+    const itemId = target!.getAttribute("data-id");
     openModal(itemId);
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event!.target!.value, 10));
     setPage(0);
   };
 
-  const isSelected = (id) => selected.indexOf(id) !== -1;
+  const isSelected = (id: string) => selected.indexOf(id) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -268,7 +175,6 @@ export default function EnhancedTable({
       <Paper sx={{ width: "100%", mb: 2 }}>
         <EnhancedTableToolbar
           numSelected={selected.length}
-          rows={rows}
           applyFilter={applyFilter}
           handleDelete={handleDelete}
           label={label}
@@ -295,13 +201,13 @@ export default function EnhancedTable({
                 {stableSort(rows, getComparator(order, orderBy))
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row, index) => {
-                    const isItemSelected = isSelected(row.id);
+                    const isItemSelected = isSelected(row.id as string);
                     const labelId = `enhanced-table-checkbox-${index}`;
 
                     return (
                       <TableRow
                         hover
-                        onClick={(event) => handleClick(event, row.id)}
+                        onClick={(event) => handleClick(event as unknown as MouseEvent, row.id)}
                         role="checkbox"
                         aria-checked={isItemSelected}
                         tabIndex={-1}
@@ -376,3 +282,5 @@ export default function EnhancedTable({
     </Box>
   );
 }
+
+export default EnhancedTable;

@@ -6,4 +6,5 @@ export enum ModalStatusLabel {
 export enum NetworkRequestStatus {
   SUCCESS = "SUCCESS",
   FAIL = "FAIL",
+  LOADING = "LOADING",
 }

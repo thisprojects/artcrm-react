@@ -22,9 +22,7 @@ const RelationshipSelect: React.FC<RelationshipSelectProps> = ({
   handleChange,
 }) => {
   const [item, setItem] = React.useState("");
-  console.log("SELECT");
   const handleSelect = (event: Event) => {
-    console.log("EVENT", event);
     const target = event?.target as HTMLButtonElement;
     setItem(target?.value);
     // handleChange(event.target.value, "relationship", label);

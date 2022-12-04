@@ -4,48 +4,38 @@ import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
-import Table from "../Components/Table";
+import Table from "../Components/Table/Table";
 import FormModal from "../Components/FormModal";
 import BulkUploader from "../Components/BulkUploader";
 import useNetworkRequest from "../Utilities/useNetworkRequest";
 import CRMDataModel from "../Models/CRMDataModel";
-import { ISetModalStatus } from "../Models/IModalStatus";
-import { ModalStatusLabel, NetworkRequestStatus } from "../Models/Enums";
+import { ModalStatusLabel } from "../Models/Enums";
 import NoData from "../Components/NoData";
-import { useState, useEffect } from "react";
-import { modalFactory, modalStatusFactory } from "../Utilities/modalFactory";
+import { useEffect } from "react";
 import { tableCellDictionary } from "../Utilities/tableCellDictionary";
+import useModalStateAndNetworkRequests from "../Utilities/useModalStateAndNetworkRequests";
 
-const { SUCCESS, FAIL } = NetworkRequestStatus;
 const { UPDATE_FORM_MODAL_STATUS, NEW_FORM_MODAL_STATUS } = ModalStatusLabel;
 const headCells = tableCellDictionary["Contact"];
-const relationshipsToUpdate = ["tag"];
 
 const Contacts = () => {
-  const [resp, setResponse] = useState<Array<CRMDataModel>>([]);
-  const [modalStatus, setModalStatus] = useState<ISetModalStatus>(
-    modalFactory()
-  );
+  const {
+    setModalStatus,
+    setLoading,
+    addRecord,
+    updateRecord,
+    openNewRecordModal,
+    openUpdateRecordModal,
+    deleteRecords,
+    getAllRecords,
+    loading,
+    singleRecord,
+    CrmRecords,
+    dataRelationships,
+    modalStatus,
+  } = useModalStateAndNetworkRequests(["tag"], "contact");
 
-  const [loading, setLoading] = useState(true);
-  const [singleContact, setSingleContact] = useState<CRMDataModel>({});
-  const [TagRelationships, setTagRelationships] = useState({});
-
-  const { getItems, postItem, putItem, deleteItem, getRelationshipData } =
-    useNetworkRequest();
-
-  const fetchTagRelationships = async () => {
-    const relationData = await getRelationshipData(relationshipsToUpdate);
-    setTagRelationships(relationData);
-  };
-
-  const openAddContactModal = () => {
-    fetchTagRelationships();
-    setModalStatus((state) => ({
-      ...state,
-      NEW_FORM_MODAL_STATUS: modalStatusFactory(NEW_FORM_MODAL_STATUS),
-    }));
-  };
+  const { postItem } = useNetworkRequest();
 
   // Bulk uploads only exists in contact section so it has a unique state object here.
   const openBulkUploadModal = () => {
@@ -54,64 +44,9 @@ const Contacts = () => {
       bulkAddContactModalStatus: {
         open: true,
         error: false,
+        loading: false,
         label: "bulkAddContactModalStatus",
       },
-    }));
-  };
-
-  const multiDelete = async (payload: CRMDataModel) => {
-    const response = await deleteItem("/api/v1/contact/deleteMulti/", payload);
-    if (response.ok === true) {
-      setLoading(true);
-      getAllContacts();
-    }
-  };
-
-  const openUpdateModal = async (itemId: string) => {
-    const response = await getItems(`/api/v1/contact/getSingle/${itemId}`);
-    setSingleContact(response);
-    fetchTagRelationships();
-    setModalStatus((state) => ({
-      ...state,
-      UPDATE_FORM_MODAL_STATUS: modalStatusFactory(UPDATE_FORM_MODAL_STATUS),
-    }));
-  };
-
-  const updateContact = async (formPayload: CRMDataModel) => {
-    let status: string = FAIL;
-    const response = await putItem(
-      `/api/v1/contact/updatejson/${formPayload.id}/`,
-      formPayload
-    );
-
-    if (response.ok === true) {
-      status = SUCCESS;
-      setLoading(true);
-      getAllContacts();
-    }
-
-    setModalStatus((state) => ({
-      ...state,
-      UPDATE_FORM_MODAL_STATUS: modalStatusFactory(
-        UPDATE_FORM_MODAL_STATUS,
-        status
-      ),
-    }));
-  };
-
-  const addContact = async (formPayload: CRMDataModel) => {
-    let status: string = FAIL;
-    const response = await postItem(`/api/v1/contact/create/`, formPayload);
-
-    if (response.ok === true) {
-      status = SUCCESS;
-      setLoading(true);
-      getAllContacts();
-    }
-
-    setModalStatus((state) => ({
-      ...state,
-      NEW_FORM_MODAL_STATUS: modalStatusFactory(NEW_FORM_MODAL_STATUS, status),
     }));
   };
 
@@ -125,38 +60,34 @@ const Contacts = () => {
         bulkAddContactModalStatus: {
           open: false,
           error: false,
+          loading: false,
           label: "bulkAddContactModalStatus",
         },
       }));
       setLoading(true);
-      getAllContacts();
+      getAllRecords();
     } else {
       setModalStatus((state) => ({
         ...state,
         bulkAddContactModalStatus: {
           open: true,
           error: true,
+          loading: false,
           label: "bulkAddContactModalStatus",
         },
       }));
     }
   };
 
-  const getAllContacts = async () => {
-    const response = await getItems(`/api/v1/contact/getAll`);
-    setResponse(response);
-    setLoading(false);
-  };
-
   const uniqueItemAlreadyExists = (email: string) => {
-    return resp?.find(
+    return CrmRecords?.find(
       (item) => item?.email?.toLowerCase() === email?.toLowerCase()
     );
   };
 
   useEffect(() => {
     setLoading(true);
-    getAllContacts();
+    getAllRecords();
   }, []);
 
   return (
@@ -167,9 +98,9 @@ const Contacts = () => {
           modalStatus={modalStatus[UPDATE_FORM_MODAL_STATUS]}
           setModalStatus={setModalStatus}
           labels={{ itemTitle: "Contact", buttonLabel: "Update" }}
-          itemData={singleContact}
-          updateItem={updateContact}
-          contactAndTagData={TagRelationships}
+          itemData={singleRecord}
+          updateItem={updateRecord}
+          contactAndTagData={dataRelationships}
           setEditMode={false}
           uniqueItemAlreadyExists={uniqueItemAlreadyExists}
         />
@@ -192,17 +123,17 @@ const Contacts = () => {
           }}
           uniqueItemAlreadyExists={uniqueItemAlreadyExists}
           setModalStatus={setModalStatus}
-          contactAndTagData={TagRelationships}
-          updateItem={addContact}
+          contactAndTagData={dataRelationships}
+          updateItem={addRecord}
         />
         <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 2 }}>
           <Grid item md={10}>
-            {resp.length > 0 ? (
+            {CrmRecords.length > 0 ? (
               <Table
                 headCells={headCells}
-                tableRowData={resp}
-                openModal={openUpdateModal}
-                deleteItems={multiDelete}
+                tableRowData={CrmRecords}
+                openModal={openUpdateRecordModal}
+                deleteItems={deleteRecords}
                 label={"Contacts"}
               />
             ) : (
@@ -213,7 +144,7 @@ const Contacts = () => {
             <Stack direction="column" spacing={2}>
               <Button
                 sx={{ backgroundColor: "white" }}
-                onClick={openAddContactModal}
+                onClick={openNewRecordModal}
               >
                 Add Single Contact
               </Button>

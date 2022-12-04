@@ -4,126 +4,43 @@ import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
-import Table from "../Components/Table";
+import Table from "../Components/Table/Table";
 import UpdateModal from "../Components/FormModal";
-import useNetworkRequest from "../Utilities/useNetworkRequest";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import NoData from "../Components/NoData";
-import { ISetModalStatus } from "../Models/IModalStatus";
-import { ModalStatusLabel, NetworkRequestStatus } from "../Models/Enums";
+import { ModalStatusLabel } from "../Models/Enums";
 import { tableCellDictionary } from "../Utilities/tableCellDictionary";
-import { modalFactory, modalStatusFactory } from "../Utilities/modalFactory";
-import CRMDataModel from "../Models/CRMDataModel";
+import useModalStateAndNetworkRequests from "../Utilities/useModalStateAndNetworkRequests";
 
 const headCells = tableCellDictionary["Organisations"];
 const { NEW_FORM_MODAL_STATUS, UPDATE_FORM_MODAL_STATUS } = ModalStatusLabel;
-const { SUCCESS, FAIL } = NetworkRequestStatus;
-const relationshipsToUpdate = ["tags", "contacts"];
 
 const Organisations = () => {
-  const [resp, setResponse] = useState<Array<CRMDataModel>>([]);
-  const [modalStatus, setModalStatus] = useState<ISetModalStatus>(
-    modalFactory()
-  );
-
-  const [loading, setLoading] = useState(true);
-  const [singleOrganisation, setSingleOrganisation] = useState<CRMDataModel>(
-    {}
-  );
-  const [contactAndTagData, setContactAndTagData] = useState({});
-  const { getItems, postItem, putItem, deleteItem, getRelationshipData } =
-    useNetworkRequest();
-
-  const fetchContactAndTagRelationships = async () => {
-    const relationData = await getRelationshipData(relationshipsToUpdate);
-    setContactAndTagData(relationData);
-  };
-
-  const openAddOrganisationModal = () => {
-    fetchContactAndTagRelationships();
-    setModalStatus((state) => ({
-      ...state,
-      NEW_FORM_MODAL_STATUS: modalStatusFactory(NEW_FORM_MODAL_STATUS),
-    }));
-  };
-
-  const multiDelete = async (payload: CRMDataModel) => {
-    const response = await deleteItem(
-      "/api/v1/organisation/deleteMulti/",
-      payload
-    );
-    if (response.ok === true) {
-      setLoading(true);
-      getAllOrganisations();
-    }
-  };
-
-  const openUpdateModal = async (itemId: string) => {
-    const response = await getItems(`/api/v1/organisation/getSingle/${itemId}`);
-    setSingleOrganisation(response);
-    fetchContactAndTagRelationships();
-    setModalStatus((state) => ({
-      ...state,
-      UPDATE_FORM_MODAL_STATUS: modalStatusFactory(UPDATE_FORM_MODAL_STATUS),
-    }));
-  };
-
-  const updateOrganisation = async (formPayload: CRMDataModel) => {
-    let status = FAIL;
-    const response = await putItem(
-      `/api/v1/organisation/updatejson/${formPayload.id}/`,
-      formPayload
-    );
-
-    if (response.ok === true) {
-      status = SUCCESS;
-      setLoading(true);
-      getAllOrganisations();
-    }
-
-    setModalStatus((state) => ({
-      ...state,
-      UPDATE_FORM_MODAL_STATUS: modalStatusFactory(
-        UPDATE_FORM_MODAL_STATUS,
-        status
-      ),
-    }));
-  };
-
-  const addOrganisation = async (formPayload: CRMDataModel) => {
-    let status = FAIL;
-    const response = await postItem(
-      `/api/v1/organisation/create/`,
-      formPayload
-    );
-
-    if (response.ok === true) {
-      status = SUCCESS;
-      setLoading(true);
-      getAllOrganisations();
-    }
-
-    setModalStatus((state) => ({
-      ...state,
-      NEW_FORM_MODAL_STATUS: modalStatusFactory(NEW_FORM_MODAL_STATUS, status),
-    }));
-  };
-
-  const getAllOrganisations = async () => {
-    const response = await getItems("/api/v1/organisation/getAll");
-    setResponse(response);
-    setLoading(false);
-  };
+  const {
+    setModalStatus,
+    setLoading,
+    addRecord,
+    updateRecord,
+    openNewRecordModal,
+    openUpdateRecordModal,
+    deleteRecords,
+    getAllRecords,
+    loading,
+    singleRecord,
+    CrmRecords,
+    dataRelationships,
+    modalStatus,
+  } = useModalStateAndNetworkRequests(["tag", "contact"], "organisation");
 
   const uniqueItemAlreadyExists = (email: string) => {
-    return resp?.find(
+    return CrmRecords?.find(
       (item) => item?.email?.toLowerCase() === email?.toLowerCase()
     );
   };
 
   useEffect(() => {
     setLoading(true);
-    getAllOrganisations();
+    getAllRecords();
   }, []);
 
   return (
@@ -134,9 +51,9 @@ const Organisations = () => {
           modalStatus={modalStatus[UPDATE_FORM_MODAL_STATUS]}
           setModalStatus={setModalStatus}
           labels={{ itemTitle: "Organisation", buttonLabel: "Update" }}
-          itemData={singleOrganisation}
-          updateItem={updateOrganisation}
-          contactAndTagData={contactAndTagData}
+          itemData={singleRecord}
+          updateItem={updateRecord}
+          contactAndTagData={dataRelationships}
           setEditMode={false}
           uniqueItemAlreadyExists={uniqueItemAlreadyExists}
         />
@@ -152,19 +69,19 @@ const Organisations = () => {
             contacts: [],
           }}
           setModalStatus={setModalStatus}
-          contactAndTagData={contactAndTagData}
-          updateItem={addOrganisation}
+          contactAndTagData={dataRelationships}
+          updateItem={addRecord}
           uniqueItemAlreadyExists={uniqueItemAlreadyExists}
         />
         <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
           <Grid item md={10}>
-            {resp.length > 0 ? (
+            {CrmRecords.length > 0 ? (
               <Table
                 label="Organisations"
                 headCells={headCells}
-                tableRowData={resp}
-                openModal={openUpdateModal}
-                deleteItems={multiDelete}
+                tableRowData={CrmRecords}
+                openModal={openUpdateRecordModal}
+                deleteItems={deleteRecords}
               />
             ) : (
               <NoData label={"Organisation"} loading={loading} error={false} />
@@ -174,7 +91,7 @@ const Organisations = () => {
             <Stack direction="column" spacing={2}>
               <Button
                 sx={{ backgroundColor: "white" }}
-                onClick={openAddOrganisationModal}
+                onClick={openNewRecordModal}
               >
                 Add Organisation
               </Button>

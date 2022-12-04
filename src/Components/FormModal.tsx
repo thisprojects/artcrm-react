@@ -80,7 +80,11 @@ const FormModal: React.FC<FormModalProps> = ({
       >
         <Box sx={style}>
           {modalStatus?.error ? (
-            <NoData error={modalStatus.error} label={null} loading={null} />
+            <NoData
+              error={modalStatus.error}
+              label={itemTitle}
+              loading={modalStatus?.loading}
+            />
           ) : (
             <>
               <Typography id="modal-modal-title" variant="h6" component="h2">

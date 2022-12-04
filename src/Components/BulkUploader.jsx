@@ -1,3 +1,5 @@
+// TODO - Convert to TSX
+
 import "../App.css";
 import { useState } from "react";
 import Papa from "papaparse";
@@ -31,13 +33,10 @@ const style = {
 // }
 
 function BulkUploader({ modalStatus, setModalStatus, updateItem }) {
-  // State to store parsed data
   const [parsedData, setParsedData] = useState([]);
 
-  //State to store table Column name
   const [tableRows, setTableRows] = useState([]);
 
-  //State to store the values
   const [values, setValues] = useState([]);
 
   const handleClose = () => {
