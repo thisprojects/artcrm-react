@@ -85,6 +85,7 @@ const Tags = () => {
           <Grid item md={2}>
             <Stack direction="column" spacing={2}>
               <Button
+                data-testid="add-tag"
                 sx={{ backgroundColor: "white" }}
                 onClick={openNewRecordModal}
               >

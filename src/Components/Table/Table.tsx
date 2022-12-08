@@ -12,7 +12,7 @@ import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
 import EnhancedTableHead from "./EnhancedTableHead";
 import EnhancedTableToolbar from "./EnhancedTableToolbar";
-import {Order, IHeadCell} from "../../Models/TableInterfaces";
+import { Order, IHeadCell } from "../../Models/TableInterfaces";
 import CRMDataModel from "../../Models/CRMDataModel";
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -27,20 +27,20 @@ function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
 
 function getComparator<Key extends keyof any>(
   order: Order,
-  orderBy: Key,
-): (
-  a: { [key in Key]: string },
-  b: { [key in Key]: string },
-) => number {
-  return order === 'desc'
+  orderBy: Key
+): (a: { [key in Key]: string }, b: { [key in Key]: string }) => number {
+  return order === "desc"
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
 // This method is created for cross-browser compatibility, if you don't
 // need to support IE11, you can use Array.prototype.sort() directly
-function stableSort<T>(array: CRMDataModel[], comparator: (a: T, b: T) => number) {
-  const  stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
+function stableSort<T>(
+  array: CRMDataModel[],
+  comparator: (a: T, b: T) => number
+) {
+  const stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
     if (order !== 0) {
@@ -51,12 +51,11 @@ function stableSort<T>(array: CRMDataModel[], comparator: (a: T, b: T) => number
   return stabilizedThis.map((el) => el[0]);
 }
 
-
-interface IEnhancedTable{
+interface IEnhancedTable {
   headCells: Array<IHeadCell>;
   tableRowData: CRMDataModel[];
-  openModal(itemId: string | null):Promise<void>;
-  deleteItems(payload: Array<string>):Promise<void>;
+  openModal(itemId: string | null): Promise<void>;
+  deleteItems(payload: Array<string>): Promise<void>;
   label: string;
 }
 
@@ -74,7 +73,10 @@ const EnhancedTable: React.FC<IEnhancedTable> = ({
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [rows, setRows] = React.useState<Array<CRMDataModel>>([]);
 
-  const handleRequestSort = (event: React.MouseEvent<unknown, MouseEvent>, property: string) => {
+  const handleRequestSort = (
+    event: React.MouseEvent<unknown, MouseEvent>,
+    property: string
+  ) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
@@ -116,17 +118,22 @@ const EnhancedTable: React.FC<IEnhancedTable> = ({
     setSelected([]);
   };
 
-  interface ICustomEvent extends Element{
+  interface ICustomEvent extends Element {
     parentElement: HTMLElement;
     value: string;
   }
 
   const handleClick = (event: MouseEvent, id: string) => {
     const target = event?.target as ICustomEvent;
-    const viewMoreButtonIsTarget = target!.getAttribute("class")!.includes("viewMoreButton"); 
-    const parentOfViewMoreButtonIsTarget = target!.parentElement!.getAttribute("class")!.includes("viewMoreButton")
+    const viewMoreButtonIsTarget = target!
+      .getAttribute("class")!
+      .includes("viewMoreButton");
+    const parentOfViewMoreButtonIsTarget = target!
+      .parentElement!.getAttribute("class")!
+      .includes("viewMoreButton");
 
-    if ( viewMoreButtonIsTarget || parentOfViewMoreButtonIsTarget) {
+    // Discount clicks to the button, we only want to handle background clicks to table rows (so they can be selected).
+    if (viewMoreButtonIsTarget || parentOfViewMoreButtonIsTarget) {
       return null;
     }
 
@@ -153,13 +160,17 @@ const EnhancedTable: React.FC<IEnhancedTable> = ({
     setPage(newPage);
   };
 
-  const handleEdit = (event:React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const handleEdit = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
     const target = event?.target as ICustomEvent;
     const itemId = target!.getAttribute("data-id");
     openModal(itemId);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setRowsPerPage(parseInt(event!.target!.value, 10));
     setPage(0);
   };
@@ -207,11 +218,14 @@ const EnhancedTable: React.FC<IEnhancedTable> = ({
                     return (
                       <TableRow
                         hover
-                        onClick={(event) => handleClick(event as unknown as MouseEvent, row.id)}
+                        onClick={(event) =>
+                          handleClick(event as unknown as MouseEvent, row.id)
+                        }
                         role="checkbox"
+                        key={row.id}
+                        data-testid={row.name || row.firstName}
                         aria-checked={isItemSelected}
                         tabIndex={-1}
-                        key={row.name}
                         selected={isItemSelected}
                       >
                         <TableCell padding="checkbox">
@@ -228,9 +242,9 @@ const EnhancedTable: React.FC<IEnhancedTable> = ({
                             <TableCell
                               component="th"
                               id={labelId}
+                              key={row.id + index}
                               scope="row"
                               padding="none"
-                              key={row.id + index}
                             >
                               {row[item]}
                             </TableCell>
@@ -240,17 +254,15 @@ const EnhancedTable: React.FC<IEnhancedTable> = ({
                             </TableCell>
                           ) : null;
                         })}
-                        <TableCell
-                          key={row.id + index}
-                          className="viewMoreButton"
-                        >
+                        <TableCell className="viewMoreButton">
                           <Button
                             variant="outlined"
+                            data-testid="view-edit"
                             data-id={row.id}
                             className="viewMoreButton"
                             onClick={handleEdit}
                           >
-                            Edit
+                            View / Edit
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -281,6 +293,6 @@ const EnhancedTable: React.FC<IEnhancedTable> = ({
       </Paper>
     </Box>
   );
-}
+};
 
 export default EnhancedTable;

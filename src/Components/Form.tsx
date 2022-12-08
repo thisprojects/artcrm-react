@@ -12,7 +12,7 @@ import { useState } from "react";
 import CRMDataModel from "../Models/CRMDataModel";
 import Relationships from "../Models/Relationships";
 
-interface FormProps {
+interface IForm {
   editMode: boolean;
   itemData: CRMDataModel;
   updateItem: (formData: CRMDataModel) => void;
@@ -47,7 +47,7 @@ interface HandleChange {
   ) => void;
 }
 
-const Form: React.FC<FormProps> = ({
+const Form: React.FC<IForm> = ({
   editMode,
   itemData,
   updateItem,
@@ -88,6 +88,7 @@ const Form: React.FC<FormProps> = ({
     formErrors.eventDate.status ||
     formErrors.name.status;
 
+  // Handle form errors and format payload for network request.
   const handleChange: HandleChange = {
     default(e: React.ChangeEvent<HTMLInputElement>) {
       const target = e.target as HTMLButtonElement;
@@ -205,7 +206,7 @@ const Form: React.FC<FormProps> = ({
       noValidate
       autoComplete="off"
     >
-      <div id="form-component">
+      <div id="form-component" data-testid="form">
         <Grid container spacing={7}>
           <Grid item md={10}>
             <p>ID: {itemData?.id as React.ReactNode}</p>
@@ -230,7 +231,7 @@ const Form: React.FC<FormProps> = ({
                 return null;
               } else if (item === "eventDate") {
                 return (
-                  <>
+                  <React.Fragment key={item + index}>
                     <DatePicker
                       handleChange={handleChange.date}
                       editMode={editMode}
@@ -241,11 +242,12 @@ const Form: React.FC<FormProps> = ({
                         {formErrors.eventDate.msg}
                       </p>
                     )}
-                  </>
+                  </React.Fragment>
                 );
               } else {
                 return (
                   <TextField
+                    key={item + index}
                     name={item}
                     error={formErrors[item as keyof FormErrors]?.status}
                     disabled={!editMode}
@@ -269,6 +271,7 @@ const Form: React.FC<FormProps> = ({
                     }}
                     id="outlined-required"
                     label={item}
+                    data-testid={itemData[item as keyof CRMDataModel] || null}
                     defaultValue={itemData[item as keyof CRMDataModel] || null}
                     helperText={
                       formErrors[item as keyof FormErrors]?.status &&
@@ -292,6 +295,7 @@ const Form: React.FC<FormProps> = ({
       </div>
       <Button
         variant="contained"
+        data-testid="submit-button"
         disabled={!editMode || errors || formIsEmpty}
         sx={{ margin: "8px" }}
         onClick={handleUpdate}

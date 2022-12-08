@@ -4,13 +4,13 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 
-interface DatePicker {
+interface IDatePicker {
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   editMode: boolean;
   currDate: string;
 }
 
-const DatePicker: React.FC<DatePicker> = ({
+const DatePicker: React.FC<IDatePicker> = ({
   handleChange,
   editMode,
   currDate,

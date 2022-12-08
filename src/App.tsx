@@ -4,6 +4,7 @@ import Dashboard from "./Pages/Dashboard";
 import NavBar from "./Components/NavBar";
 
 function App() {
+  console.log("HOSTNAME", process.env.REACT_APP_HOSTNAME);
   return (
     <div className="App">
       <NavBar />

@@ -8,7 +8,7 @@ import Table from "../Components/Table/Table";
 import UpdateModal from "../Components/FormModal";
 import NoData from "../Components/NoData";
 import { useEffect } from "react";
-import { ModalStatusLabel} from "../Models/Enums";
+import { ModalStatusLabel } from "../Models/Enums";
 import { tableCellDictionary } from "../Utilities/tableCellDictionary";
 import useModalStateAndNetworkRequests from "../Utilities/useModalStateAndNetworkRequests";
 
@@ -36,8 +36,6 @@ const Integrations = () => {
       (item) => item?.name?.toLowerCase() === name?.toLowerCase()
     );
   };
-
-  console.log("RENDER");
 
   useEffect(() => {
     setLoading(true);
@@ -87,6 +85,7 @@ const Integrations = () => {
           <Grid item md={2}>
             <Stack direction="column" spacing={2}>
               <Button
+                data-testid="add-integration"
                 sx={{ backgroundColor: "white" }}
                 onClick={openNewRecordModal}
               >

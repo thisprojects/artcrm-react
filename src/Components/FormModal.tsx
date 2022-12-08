@@ -25,7 +25,7 @@ const style = {
   overflow: "scroll",
 };
 
-interface FormModalProps {
+interface IFormModal {
   modalStatus: IModalStatus | undefined;
   itemData: CRMDataModel;
   setModalStatus: Dispatch<SetStateAction<ISetModalStatus>>;
@@ -36,7 +36,7 @@ interface FormModalProps {
   uniqueItemAlreadyExists: (item: string) => CRMDataModel | undefined;
 }
 
-const FormModal: React.FC<FormModalProps> = ({
+const FormModal: React.FC<IFormModal> = ({
   modalStatus,
   itemData,
   setModalStatus,

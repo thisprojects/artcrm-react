@@ -143,6 +143,7 @@ const Contacts = () => {
           <Grid item md={2}>
             <Stack direction="column" spacing={2}>
               <Button
+                data-testid="add-contact"
                 sx={{ backgroundColor: "white" }}
                 onClick={openNewRecordModal}
               >

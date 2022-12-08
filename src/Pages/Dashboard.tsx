@@ -88,21 +88,27 @@ const Dashboard = () => {
           >
             <Grid item md={4}>
               {response ? (
-                <p>Total Contacts: {response?.numberOfContacts} </p>
+                <p data-testid="total-contacts">
+                  Total Contacts: {response?.numberOfContacts}{" "}
+                </p>
               ) : (
                 <Loading />
               )}
             </Grid>
             <Grid item md={4}>
               {response ? (
-                <p>Total Organisations: {response?.numberOfOrganisations} </p>
+                <p data-testid="total-orgs">
+                  Total Organisations: {response?.numberOfOrganisations}{" "}
+                </p>
               ) : (
                 <Loading />
               )}
             </Grid>
             <Grid item md={4}>
               {response ? (
-                <p>Total Events: {response?.numberOfEvents}</p>
+                <p data-testid="total-events">
+                  Total Events: {response?.numberOfEvents}
+                </p>
               ) : (
                 <Loading />
               )}
@@ -134,6 +140,7 @@ const Dashboard = () => {
             >
               {response ? (
                 <HighchartsReact
+                  data-testid="most-recent-events"
                   highcharts={Highcharts}
                   options={{
                     colors: [
@@ -143,6 +150,9 @@ const Dashboard = () => {
                       "#c42525",
                       "#a6c96a",
                     ],
+                    accessibility: {
+                      enabled: false,
+                    },
                     plotOptions: {
                       column: {
                         colorByPoint: true,
@@ -193,6 +203,7 @@ const Dashboard = () => {
               {response ? (
                 <HighchartsReact
                   highcharts={Highcharts}
+                  data-testid="age-demographic"
                   options={{
                     colors: [
                       "#2f7ed8",
@@ -210,6 +221,7 @@ const Dashboard = () => {
                       },
                     },
                     accessibility: {
+                      enabled: false,
                       point: {
                         valueSuffix: "%",
                       },
@@ -267,6 +279,7 @@ const Dashboard = () => {
               {allPostCodeStats ? (
                 <HighchartsReact
                   highcharts={Highcharts}
+                  data-testid="postcode-demographic"
                   options={{
                     plotOptions: {
                       column: {
@@ -275,6 +288,9 @@ const Dashboard = () => {
                     },
                     chart: {
                       type: "column",
+                    },
+                    accessibility: {
+                      enabled: false,
                     },
                     xAxis: {
                       categories: postCodeCatagories,

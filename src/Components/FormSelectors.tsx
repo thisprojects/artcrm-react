@@ -1,12 +1,12 @@
 // Component from material.ui library.
 import * as React from "react";
 import Box from "@mui/material/Box";
-import Select from "./Select";
-import MultipleSelect from "./MultiSelect";
+import ReadOnlySelect from "./ReadOnlySelect";
+import EditableSelect from "./EditableSelect";
 import CRMDataModel from "../Models/CRMDataModel";
 import Relationships from "../Models/Relationships";
 
-interface FormSelectorsProps {
+interface IFormSelectors {
   itemData: CRMDataModel;
   itemTitle: string;
   editMode: boolean;
@@ -17,7 +17,8 @@ interface FormSelectorsProps {
   ) => void;
 }
 
-const personMaker = (
+// Select options are either events, organisations, contacts or tags.
+const optionItemFactory = (
   collection: Array<CRMDataModel>
 ): Array<string | CRMDataModel> | undefined => {
   return collection?.map((item) => {
@@ -27,7 +28,9 @@ const personMaker = (
   });
 };
 
-const FormSelectors: React.FC<FormSelectorsProps> = ({
+// This component represents the forms selector dropdown elements. They contain related items, such as the contacts related to an event
+// or the tags related to a contact.
+const FormSelectors: React.FC<IFormSelectors> = ({
   itemData,
   itemTitle,
   editMode,
@@ -36,7 +39,8 @@ const FormSelectors: React.FC<FormSelectorsProps> = ({
 }) => {
   return (
     <Box sx={{ display: "flex" }}>
-      {Object.keys(itemData).map((item) => {
+      {Object.keys(itemData).map((item, index) => {
+        // Represents the contact and tag relationships owned by events, organisations and contacts.
         const eitherContactsOrTags =
           contactAndTagData[item.replace("s", "") as keyof object];
 
@@ -44,27 +48,35 @@ const FormSelectors: React.FC<FormSelectorsProps> = ({
           item.replace("s", "")
         );
 
-        if (
+        // EG dont display a contacts select dropdown if we are currently viewing a contact, dont display an events drop down if we
+        // are viewing an event Etc.
+        const relatedDataIsNotPrimarySection =
           Array.isArray(itemData[item as keyof object]) &&
-          item !== itemTitle.toLowerCase()
-        ) {
+          item !== itemTitle.toLowerCase();
+
+        // If we are in editmode then display editable select, otherwise display ReadOnly select.
+        if (relatedDataIsNotPrimarySection) {
           return (
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
+            <Box
+              key={item + index}
+              sx={{ display: "flex", flexDirection: "column" }}
+            >
               {editMode ? (
                 isEditable && (
-                  <MultipleSelect
-                    personMaker={personMaker}
+                  <EditableSelect
+                    optionItemFactory={optionItemFactory}
                     label={item}
-                    existingItems={personMaker(itemData[item as keyof object])}
-                    data={eitherContactsOrTags}
+                    activeOptions={optionItemFactory(
+                      itemData[item as keyof object]
+                    )}
+                    allOptions={eitherContactsOrTags}
                     handleChange={handleChange}
                   />
                 )
               ) : (
-                <Select
+                <ReadOnlySelect
                   label={item}
                   data={itemData[item as keyof object]}
-                  handleChange={handleChange}
                 />
               )}
             </Box>

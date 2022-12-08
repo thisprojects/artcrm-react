@@ -5,12 +5,12 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import DeleteIcon from "@mui/icons-material/Delete";
-import TableFilter from "../TableFilter";
+import TableFilter from "./TableFilter";
 
-interface IEnhancedTableToolbar{
+interface IEnhancedTableToolbar {
   numSelected: number;
-  applyFilter (filterText: string): void;
-  handleDelete (): void;
+  applyFilter(filterText: string): void;
+  handleDelete(): void;
   label: string;
 }
 
@@ -56,7 +56,7 @@ const EnhancedTableToolbar: React.FC<IEnhancedTableToolbar> = ({
 
       {numSelected > 0 ? (
         <Tooltip title="Delete">
-          <IconButton onClick={handleDelete}>
+          <IconButton data-testid="delete-button" onClick={handleDelete}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
@@ -65,6 +65,6 @@ const EnhancedTableToolbar: React.FC<IEnhancedTableToolbar> = ({
       )}
     </Toolbar>
   );
-}
+};
 
 export default EnhancedTableToolbar;

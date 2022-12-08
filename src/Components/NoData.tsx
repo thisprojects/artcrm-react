@@ -2,13 +2,13 @@ import "../App.css";
 import Box from "@mui/material/Box";
 import Loading from "./Loading";
 
-interface NoDataProps {
+interface INoData {
   label: string | null;
   loading: boolean | null;
   error: boolean | null;
 }
 
-const NoData: React.FC<NoDataProps> = ({ label, loading, error }) => {
+const NoData: React.FC<INoData> = ({ label, loading, error }) => {
   if (loading) {
     return (
       <Box

@@ -5,6 +5,7 @@ import SaveIcon from "@mui/icons-material/Save";
 export default function Loading() {
   return (
     <LoadingButton
+      data-testid="loading"
       loading
       loadingPosition="start"
       startIcon={<SaveIcon />}

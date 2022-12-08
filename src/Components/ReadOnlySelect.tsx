@@ -7,26 +7,15 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import CRMDataModel from "../Models/CRMDataModel";
 
-interface RelationshipSelectProps {
+interface IReadOnlySelect {
   label: string;
   data: Array<CRMDataModel>;
-  handleChange: (
-    selectedObject: CRMDataModel | undefined,
-    label: string
-  ) => void;
 }
 
-const RelationshipSelect: React.FC<RelationshipSelectProps> = ({
+const ReadOnlySelect: React.FC<IReadOnlySelect> = ({
   label,
   data,
-  handleChange,
 }) => {
-  const [item, setItem] = React.useState("");
-  const handleSelect = (event: Event) => {
-    const target = event?.target as HTMLButtonElement;
-    setItem(target?.value);
-    // handleChange(event.target.value, "relationship", label);
-  };
 
   return (
     <FormControl sx={{ m: 1, minWidth: 120 }}>
@@ -34,18 +23,15 @@ const RelationshipSelect: React.FC<RelationshipSelectProps> = ({
       <Select
         labelId="demo-simple-select-helper-label"
         id="demo-simple-select-helper"
-        value={item}
         label={label}
-        onChange={(e) => {
-          handleSelect(e as Event);
-        }}
+        value={""}
       >
         <MenuItem value="">
-          <em>Add {label}</em>
+          <em>Toggle edit to add {label}</em>
         </MenuItem>
         {data &&
           data.map((dataItem) => (
-            <MenuItem>{dataItem.name || dataItem.firstName}</MenuItem>
+            <MenuItem>{dataItem.name || `${dataItem.firstName} ${dataItem.lastName}`}</MenuItem>
           ))}
       </Select>
       <FormHelperText>
@@ -55,4 +41,4 @@ const RelationshipSelect: React.FC<RelationshipSelectProps> = ({
   );
 };
 
-export default RelationshipSelect;
+export default ReadOnlySelect;

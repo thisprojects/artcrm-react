@@ -3,13 +3,13 @@ import Switch from "@mui/material/Switch";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 
-interface ToggleSwitchProps {
+interface IToggleSwitch {
   label: string;
   updateEditMode: (editMode: boolean) => void;
   editMode: boolean;
 }
 
-const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
+const ToggleSwitch: React.FC<IToggleSwitch> = ({
   label,
   updateEditMode,
   editMode,
@@ -30,6 +30,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
       <FormControlLabel
         control={
           <Switch
+            data-testid="edit-toggle"
             checked={checked}
             onChange={handleChange}
             inputProps={{ "aria-label": "controlled" }}
