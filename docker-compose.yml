@@ -1,0 +1,30 @@
+version: "3"
+services:
+  artcrm-springboot:
+    image: ndownes/artcrm-springboot
+    hostname: springboot
+    build:
+      dockerfile: Dockerfile
+      context: ./artcrm-springboot
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://PostgreSQL:5432/artcrm
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=artcrm
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+  PostgreSQL:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=artcrm
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=artcrm
+  artcrm-react:
+    image: ndownes/artcrm-react
+    build:
+      dockerfile: Dockerfile
+      context: ./artcrm-react
+      args:
+        - REACT_APP_HOSTNAME=${REACT_APP_HOSTNAME}
+    ports:
+      - "80:3000"
